@@ -1,12 +1,16 @@
 import PostCard from '@/components/PostCard';
 import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, FlatList } from 'react-native';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function HomeScreen() {
   const [message, setMessage] = useState('Connecting...');
+
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const connectBackend = async () => {
@@ -32,6 +36,29 @@ export default function HomeScreen() {
     connectBackend();
   }, []);
 
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+
+        const res = await fetch(`${API_URL}/api/posts`);
+        const json = await res.json();
+
+        setPosts(json.data);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load posts')
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPosts();
+  }, [])
+
+  if (loading) return null;
+  if (error) return null;
+
   return (
     <View className="">
       <Text className="text-5xl text-accent font-bold">Welcome!</Text>
@@ -44,7 +71,16 @@ export default function HomeScreen() {
         Profile
       </Link>
 
-      <PostCard />
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <PostCard post={item} />
+        )}
+        ItemSeparatorComponent={() => (
+          <View className="border-t border-gray-200" />
+        )}
+      />
     </View>
   );
 }

@@ -2,33 +2,75 @@ import { View, Text, Image, FlatList, Pressable } from 'react-native'
 import React from 'react'
 import { icons } from '@/constants/icons'
 
-const images = [
-    require('../assets/images/avt-dog.jpg'),
-    require('../assets/images/dog-1.jpg'),
-    require('../assets/images/dog-2.jpg'),
-]
+// const images = [
+//     require('../assets/images/avt-dog.jpg'),
+//     require('../assets/images/dog-1.jpg'),
+//     require('../assets/images/dog-2.jpg'),
+// ]
 
-const PostCard = () => {
+interface PostItemProps {
+    post: {
+        content: string;
+        user_id: {
+            username: string;
+            profile_picture?: string;
+        };
+        media: string,
+        likes_count: number;
+        comments_count: number,
+        created_at: string
+    }
+}
+
+const timeAgo = (createdAt: string) => {
+    const now = new Date();
+    const created = new Date(createdAt);
+
+    const diffMs = now.getTime() - created.getTime();
+    const diffSeconds = Math.floor(diffMs / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffSeconds < 60) return `${diffSeconds}s`;
+    if (diffMinutes < 60) return `${diffMinutes}m`;
+    if (diffHours < 24) return `${diffHours}h`;
+    if (diffDays < 7) return `${diffDays}d`;
+
+    const day = created.getDate();
+    const month = created.getMonth() + 1;
+    const year = created.getFullYear();
+    const currentYear = now.getFullYear();
+
+    if (year === currentYear) {
+        return `${day}/${month}`;
+    }
+
+    return `${day}/${month}/${year.toString().slice(-2)}`;
+};
+
+
+const PostCard = ({ post }: PostItemProps) => {
     return (
         <View className='py-3 bg-secondary'>
 
             {/* Avatar + Username + Post Content */}
             <View className='px-4 flex-row'>
                 {/* Avatar */}
-                <Image source={require('../assets/images/avt-dog.jpg')}
+                <Image source={{ uri: post.user_id.profile_picture }}
                     className='w-12 h-12 rounded-full mt-1'
                 />
 
                 <View className='px-3 flex-1'>
                     <View className='flex-row items-baseline'>
                         <Text className='text-lg font-semibold text-dark-100'>
-                            pompompurin
+                            {post.user_id.username}
                         </Text>
-                        <Text className=' ml-4 text-sm font-normal text-dark-200'>10h</Text>
+                        <Text className='ml-3 text-sm font-normal text-dark-200'> {timeAgo(post.created_at)}</Text>
                     </View>
 
                     <Text className='text-base text-dark-100 mt-1'>
-                        Today is my birthday!!!!
+                        {post.content}
                     </Text>
                 </View>
             </View>
@@ -36,14 +78,14 @@ const PostCard = () => {
             {/* Image Content */}
             <FlatList
                 style={{ marginTop: 12 }}
-                data={images}
+                data={post.media}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 keyExtractor={(_, index) => index.toString()}
                 contentContainerStyle={{ paddingLeft: 66, paddingRight: 12, gap: 4 }}
                 renderItem={({ item }) => (
                     <Image
-                        source={item}
+                        source={{ uri: item }}
                         style={{ width: 250, height: 270 }}
                         className="rounded-md overflow-hidden shadow-sm"
                         resizeMode="cover"
@@ -60,7 +102,7 @@ const PostCard = () => {
                         stroke="#000"
                         fill="none"
                     />
-                    <Text className="text-sm text-dark-100 font-medium">128</Text>
+                    <Text className="text-sm text-dark-100 font-medium">{post.likes_count}</Text>
                 </Pressable>
 
                 <Pressable className="flex-row items-center gap-2 p-2">
@@ -70,7 +112,7 @@ const PostCard = () => {
                         stroke="#000"
                         fill="none"
                     />
-                    <Text className="text-sm text-dark-100 font-medium">12</Text>
+                    <Text className="text-sm text-dark-100 font-medium">{post.comments_count}</Text>
                 </Pressable>
 
             </View>

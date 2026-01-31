@@ -32,4 +32,4 @@ const PostSchema = new Schema<IPost>(
     }
 )
 
-export const PostModel = model<IPost>("User", PostSchema, "posts")
+export const PostModel = model<IPost>("Post", PostSchema, "posts")

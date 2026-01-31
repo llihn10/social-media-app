@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "server.ts",
   "scripts": {
-    "dev": "ts-node-dev server.ts",
-    "start": "ts-node server.ts"
+    "dev": "ts-node-dev src/server.ts",
+    "start": "ts-node src/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "mongoose": "^9.1.5",
     "nodemon": "^3.1.11"
