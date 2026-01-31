@@ -1,3 +1,4 @@
+import PostCard from '@/components/PostCard';
 import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
@@ -32,7 +33,7 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <View className="flex-1 justify-center items-center gap-4">
+    <View className="">
       <Text className="text-5xl text-accent font-bold">Welcome!</Text>
 
       <Text className="text-base text-gray-600">
@@ -42,6 +43,8 @@ export default function HomeScreen() {
       <Link href="/profile" className="text-blue-500">
         Profile
       </Link>
+
+      <PostCard />
     </View>
   );
 }
