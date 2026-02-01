@@ -3,7 +3,7 @@ import { IPost } from '../interfaces/post.interface'
 
 const PostSchema = new Schema<IPost>(
     {
-        user_id: {
+        author: {
             type: Schema.Types.ObjectId,
             required: true,
             ref: 'User'

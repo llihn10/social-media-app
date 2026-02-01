@@ -9,6 +9,6 @@ export interface IUser extends Document {
     follower_count: number;
     following_count: number;
     role: "user" | "admin"
-    createdAt?: Date;
-    updatedAt?: Date;
+    created_at?: Date;
+    updated_at?: Date;
 }

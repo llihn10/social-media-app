@@ -1,7 +1,7 @@
 import PostCard from '@/components/PostCard';
 import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Text, View, FlatList, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -96,7 +96,7 @@ export default function HomeScreen() {
   if (error) return null;
 
   return (
-    <SafeAreaView className='flex-1 bg-secondary'>
+    <SafeAreaView className='flex-1 bg-secondary' edges={['top']}>
 
       <FlatList
         data={posts}
@@ -112,9 +112,9 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       />
 
-      <Link href="/profile" className="text-blue-500">
+      {/* <Link href="/profile" className="text-blue-500">
         Profile
-      </Link>
+      </Link> */}
 
     </SafeAreaView>
   );

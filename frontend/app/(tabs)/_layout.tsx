@@ -1,23 +1,6 @@
-import { icons } from "@/constants/icons";
 import { Tabs } from "expo-router";
 import React from 'react';
-import { Image, View } from "react-native";
-
-const TabIcon = ({ focused, icon }: any) => {
-    if (focused) {
-        return (
-            <View className="size-full jusitfy-center items-center mt-4 rounded-full">
-                <Image source={icon} tintColor="#7B4A2E" className="size-5" />
-            </View>
-        )
-    }
-
-    return (
-        <View className="size-full jusitfy-center items-center mt-4 rounded-full">
-            <Image source={icon} tintColor="#C7C7C7" className="size-5" />
-        </View>
-    )
-}
+import { Home, Search, PlusCircle, Bell, User2 } from 'lucide-react-native';
 
 const _Layout = () => {
 
@@ -43,9 +26,10 @@ const _Layout = () => {
                     title: 'Home',
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            icon={icons.home}
+                        <Home
+                            size={22}
+                            color={focused ? '#7B4A2E' : '#C7C7C7'}
+                            strokeWidth={focused ? 3 : 2.5}
                         />
                     )
                 }}
@@ -58,9 +42,10 @@ const _Layout = () => {
                     title: 'Search',
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            icon={icons.search}
+                        <Search
+                            size={22}
+                            color={focused ? '#7B4A2E' : '#C7C7C7'}
+                            strokeWidth={focused ? 3 : 2.5}
                         />
                     )
                 }}
@@ -73,9 +58,10 @@ const _Layout = () => {
                     title: 'New Post',
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            icon={icons.add}
+                        <PlusCircle
+                            size={22}
+                            color={focused ? '#7B4A2E' : '#C7C7C7'}
+                            strokeWidth={focused ? 3 : 2.5}
                         />
                     )
                 }}
@@ -88,9 +74,10 @@ const _Layout = () => {
                     title: 'Notification',
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            icon={icons.bell}
+                        <Bell
+                            size={22}
+                            color={focused ? '#7B4A2E' : '#C7C7C7'}
+                            strokeWidth={focused ? 3 : 2.5}
                         />
                     )
                 }}
@@ -103,9 +90,10 @@ const _Layout = () => {
                     title: 'Profile',
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            icon={icons.person}
+                        <User2
+                            size={22}
+                            color={focused ? '#7B4A2E' : '#C7C7C7'}
+                            strokeWidth={focused ? 3 : 2.5}
                         />
                     )
                 }}
