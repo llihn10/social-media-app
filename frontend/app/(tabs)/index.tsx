@@ -1,5 +1,4 @@
 import PostCard from '@/components/PostCard';
-import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,30 +12,6 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('foryou');
-
-  useEffect(() => {
-    const connectBackend = async () => {
-      try {
-        const res = await fetch(`${API_URL}/search`);
-
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-
-        const data = await res.json();
-        console.log('Backend response:', data);
-
-        setMessage(data.message);
-      } catch (error) {
-        console.log('FETCH ERROR:', error);
-        console.log('API_URL =', API_URL);
-
-        setMessage('❌ Cannot connect to backend');
-      }
-    };
-
-    connectBackend();
-  }, []);
 
   useEffect(() => {
     const fetchPosts = async () => {

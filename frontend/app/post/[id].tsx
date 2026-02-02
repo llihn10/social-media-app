@@ -49,7 +49,6 @@ export default function PostDetail({ route }: any) {
                 keyExtractor={(item) => item._id}
                 ListHeaderComponent={<PostHeader post={post} />}
                 renderItem={({ item }) => <CommentItem comment={item} />}
-
             />
         </SafeAreaView>
 

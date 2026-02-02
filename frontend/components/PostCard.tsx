@@ -3,12 +3,6 @@ import React from 'react'
 import { Heart, MessageCircle } from 'lucide-react-native';
 import { router } from 'expo-router';
 
-// const images = [
-//     require('../assets/images/avt-dog.jpg'),
-//     require('../assets/images/dog-1.jpg'),
-//     require('../assets/images/dog-2.jpg'),
-// ]
-
 interface PostItemProps {
     post: {
         _id: string,

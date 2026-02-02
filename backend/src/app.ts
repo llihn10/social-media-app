@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import postRoutes from './routes/post.route'
+import searchRoutes from './routes/search.route'
 
 const app = express()
 
@@ -9,8 +10,6 @@ app.use(express.json())
 
 app.use('/api/posts', postRoutes)
 
-app.get('/search', (_req, res) => {
-    res.json({ status: 'OK', message: 'Backend connected 🚀' })
-})
+app.use('/search', searchRoutes)
 
 export default app
