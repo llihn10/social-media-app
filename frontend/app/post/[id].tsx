@@ -41,7 +41,7 @@ export default function PostDetail({ route }: any) {
                 strokeWidth={2.2}
                 onPress={() => router.back()}
             />
-            <Text className='ml-5 text-2xl font-semibold text-dark-100'>The Hut</Text>
+            <Text className='ml-4 text-2xl font-semibold text-dark-100'>The Hut</Text>
         </View>
     )
 
