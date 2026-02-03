@@ -12,7 +12,7 @@ interface Props {
 const SearchBar = ({ placeholder, value, onChangeText, onPress }: Props) => {
     return (
         <View className='mx-4 pb-2'>
-            <View className='flex-row items-center bg-light-400 rounded-2xl px-4 py-1'>
+            <View className='flex-row items-center bg-light-300 rounded-2xl px-4 py-1'>
                 <Search
                     size={21}
                     strokeWidth={2.5}
