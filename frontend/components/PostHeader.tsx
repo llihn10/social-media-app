@@ -1,20 +1,7 @@
-import { router } from 'expo-router';
 import { View, Text, Image, TouchableOpacity, Pressable } from "react-native";
-import { ArrowLeft, Heart, MessageCircle } from 'lucide-react-native';
+import { Heart, MessageCircle } from 'lucide-react-native';
 import ImageViewing from "react-native-image-viewing";
 import { useState } from 'react';
-
-const Header = () => (
-    <View className='flex-row items-center pt-7 pb-2 mb-2 ml-1 border-b border-gray-100'>
-        <ArrowLeft
-            size={23}
-            color="#7B4A2E"
-            strokeWidth={2.2}
-            onPress={() => router.back()}
-        />
-        <Text className='ml-5 text-2xl font-semibold text-dark-100'>The Hut</Text>
-    </View>
-)
 
 const timeAgo = (created_at: string) => {
     const now = new Date();
@@ -48,12 +35,9 @@ export default function PostHeader({ post }: any) {
     const [visible, setVisible] = useState(false);
     const [index, setIndex] = useState(0);
 
-
     return (
 
         <View className='px-3 pt-3'>
-
-            <Header />
 
             {/* Author */}
             <View className='items-center flex-row'>

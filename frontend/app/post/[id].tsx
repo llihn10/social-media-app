@@ -1,9 +1,11 @@
 import CommentItem from '@/components/CommentItem';
 import PostHeader from '@/components/PostHeader';
 import { useLocalSearchParams } from 'expo-router';
+import { ArrowLeft } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -31,6 +33,18 @@ export default function PostDetail({ route }: any) {
         fetchPost();
     }, [id])
 
+    const Header = () => (
+        <View className='flex-row items-center pb-2 ml-3 border-b border-gray-100'>
+            <ArrowLeft
+                size={24}
+                color="#7B4A2E"
+                strokeWidth={2.2}
+                onPress={() => router.back()}
+            />
+            <Text className='ml-5 text-2xl font-semibold text-dark-100'>The Hut</Text>
+        </View>
+    )
+
     if (loading) {
         return <ActivityIndicator />
     }
@@ -40,7 +54,9 @@ export default function PostDetail({ route }: any) {
     }
 
     return (
-        <SafeAreaView edges={['bottom']}>
+        <SafeAreaView className='flex-1 bg-secondary' edges={['top']}>
+            <Header />
+
             <FlatList
                 className='bg-secondary'
                 data={post.comments}
@@ -49,6 +65,7 @@ export default function PostDetail({ route }: any) {
                 keyExtractor={(item) => item._id}
                 ListHeaderComponent={<PostHeader post={post} />}
                 renderItem={({ item }) => <CommentItem comment={item} />}
+                contentContainerStyle={{ paddingBottom: 40 }}
             />
         </SafeAreaView>
 
