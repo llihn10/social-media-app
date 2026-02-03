@@ -1,4 +1,4 @@
-import { View, Text, Image, FlatList, Pressable, ScrollView, TouchableOpacity, Dimensions, Modal, StyleSheet } from 'react-native'
+import { View, Text, Image, Pressable, ScrollView, TouchableOpacity, Dimensions, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
 import { Heart, MessageCircle, X } from 'lucide-react-native';
 import { router } from 'expo-router';
@@ -45,8 +45,6 @@ const timeAgo = (created_at: string) => {
 
     return `${day}/${month}/${year.toString().slice(-2)}`;
 };
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const PostCard = ({ post }: PostItemProps) => {
 
@@ -121,7 +119,6 @@ const PostCard = ({ post }: PostItemProps) => {
                 imageIndex={imageIndex}
                 visible={visible}
                 onRequestClose={() => setVisible(false)}
-                // Header tùy chỉnh (ví dụ nút đóng xịn hơn)
                 HeaderComponent={() => (
                     <TouchableOpacity
                         onPress={() => setVisible(false)}
@@ -154,8 +151,6 @@ const PostCard = ({ post }: PostItemProps) => {
 
             </View>
         </View>
-
-
     )
 }
 

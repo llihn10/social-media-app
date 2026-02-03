@@ -10,9 +10,13 @@ const _Layout = () => {
         <Tabs
             screenOptions={{
                 tabBarShowLabel: false,
+                tabBarStyle: {
+                    height: 80,
+                    paddingBottom: 8,
+                    paddingTop: 9,
+                    backgroundColor: '#FFFCF9'
+                },
                 tabBarItemStyle: {
-                    width: '100%',
-                    height: '100%',
                     justifyContent: 'center',
                     alignItems: 'center'
                 }
@@ -27,7 +31,7 @@ const _Layout = () => {
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
                         <Home
-                            size={22}
+                            size={25}
                             color={focused ? '#7B4A2E' : '#C7C7C7'}
                             strokeWidth={focused ? 3 : 2.5}
                         />
@@ -43,7 +47,7 @@ const _Layout = () => {
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
                         <Search
-                            size={22}
+                            size={25}
                             color={focused ? '#7B4A2E' : '#C7C7C7'}
                             strokeWidth={focused ? 3 : 2.5}
                         />
@@ -59,7 +63,7 @@ const _Layout = () => {
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
                         <PlusCircle
-                            size={22}
+                            size={25}
                             color={focused ? '#7B4A2E' : '#C7C7C7'}
                             strokeWidth={focused ? 3 : 2.5}
                         />
@@ -75,7 +79,7 @@ const _Layout = () => {
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
                         <Bell
-                            size={22}
+                            size={25}
                             color={focused ? '#7B4A2E' : '#C7C7C7'}
                             strokeWidth={focused ? 3 : 2.5}
                         />
@@ -91,7 +95,7 @@ const _Layout = () => {
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
                         <User2
-                            size={22}
+                            size={25}
                             color={focused ? '#7B4A2E' : '#C7C7C7'}
                             strokeWidth={focused ? 3 : 2.5}
                         />
