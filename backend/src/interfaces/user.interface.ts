@@ -6,7 +6,7 @@ export interface IUser extends Document {
     password: string;
     profile_picture?: string;
     bio?: string;
-    follower_count: number;
+    followers_count: number;
     following_count: number;
     role: "user" | "admin"
     created_at?: Date;

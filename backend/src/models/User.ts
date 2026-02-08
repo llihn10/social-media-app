@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose'
 import { IUser } from '../interfaces/user.interface'
+import bcrypt from 'bcryptjs'
 
 const UserSchema = new Schema<IUser>(
     {
@@ -19,7 +20,7 @@ const UserSchema = new Schema<IUser>(
         },
         profile_picture: String,
         bio: String,
-        follower_count: {
+        followers_count: {
             type: Number,
             default: 0,
             min: 0
@@ -39,5 +40,12 @@ const UserSchema = new Schema<IUser>(
         timestamps: true,
     }
 )
+
+UserSchema.pre('save', async function (this: IUser) {
+    if (!this.isModified('password')) return
+
+    const salt = await bcrypt.genSalt(10)
+    this.password = await bcrypt.hash(this.password, salt)
+})
 
 export const UserModel = model<IUser>("User", UserSchema, "users")
