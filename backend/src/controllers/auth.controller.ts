@@ -3,6 +3,57 @@ import { UserModel } from "../models/User"
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
+interface SignupBody {
+    email: string,
+    username: string,
+    password: string
+}
+
+export const signup = async (req: Request<{}, {}, SignupBody>, res: Response) => {
+    const { email, username, password } = req.body
+    try {
+        // normalize input
+        const normalizedEmail = email.toLowerCase().trim()
+        const normalizedUsername = username.toLowerCase().trim()
+
+        const existedEmail = await UserModel.findOne({ email: normalizedEmail })
+        if (existedEmail) {
+            return res.status(400).json({ message: 'Email existed! Please log in' })
+        }
+
+        const existedUsername = await UserModel.findOne({ username: normalizedUsername })
+        if (existedUsername) {
+            return res.status(400).json({ message: 'Username existed! Try another one' })
+        }
+
+        const newUser = new UserModel({
+            username: normalizedUsername,
+            email: normalizedEmail,
+            password,
+            profile_picture: '',
+            bio: '',
+            followers_count: 0,
+            following_count: 0,
+            role: 'user'
+        })
+
+        await newUser.save()
+
+        res.status(201).json({ message: 'Signup successfully!' })
+
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Signup error:', {
+                message: error.message,
+                stack: error.stack,
+            })
+        } else {
+            console.error('Signup error:', error)
+        }
+        return res.status(500).json({ message: 'Signup failed! Please try again.' });
+    }
+}
+
 interface LoginBody {
     login: string
     password: string
@@ -12,11 +63,12 @@ export const login = async (req: Request<{}, {}, LoginBody>, res: Response) => {
     const { login, password } = req.body
 
     try {
-        // normalize input
-        const normalizedInput = login.toLowerCase().trim()
+        // check if input is email
+        const isEmail = login.includes('@')
 
-        // check if input is username or email
-        const user = await UserModel.findOne({ $or: [{ username: normalizedInput }, { email: normalizedInput }] })
+        const user = isEmail
+            ? await UserModel.findOne({ email: login.toLowerCase() })
+            : await UserModel.findOne({ username: login })
 
         if (!user) {
             return res.status(400).json({ message: 'Username or email is not correct' })
