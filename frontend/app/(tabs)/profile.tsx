@@ -7,13 +7,7 @@ const profile = () => {
     return (
         <SafeAreaView>
             <Text>profile</Text>
-
-            <Link href="/login" className="text-8xl text-blue-500">
-                Login
-            </Link>
         </SafeAreaView>
-
-
     )
 }
 

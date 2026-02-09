@@ -55,23 +55,23 @@ export const signup = async (req: Request<{}, {}, SignupBody>, res: Response) =>
 }
 
 interface LoginBody {
-    login: string
+    identifier: string
     password: string
 }
 
 export const login = async (req: Request<{}, {}, LoginBody>, res: Response) => {
-    const { login, password } = req.body
+    const { identifier, password } = req.body
 
     try {
         // check if input is email
-        const isEmail = login.includes('@')
+        const isEmail = identifier.includes('@')
 
         const user = isEmail
-            ? await UserModel.findOne({ email: login.toLowerCase() })
-            : await UserModel.findOne({ username: login })
+            ? await UserModel.findOne({ email: identifier.toLowerCase() })
+            : await UserModel.findOne({ username: identifier })
 
         if (!user) {
-            return res.status(400).json({ message: 'Username or email is not correct' })
+            return res.status(400).json({ message: 'Username or email is not connected to an account. Please sign up' })
         }
 
         const valid = await bcrypt.compare(password, user.password)
@@ -95,7 +95,7 @@ export const login = async (req: Request<{}, {}, LoginBody>, res: Response) => {
             following_count: user.following_count
         }
 
-        res.json({ token, user: userResponse, message: 'Login successfully!' })
+        res.status(200).json({ token, user: userResponse, message: 'Login successfully!' })
 
     } catch (error) {
         if (error instanceof Error) {

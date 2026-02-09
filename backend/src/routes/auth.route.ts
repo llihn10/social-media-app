@@ -26,7 +26,7 @@ const signupValidation = [
 
 // validation middleware for login 
 const loginValidation = [
-    body('login')
+    body('identifier')
         .notEmpty().withMessage('Username or email is required').trim(),
 
     body('password')
