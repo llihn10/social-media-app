@@ -1,8 +1,15 @@
 import { Request, Response, NextFunction } from "express"
 import jwt, { JwtPayload } from 'jsonwebtoken'
 
+export interface AuthRequest extends Request {
+    user?: {
+        id: string
+        role?: string
+    }
+}
+
 export const auth = (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
 ) => {
@@ -23,19 +30,34 @@ export const auth = (
             throw new Error('JWT_SECRET is not defined')
         }
 
-        jwt.verify(token, JWT_SECRET, (err, decoded) => {
-            if (err || !decoded) {
-                return res.status(400).json({ message: 'Invalid token' })
-            }
+        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload
 
-            const payload = decoded as JwtPayload
+        if (!decoded.id) {
+            return res.status(401).json({ message: 'Invalid token payload' })
+        }
 
-            req.userId = payload.is || payload._id || payload.userId
+        req.user = {
+            id: decoded.id,
+            role: decoded.role
+        }
 
-            console.log('Auth middleware set userId: ', req.userId)
+        console.log('Auth middleware user: ', req.user)
 
-            next()
-        })
+        next()
+
+        // jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        //     if (err || !decoded) {
+        //         return res.status(400).json({ message: 'Invalid token' })
+        //     }
+
+        //     const payload = decoded as JwtPayload
+
+        //     req.userId = payload.id || payload._id || payload.userId
+
+        //     console.log('Auth middleware set userId: ', req.userId)
+
+        //     next()
+        // })
     } catch (error) {
         console.error('Auth middleware error: ', error)
         return res.status(401).json({ message: 'Authorization failed' })

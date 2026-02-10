@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { PostModel } from '../models/Post'
 import { UserModel } from '../models/User'
 import { CommentModel } from '../models/Comment'
+import { AuthRequest } from '../middlewares/auth.middleware'
 
 export const getPosts = async (req: Request, res: Response) => {
     const posts = await PostModel.find()
@@ -38,6 +39,23 @@ export const getPostDetail = async (req: Request, res: Response) => {
                 created_at: c.created_at,
             }))
         })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ message: 'Server error' })
+    }
+}
+
+export const getUserPost = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user!.id
+
+        const posts = await PostModel
+            .find({ author: userId })
+            .sort({ createdAt: -1 })
+            .populate('author', 'username profile_picture')
+            .lean()
+
+        res.status(200).json({ data: posts })
     } catch (err) {
         console.error(err)
         res.status(500).json({ message: 'Server error' })
