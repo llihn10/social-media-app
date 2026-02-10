@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { icons } from '@/constants/icons'
 import AuthInput from '@/components/AuthInput'
 import { router } from 'expo-router'
+import { useAuth } from '@/contexts/AuthContext'
 
 const LoginScreen = () => {
 
@@ -12,6 +13,7 @@ const LoginScreen = () => {
         password: ''
     })
     const [loading, setLoading] = useState(false)
+    const { login } = useAuth()
 
     const handleLogin = async () => {
         if (!form.identifier || !form.password) {
@@ -36,7 +38,8 @@ const LoginScreen = () => {
 
             if (response.ok) {
                 console.log('Login successfully: ', data)
-                router.replace('/(tabs)/home')
+                login(data.token, data.user)
+                router.replace('/(tabs)')
             } else {
                 Alert.alert('Login failed', data.message || 'Invalid credentials')
             }

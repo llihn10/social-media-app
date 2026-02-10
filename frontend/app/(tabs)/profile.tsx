@@ -1,16 +1,17 @@
-import { Link } from 'expo-router'
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Text } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useAuth } from '@/contexts/AuthContext'
 
-const profile = () => {
+export default function ProfileScreen() {
+    const { user } = useAuth()
+
+    if (!user) return <Text>Please login</Text>
+
     return (
         <SafeAreaView>
-            <Text>profile</Text>
+            <Text>{user.username}</Text>
+            <Text>{user.email}</Text>
         </SafeAreaView>
     )
 }
-
-export default profile
-
-const styles = StyleSheet.create({})

@@ -38,7 +38,7 @@ const SignupScreen = () => {
 
             if (response.ok) {
                 console.log('Signup successfully: ', data)
-                router.replace('/(tabs)/home')
+                router.replace('/(tabs)')
             } else {
                 Alert.alert('Signup failed', data.message || 'Invalid credentials')
             }
