@@ -3,6 +3,8 @@ import { PostModel } from '../models/Post'
 import { UserModel } from '../models/User'
 import { CommentModel } from '../models/Comment'
 import { AuthRequest } from '../middlewares/auth.middleware'
+import { cloudinary } from '../configs/cloudinary'
+import * as streamifier from 'streamifier'
 
 export const getPosts = async (req: Request, res: Response) => {
     const posts = await PostModel.find()
@@ -56,6 +58,47 @@ export const getUserPost = async (req: AuthRequest, res: Response) => {
             .lean()
 
         res.status(200).json({ data: posts })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ message: 'Server error' })
+    }
+}
+
+export const createNewPost = async (req: any, res: Response) => {
+    try {
+        const userId = req.user!.id
+        const { content } = req.body
+
+        const files = req.files as Express.Multer.File[] | undefined
+
+        let mediaUrls: string[] = []
+
+        // uploaded files
+        if (files && files.length > 0) {
+            for (const file of files) {
+                const uploadResult = await new Promise<any>((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        { folder: 'posts' }, (error, result) => {
+                            if (error) reject(error)
+                            else resolve(result)
+                        }
+                    )
+                    streamifier.createReadStream(file.buffer).pipe(stream)
+                })
+                mediaUrls.push(uploadResult.secure_url)
+            }
+        }
+
+        const newPost = await PostModel.create({
+            content,
+            media: mediaUrls,
+            author: userId
+        })
+
+        res.status(201).json({
+            message: 'Post created successfully',
+            data: newPost
+        })
     } catch (err) {
         console.error(err)
         res.status(500).json({ message: 'Server error' })

@@ -6,12 +6,50 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '@/contexts/AuthContext'
 import { authFetch } from '@/services/authFetch'
 import defaultAvatar from '@/assets/images/profile.png'
+import * as ImagePicker from 'expo-image-picker'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
+
+const pickImages = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 1,
+    })
+
+    if (!result.canceled) {
+        const images = result.assets
+        console.log(images)
+    }
+}
 
 export default function NewPostScreen() {
     const { user, token, logout } = useAuth()
     const [content, setContent] = useState('')
+
+    const uploadImages = async (images: any[]) => {
+        const formData = new FormData()
+
+        images.forEach((img, index) => {
+            formData.append('media', {
+                uri: img.uri,
+                name: `photo_${index}.jpg`,
+                type: 'image/jpeg',
+            } as any)
+        })
+
+        const response = await fetch(`${API_URL}/api/posts/create`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+            body: formData,
+        })
+
+        return response.json()
+    }
+
 
     // useEffect(() => {
     //     if (!token) return
