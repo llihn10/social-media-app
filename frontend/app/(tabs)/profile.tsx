@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { MoreHorizontal } from 'lucide-react-native'
 import PostCard from '@/components/PostCard'
 import { authFetch } from '@/services/authFetch'
-const defaultAvatar = require('@/assets/images/profile.png')
+import defaultAvatar from '@/assets/images/profile.png'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -161,7 +161,7 @@ export default function ProfileScreen() {
 
 
             {/* Avatar + Username */}
-            <View className='flex-row items-start gap-3 ml-1'>
+            <View className='flex-row items-start gap-4 ml-2'>
                 <Image source={profile?.profile_picture
                     ? { uri: profile.profile_picture }
                     : defaultAvatar}
@@ -169,7 +169,7 @@ export default function ProfileScreen() {
                 />
 
                 <View className="w-full mt-4">
-                    <Text className="text-2xl font-bold text-dark-100">{profile.username}</Text>
+                    <Text className="text-3xl font-bold text-dark-100">{profile.username}</Text>
                 </View>
             </View>
 
