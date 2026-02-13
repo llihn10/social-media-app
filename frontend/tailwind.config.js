@@ -19,7 +19,8 @@ module.exports = {
         dark: {
           100: '#2F2F2F',
           200: '#8A8A8A',
-          300: '#EFEFEF'
+          300: '#EFEFEF',
+          400: '#545454'
         },
       }
     },

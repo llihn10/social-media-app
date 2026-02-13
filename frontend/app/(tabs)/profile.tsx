@@ -150,7 +150,7 @@ export default function ProfileScreen() {
 
     // Header profile
     const renderHeader = () => (
-        <View className='bg-secondary px-4 pt-4 pb-6'>
+        <View className='bg-secondary px-4 pt-2 pb-6 border-b border-gray-200'>
 
             {/* Top bar */}
             <View className='flex-row justify-end'>
@@ -158,7 +158,6 @@ export default function ProfileScreen() {
                     <MoreHorizontal color='#333' size={26} />
                 </TouchableOpacity>
             </View>
-
 
             {/* Avatar + Username */}
             <View className='flex-row items-start gap-4 ml-2'>
@@ -168,23 +167,30 @@ export default function ProfileScreen() {
                     className='w-20 h-20 rounded-full'
                 />
 
-                <View className="w-full mt-4">
-                    <Text className="text-3xl font-bold text-dark-100">{profile.username}</Text>
+                <View>
+                    <View className="w-full mt-1">
+                        <Text className="text-3xl font-bold text-dark-100">{profile.username}</Text>
+                    </View>
+
+                    {/* Bio */}
+                    <View>
+                        <Text className='text-base font-normal text-dark-200 mt-3'>{profile.bio}</Text>
+                    </View>
                 </View>
             </View>
 
             {/* Stats */}
             <View className="flex-row justify-around mt-6">
                 <View className="items-center">
-                    <Text className="text-xl font-semibold">{posts?.length}</Text>
+                    <Text className="text-2xl font-semibold text-dark-400">{posts?.length}</Text>
                     <Text className="text-light-400">stories</Text>
                 </View>
                 <View className="items-center">
-                    <Text className="text-xl font-semibold">{profile.followers_count}</Text>
+                    <Text className="text-2xl font-semibold text-dark-400">{profile.followers_count}</Text>
                     <Text className="text-light-400">followers</Text>
                 </View>
                 <View className="items-center">
-                    <Text className="text-xl font-semibold">{profile.following_count}</Text>
+                    <Text className="text-2xl font-semibold text-dark-400">{profile.following_count}</Text>
                     <Text className="text-light-400">following</Text>
                 </View>
             </View>
@@ -192,7 +198,7 @@ export default function ProfileScreen() {
     )
 
     return (
-        <SafeAreaView className='flex-1 bg-secondary'>
+        <SafeAreaView className='flex-1 bg-secondary' edges={['top']}>
             <FlatList
                 data={posts}
                 keyExtractor={(item) => item._id}

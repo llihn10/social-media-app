@@ -81,10 +81,10 @@ const PostCard = ({ post }: PostItemProps) => {
                         <Text className='text-lg font-semibold text-dark-100'>
                             {post.author.username}
                         </Text>
-                        <Text className='ml-3 text-sm font-normal text-dark-200'> {timeAgo(post.createdAt)}</Text>
+                        <Text className='ml-3 text-sm font-normal text-dark-200'>{timeAgo(post.createdAt)}</Text>
                     </View>
 
-                    <Text className='text-base text-dark-100 mt-1'>
+                    <Text className='text-lg text-dark-100 mt-1'>
                         {post.content}
                     </Text>
                 </View>
