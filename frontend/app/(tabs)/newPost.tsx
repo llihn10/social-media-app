@@ -1,7 +1,7 @@
 import { router } from 'expo-router'
 import { Camera, ImageIcon } from 'lucide-react-native'
-import React, { useEffect, useState } from 'react'
-import { Image, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useState } from 'react'
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '@/contexts/AuthContext'
 import { authFetch } from '@/services/authFetch'
@@ -26,98 +26,152 @@ const pickImages = async () => {
 export default function NewPostScreen() {
     const { user, token, logout } = useAuth()
     const [content, setContent] = useState('')
+    const [images, setImages] = useState<any[]>([])
+    const [loading, setLoading] = useState(false)
 
-    const uploadImages = async (images: any[]) => {
-        const formData = new FormData()
+    const avatarUri =
+        user?.profile_picture && user.profile_picture.trim() !== ''
+            ? user.profile_picture
+            : null
 
-        images.forEach((img, index) => {
-            formData.append('media', {
-                uri: img.uri,
-                name: `photo_${index}.jpg`,
-                type: 'image/jpeg',
-            } as any)
-        })
 
-        const response = await fetch(`${API_URL}/api/posts/create`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'multipart/form-data',
-            },
-            body: formData,
-        })
+    const uploadPost = async () => {
 
-        return response.json()
+        try {
+            const formData = new FormData()
+
+            // append content
+            formData.append('content', content)
+
+            // append images
+            images.forEach((img, index) => {
+                formData.append('media', {
+                    uri: img.uri,
+                    name: img.fileName || `photo_${index}.jpg`,
+                    type: img.type === 'image' ? 'image/jpeg' : img.mimeType || 'image/jpeg',
+                } as any)
+            })
+
+            const response = await fetch(`${API_URL}/api/posts/create`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Upload failed')
+            }
+
+            return data
+
+        } catch (error: any) {
+            Alert.alert('Error', error.message)
+        }
+    }
+
+    const handlePost = async () => {
+        if (!content.trim()) {
+            Alert.alert('Content is required')
+            return
+        }
+
+        try {
+            setLoading(true)
+
+            const result = await uploadPost()
+
+            if (result) {
+                Alert.alert('Success', 'Post created successfully!')
+
+                setContent('')
+                setImages([])
+
+                router.replace('/(tabs)')
+            }
+        } catch (error: any) {
+            Alert.alert('Error', error.message)
+        } finally {
+            setLoading(false)
+        }
     }
 
 
-    // useEffect(() => {
-    //     if (!token) return
-    //     const loadData = async () => {
-    //         try {
+    // pick image from library - open device's library
+    const pickImage = async () => {
+        // ask for permission
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
-    //             const profileRes = await authFetch(`${API_URL}/profile`,
-    //                 {},
-    //                 token,
-    //                 logout
-    //             )
+        if (!permission.granted) {
+            Alert.alert('Permission required', 'Please allow access to photos')
+            return
+        }
 
-    //             if (!profileRes.ok) {
-    //                 throw new Error('Fetch failed');
-    //             }
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsMultipleSelection: true,
+            quality: 1,
+        })
 
-    //             const profileJson = await profileRes.json()
+        if (!result.canceled) {
+            const validAssets = result.assets.filter(asset => asset.uri)
 
-    //             setProfile(profileJson.data)
-    //         } catch (err) {
-    //             console.error(err);
-    //             setError('Failed to load data')
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     }
+            setImages(prev => {
+                const newImages = [...prev, ...validAssets]
+                return newImages.slice(0, 5)
+            })
+        }
+    }
 
-    //     loadData()
-    // }, [token])
+    // take photo - open device's camera
+    const takePhoto = async () => {
+        const permission = await ImagePicker.requestCameraPermissionsAsync()
 
-    // if (!user) {
-    //     return (
-    //         <SafeAreaView className="flex-1 items-center justify-center">
-    //             <Text>Please login</Text>
-    //         </SafeAreaView>
-    //     )
-    // }
+        if (!permission.granted) {
+            Alert.alert('Permission required', 'Please allow camera access')
+            return
+        }
 
-    // if (loading) {
-    //     return (
-    //         <SafeAreaView className="flex-1 items-center justify-center">
-    //             <ActivityIndicator size="large" />
-    //         </SafeAreaView>
-    //     )
-    // }
+        const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 1,
+        })
 
-    // if (error) {
-    //     return (
-    //         <SafeAreaView className="flex-1 items-center justify-center">
-    //             <Text>{error}</Text>
-    //             <Text>{user.username}</Text>
-    //         </SafeAreaView>
-    //     )
-    // }
+        if (!result.canceled) {
+            const validAssets = result.assets.filter(asset => asset.uri)
+
+            setImages(prev => {
+                const newImages = [...prev, ...validAssets]
+                return newImages.slice(0, 5)
+            })
+        }
+    }
 
     return (
         <SafeAreaView className='flex-1 bg-secondary'>
 
             {/* Header */}
             <View className='flex-row items-center justify-between px-6 py-4 border-b border-gray-200'>
-                <TouchableOpacity onPress={() => router.back()}>
+                <TouchableOpacity onPress={() => router.replace('/(tabs)')}>
                     <Text className='text-lg text-dark-200'>Cancel</Text>
                 </TouchableOpacity>
 
                 <Text className='text-lg font-bold'>New story</Text>
 
-                <TouchableOpacity>
-                    <Text className='text-lg font-semibold text-accent'>Post</Text>
+                <TouchableOpacity
+                    onPress={handlePost}
+                    disabled={!content.trim()}
+                >
+                    {loading ? (
+                        <ActivityIndicator size="small" color="#3B82F6" />
+                    ) : (
+                        <Text className={`text-lg font-semibold ${content.trim() ? 'text-accent' : 'text-gray-400'}`}                    >
+                            Post
+                        </Text>
+                    )}
                 </TouchableOpacity>
             </View>
 
@@ -128,12 +182,11 @@ export default function NewPostScreen() {
                 <View className='flex-1 px-4 py-5'>
                     <View className='flex-row'>
                         {/* User avatar */}
-                        {/* <Image source={profile?.profile_picture
-                            ? { uri: profile.profile_picture }
-                            : defaultAvatar}
-                            className='w-20 h-20 rounded-full'
-                        /> */}
-                        <Image source={defaultAvatar} className='w-10 h-10 rounded-full' />
+                        <Image
+                            source={avatarUri ? { uri: avatarUri } : defaultAvatar}
+                            className='w-10 h-10 rounded-full'
+                        />
+                        {/* <Image source={defaultAvatar} className='w-10 h-10 rounded-full' /> */}
 
                         <View className='flex-1 ml-3'>
                             {/* Username */}
@@ -149,27 +202,58 @@ export default function NewPostScreen() {
                                 multiline
                                 className="text-lg text-dark-100"
                                 textAlignVertical='top'
-                                style={{ minHeight: 60 }}
+                                style={{ minHeight: 50 }}
                             />
-
-                            {/* Media icons */}
-                            <View className='flex-row gap-6 mt-2 ml-1'>
-                                {/* Upload photos */}
-                                <TouchableOpacity>
-                                    <ImageIcon size={25} color="#B2B2B2" />
-                                </TouchableOpacity>
-
-                                {/* Take photos  */}
-                                <TouchableOpacity>
-                                    <Camera size={27} color="#B2B2B2" />
-                                </TouchableOpacity>
-                            </View>
                         </View>
+                    </View>
+
+                    {images.length > 0 && (
+                        <ScrollView
+                            horizontal
+                            className="max-h-64 mb-2"
+                            showsHorizontalScrollIndicator={false}
+                            nestedScrollEnabled={true}
+                            decelerationRate="fast"
+                            snapToAlignment="start"
+                            scrollEventThrottle={16}
+                            contentContainerStyle={{ paddingLeft: 48, paddingRight: 12, gap: 4 }}
+                        >
+                            {images
+                                .filter(img => img?.uri)
+                                .map((img, index) => (
+                                    <Image
+                                        key={index}
+                                        source={{ uri: img.uri }}
+                                        className="w-64 h-64 rounded-lg"
+                                    />
+                                ))}
+
+                            {/* {images.map((img, index) => (
+                                <Image
+                                    key={index}
+                                    source={{ uri: img.uri }}
+                                    className="w-64 h-64 rounded-lg"
+                                />
+                            ))} */}
+                        </ScrollView>
+                    )}
+
+                    {/* Media icons */}
+                    <View className='flex-row gap-6 mt-2 ml-14'>
+                        {/* Upload photos */}
+                        <TouchableOpacity onPress={pickImage}>
+                            <ImageIcon size={25} color="#B2B2B2" />
+                        </TouchableOpacity>
+
+                        {/* Take photos  */}
+                        <TouchableOpacity onPress={takePhoto}>
+                            <Camera size={27} color="#B2B2B2" />
+                        </TouchableOpacity>
                     </View>
                 </View>
 
             </KeyboardAvoidingView>
 
-        </SafeAreaView>
+        </SafeAreaView >
     )
 }

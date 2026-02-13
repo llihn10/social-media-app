@@ -1,11 +1,10 @@
 import CommentItem from '@/components/CommentItem';
 import PostHeader from '@/components/PostHeader';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 

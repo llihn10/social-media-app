@@ -38,7 +38,7 @@ export const getPostDetail = async (req: Request, res: Response) => {
                 _id: c._id,
                 user: c.user_id,
                 comment: c.comment,
-                created_at: c.created_at,
+                createdAt: c.createdAt,
             }))
         })
     } catch (err) {

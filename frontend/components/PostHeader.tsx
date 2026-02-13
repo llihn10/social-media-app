@@ -2,10 +2,11 @@ import { View, Text, Image, TouchableOpacity, Pressable } from "react-native";
 import { Heart, MessageCircle } from 'lucide-react-native';
 import ImageViewing from "react-native-image-viewing";
 import { useState } from 'react';
+import defaultAvatar from '@/assets/images/profile.png'
 
-const timeAgo = (created_at: string) => {
+const timeAgo = (createdAt: string) => {
     const now = new Date();
-    const created = new Date(created_at);
+    const created = new Date(createdAt);
 
     const diffMs = now.getTime() - created.getTime();
     const diffSeconds = Math.floor(diffMs / 1000);
@@ -41,12 +42,18 @@ export default function PostHeader({ post }: any) {
 
             {/* Author */}
             <View className='items-center flex-row'>
-                <Image source={{ uri: post.author.profile_picture }}
+                <Image
+                    source={
+                        post.author.profile_picture &&
+                            post.author.profile_picture.trim() !== ''
+                            ? { uri: post.author.profile_picture }
+                            : defaultAvatar
+                    }
                     className='w-12 h-12 rounded-full mt-1'
                 />
                 <View className='flex-row items-baseline'>
                     <Text className='text-lg font-semibold text-dark-100 ml-3'>{post.author.username}</Text>
-                    <Text className='ml-3 text-sm font-normal text-dark-200'> {timeAgo(post.created_at)}</Text>
+                    <Text className='ml-3 text-sm font-normal text-dark-200'> {timeAgo(post.createdAt)}</Text>
 
                     <Text className="mx-3 text-dark-200">•</Text>
 

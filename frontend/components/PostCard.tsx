@@ -1,8 +1,9 @@
-import { View, Text, Image, Pressable, ScrollView, TouchableOpacity, Dimensions, StyleSheet } from 'react-native'
+import { View, Text, Image, Pressable, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
 import { Heart, MessageCircle, X } from 'lucide-react-native';
 import { router } from 'expo-router';
 import ImageViewing from "react-native-image-viewing";
+import defaultAvatar from '@/assets/images/profile.png'
 
 interface PostItemProps {
     post: {
@@ -15,13 +16,13 @@ interface PostItemProps {
         media: string[],
         likes_count: number;
         comments_count: number,
-        created_at: string
+        createdAt: string
     }
 }
 
-const timeAgo = (created_at: string) => {
+const timeAgo = (createdAt: string) => {
     const now = new Date();
-    const created = new Date(created_at);
+    const created = new Date(createdAt);
 
     const diffMs = now.getTime() - created.getTime();
     const diffSeconds = Math.floor(diffMs / 1000);
@@ -65,7 +66,13 @@ const PostCard = ({ post }: PostItemProps) => {
             {/* Avatar + Username + Post Content */}
             <View className='px-4 flex-row'>
                 {/* Avatar */}
-                <Image source={{ uri: post.author.profile_picture }}
+                <Image
+                    source={
+                        post.author.profile_picture &&
+                            post.author.profile_picture.trim() !== ''
+                            ? { uri: post.author.profile_picture }
+                            : defaultAvatar
+                    }
                     className='w-12 h-12 rounded-full mt-1'
                 />
 
@@ -74,7 +81,7 @@ const PostCard = ({ post }: PostItemProps) => {
                         <Text className='text-lg font-semibold text-dark-100'>
                             {post.author.username}
                         </Text>
-                        <Text className='ml-3 text-sm font-normal text-dark-200'> {timeAgo(post.created_at)}</Text>
+                        <Text className='ml-3 text-sm font-normal text-dark-200'> {timeAgo(post.createdAt)}</Text>
                     </View>
 
                     <Text className='text-base text-dark-100 mt-1'>

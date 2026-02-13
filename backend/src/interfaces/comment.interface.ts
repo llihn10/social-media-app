@@ -4,5 +4,5 @@ export interface IComment extends Document {
     post_id: Types.ObjectId;
     user_id: Types.ObjectId;
     comment: string;
-    created_at?: Date;
+    createdAt?: Date;
 }
