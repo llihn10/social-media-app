@@ -1,4 +1,4 @@
-import { NextFunction, Router, Response } from 'express'
+import { NextFunction, Router, Response, RequestHandler } from 'express'
 import { getPosts, getPostDetail, getUserPost, createNewPost } from '../controllers/post.controller'
 import { auth } from '../middlewares/auth.middleware'
 import { upload } from '../middlewares/upload.middleware'
@@ -18,11 +18,7 @@ const createNewPostValidation = [
 ]
 
 // validation result middleware
-export const validate = (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): void => {
+export const validate: RequestHandler = (req, res, next) => {
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
@@ -38,7 +34,7 @@ const router = Router()
 
 router.get('/', getPosts)
 router.get('/my-posts', auth, getUserPost)
-router.post('/create', auth, upload.array('media', 5), createNewPost)
+router.post('/create', auth, createNewPostValidation, validate, upload.array('media', 5), createNewPost)
 
 router.get('/:postId', getPostDetail)
 

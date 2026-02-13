@@ -3,6 +3,7 @@ import cors from 'cors'
 import authRoutes from './routes/auth.route'
 import userRoutes from './routes/user.route'
 import postRoutes from './routes/post.route'
+import followRoutes from './routes/follow.route'
 import searchRoutes from './routes/search.route'
 
 const app = express()
@@ -17,5 +18,7 @@ app.use('/', userRoutes)
 app.use('/api/posts', postRoutes)
 
 app.use('/search', searchRoutes)
+
+app.use('/users', followRoutes)
 
 export default app
