@@ -53,23 +53,6 @@ interface PostItemProps {
     },
 }
 
-// interface PostItemProps {
-//     post: {
-//         _id: string,
-//         content: string;
-//         author: {
-//             _id: string,
-//             username: string;
-//             profile_picture?: string;
-//         };
-//         media?: string[],
-//         likes_count: number;
-//         comments_count: number,
-//         comments?: [],
-//         createdAt: string,
-//     },
-// }
-
 export default function PostHeader({ post }: PostItemProps) {
 
     const { user, token, logout } = useAuth()
@@ -77,31 +60,30 @@ export default function PostHeader({ post }: PostItemProps) {
     const [index, setIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    // const isOwnPost = user?._id === post.author?._id
-    // const isFollowed = post?.is_followed ?? false
-
-    // const postId = post._id
+    const [isFollowed, setIsFollowed] = useState(post?.is_followed ?? false)
+    const isOwnPost = user?._id === post.author?._id
 
     // follow/unfollow action
-    // const handleFollow = async () => {
-    //     try {
-    //         const method = isFollowed ? 'DELETE' : 'POST'
+    const handleFollow = async () => {
+        try {
+            const method = isFollowed ? 'DELETE' : 'POST'
 
-    //         const res = await authFetch(`${API_URL}/users/follow/${post.author._id}`,
-    //             { method },
-    //             token,
-    //             logout
-    //         )
+            const res = await authFetch(`${API_URL}/users/follow/${post.author._id}`,
+                { method },
+                token,
+                logout
+            )
 
-    //         if (!res.ok) throw new Error('Follow failed')
-    //     } catch (err) {
-    //         console.error(err);
-    //         Alert.alert('Error', 'Follow failed')
-    //     } finally {
-    //         setLoading(false)
-    //     }
-    // }
+            if (!res.ok) throw new Error('Follow failed')
+
+            setIsFollowed(!isFollowed)
+        } catch (err) {
+            console.error(err);
+            Alert.alert('Error', 'Follow failed')
+        } finally {
+            setLoading(false)
+        }
+    }
 
     return (
 
@@ -126,16 +108,7 @@ export default function PostHeader({ post }: PostItemProps) {
                         <Text className="mx-3 text-dark-200">•</Text>
 
                         {/* Follow Button */}
-                        <TouchableOpacity
-                            onPress={() => { }}
-                            activeOpacity={0.7}
-                        >
-                            <Text className="text-accent font-bold text-sm">Follow</Text>
-                            {/* <Text className="text-success font-bold text-sm">Followed</Text> */}
-                        </TouchableOpacity>
-
-                        {/* Follow Button */}
-                        {/* {!isOwnPost && (
+                        {!isOwnPost && (
                             <TouchableOpacity
                                 onPress={handleFollow}
                                 activeOpacity={0.7}
@@ -146,8 +119,7 @@ export default function PostHeader({ post }: PostItemProps) {
                                     <Text className="text-accent font-bold text-sm">Follow</Text>
                                 )}
                             </TouchableOpacity>
-                        )} */}
-
+                        )}
                     </View>
                 </View>
             )}

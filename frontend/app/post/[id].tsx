@@ -13,7 +13,6 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export default function PostDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const { user, token, logout } = useAuth()
-
     const [post, setPost] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

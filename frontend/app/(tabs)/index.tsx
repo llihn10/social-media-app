@@ -1,8 +1,8 @@
 import PostCard from '@/components/PostCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
-import { useEffect, useState, useCallback } from 'react';
-import { Text, View, FlatList, TouchableOpacity, ListRenderItem } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -10,8 +10,6 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export default function HomeScreen() {
 
   const { user, token, logout } = useAuth()
-  const [message, setMessage] = useState('Connecting...');
-
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
