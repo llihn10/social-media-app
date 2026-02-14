@@ -1,5 +1,7 @@
 import CommentItem from '@/components/CommentItem';
-// import PostHeader from '@/components/PostHeader';
+import { useAuth } from '@/contexts/AuthContext';
+import { authFetch } from '@/services/authFetch';
+import PostHeader from '@/components/PostHeader';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
@@ -10,6 +12,7 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function PostDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();
+    const { user, token, logout } = useAuth()
 
     const [post, setPost] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -18,7 +21,11 @@ export default function PostDetail() {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                const res = await fetch(`${API_URL}/posts/${id}`);
+                const res = await authFetch(`${API_URL}/posts/${id}`,
+                    {},
+                    token,
+                    logout
+                );
                 const json = await res.json();
                 setPost(json);
             } catch (err) {
@@ -62,7 +69,7 @@ export default function PostDetail() {
                 overScrollMode="never"
                 showsVerticalScrollIndicator={false}
                 keyExtractor={(item) => item._id}
-                // ListHeaderComponent={<PostHeader post={post} />}
+                ListHeaderComponent={<PostHeader post={post} />}
                 renderItem={({ item }) => <CommentItem comment={item} />}
                 contentContainerStyle={{ paddingBottom: 40 }}
             />

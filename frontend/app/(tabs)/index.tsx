@@ -1,8 +1,8 @@
 import PostCard from '@/components/PostCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
-import { useEffect, useState } from 'react';
-import { Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { useEffect, useState, useCallback } from 'react';
+import { Text, View, FlatList, TouchableOpacity, ListRenderItem } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
