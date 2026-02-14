@@ -105,19 +105,21 @@ export default function PostHeader({ post }: PostItemProps) {
                         <Text className='text-lg font-semibold text-dark-100 ml-3'>{post.author.username}</Text>
                         <Text className='ml-3 text-sm font-normal text-dark-200'> {timeAgo(post.createdAt)}</Text>
 
-                        <Text className="mx-3 text-dark-200">•</Text>
-
                         {/* Follow Button */}
                         {!isOwnPost && (
                             <TouchableOpacity
                                 onPress={handleFollow}
                                 activeOpacity={0.7}
                             >
-                                {isFollowed ? (
-                                    <Text className="text-success font-bold text-sm">Followed</Text>
-                                ) : (
-                                    <Text className="text-accent font-bold text-sm">Follow</Text>
-                                )}
+                                <View className="flex-row items-baseline">
+                                    <Text className="mx-3 text-dark-200">•</Text>
+                                    {isFollowed ? (
+                                        <Text className="text-success font-bold text-sm">Followed</Text>
+                                    ) : (
+                                        <Text className="text-accent font-bold text-sm">Follow</Text>
+                                    )}
+                                </View>
+
                             </TouchableOpacity>
                         )}
                     </View>

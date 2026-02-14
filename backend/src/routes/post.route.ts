@@ -34,7 +34,7 @@ const router = Router()
 
 router.get('/', auth, getPosts)
 router.get('/my-posts', auth, getUserPost)
-router.post('/create', auth, createNewPostValidation, validate, upload.array('media', 5), createNewPost)
+router.post('/create', auth, upload.array('media', 5), createNewPostValidation, validate, createNewPost)
 
 router.get('/:postId', auth, getPostDetail)
 

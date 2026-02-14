@@ -10,19 +10,6 @@ import * as ImagePicker from 'expo-image-picker'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
-const pickImages = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsMultipleSelection: true,
-        quality: 1,
-    })
-
-    if (!result.canceled) {
-        const images = result.assets
-        console.log(images)
-    }
-}
-
 export default function NewPostScreen() {
     const { user, token, logout } = useAuth()
     const [content, setContent] = useState('')
@@ -34,9 +21,7 @@ export default function NewPostScreen() {
             ? user.profile_picture
             : null
 
-
     const uploadPost = async () => {
-
         try {
             const formData = new FormData()
 
@@ -52,17 +37,18 @@ export default function NewPostScreen() {
                 } as any)
             })
 
-            const response = await fetch(`${API_URL}/posts/create`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
+            const res = await authFetch(`${API_URL}/posts/create`,
+                {
+                    method: 'POST',
+                    body: formData
                 },
-                body: formData,
-            })
+                token,
+                logout
+            )
 
-            const data = await response.json()
+            const data = await res.json()
 
-            if (!response.ok) {
+            if (!res.ok) {
                 throw new Error(data.message || 'Upload failed')
             }
 
@@ -99,7 +85,6 @@ export default function NewPostScreen() {
         }
     }
 
-
     // pick image from library - open device's library
     const pickImage = async () => {
         // ask for permission
@@ -111,8 +96,9 @@ export default function NewPostScreen() {
         }
 
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ['images'],
             allowsMultipleSelection: true,
+            allowsEditing: false,
             quality: 1,
         })
 
@@ -136,7 +122,7 @@ export default function NewPostScreen() {
         }
 
         const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ['images'],
             quality: 1,
         })
 
@@ -186,7 +172,6 @@ export default function NewPostScreen() {
                             source={avatarUri ? { uri: avatarUri } : defaultAvatar}
                             className='w-10 h-10 rounded-full'
                         />
-                        {/* <Image source={defaultAvatar} className='w-10 h-10 rounded-full' /> */}
 
                         <View className='flex-1 ml-3'>
                             {/* Username */}
@@ -227,14 +212,6 @@ export default function NewPostScreen() {
                                         className="w-64 h-64 rounded-lg"
                                     />
                                 ))}
-
-                            {/* {images.map((img, index) => (
-                                <Image
-                                    key={index}
-                                    source={{ uri: img.uri }}
-                                    className="w-64 h-64 rounded-lg"
-                                />
-                            ))} */}
                         </ScrollView>
                     )}
 

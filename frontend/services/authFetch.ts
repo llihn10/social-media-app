@@ -7,12 +7,14 @@ export const authFetch = async (
     token: string | null,
     logout: () => void
 ) => {
+    const isFormData = options.body instanceof FormData
+
     const res = await fetch(url, {
         ...options,
         headers: {
             ...(options.headers || {}),
             Authorization: token ? `Bearer ${token}` : '',
-            'Content-Type': 'application/json',
+            ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         },
     })
 
