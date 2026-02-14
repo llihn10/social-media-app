@@ -17,64 +17,6 @@ export default function ProfileScreen() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // useEffect(() => {
-    //     if (!token) return
-
-    //     const fetchData = async () => {
-    //         try {
-    //             setLoading(true);
-
-    //             const headers = {
-    //                 Authorization: `Bearer ${token}`,
-    //                 'Content-Type': 'application/json',
-    //             };
-
-    //             const [profileRes, postsRes] = await Promise.all([
-    //                 fetch(`${API_URL}/profile`, {
-    //                     headers: {
-    //                         Authorization: `Bearer ${token}`,
-    //                         'Content-Type': 'application/json',
-    //                     },
-    //                 }),
-    //                 fetch(`${API_URL}/api/posts/my-posts`, {
-    //                     headers: {
-    //                         Authorization: `Bearer ${token}`,
-    //                         'Content-Type': 'application/json',
-    //                     },
-    //                 })
-
-    //             ])
-
-    //             if (!profileRes.ok || !postsRes.ok) {
-    //                 throw new Error('Fetch failed');
-    //             }
-
-    //             if (!profileRes.ok) {
-    //                 console.log('Profile error:', profileRes.status);
-    //                 throw new Error('Profile fetch failed');
-    //             }
-
-    //             if (!postsRes.ok) {
-    //                 console.log('Posts error:', postsRes.status);
-    //                 throw new Error('Posts fetch failed');
-    //             }
-
-    //             const profileJson = await profileRes.json()
-    //             const postsJson = await postsRes.json()
-
-    //             setProfile(profileJson)
-    //             setPosts(postsJson || [])
-    //         } catch (err) {
-    //             console.error(err);
-    //             setError('Failed to load data')
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     }
-
-    //     fetchData();
-    // }, [token])
-
     useEffect(() => {
         if (!token) return
         const loadData = async () => {
@@ -86,7 +28,7 @@ export default function ProfileScreen() {
                         token,
                         logout
                     ),
-                    authFetch(`${API_URL}/api/posts/my-posts`,
+                    authFetch(`${API_URL}/posts/my-posts`,
                         {},
                         token,
                         logout)

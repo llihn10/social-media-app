@@ -52,7 +52,7 @@ export default function NewPostScreen() {
                 } as any)
             })
 
-            const response = await fetch(`${API_URL}/api/posts/create`, {
+            const response = await fetch(`${API_URL}/posts/create`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,

@@ -32,10 +32,10 @@ export const validate: RequestHandler = (req, res, next) => {
 
 const router = Router()
 
-router.get('/', getPosts)
+router.get('/', auth, getPosts)
 router.get('/my-posts', auth, getUserPost)
 router.post('/create', auth, createNewPostValidation, validate, upload.array('media', 5), createNewPost)
 
-router.get('/:postId', getPostDetail)
+router.get('/:postId', auth, getPostDetail)
 
 export default router

@@ -1,4 +1,6 @@
 import PostCard from '@/components/PostCard';
+import { useAuth } from '@/contexts/AuthContext';
+import { authFetch } from '@/services/authFetch';
 import { useEffect, useState } from 'react';
 import { Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,6 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function HomeScreen() {
+
+  const { user, token, logout } = useAuth()
   const [message, setMessage] = useState('Connecting...');
 
   const [posts, setPosts] = useState<any[]>([]);
@@ -18,7 +22,11 @@ export default function HomeScreen() {
       try {
         setLoading(true);
 
-        const res = await fetch(`${API_URL}/api/posts`);
+        const res = await authFetch(`${API_URL}/posts`,
+          {},
+          token,
+          logout
+        );
         const json = await res.json();
 
         setPosts(json.data);

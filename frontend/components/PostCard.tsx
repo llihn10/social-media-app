@@ -2,22 +2,41 @@ import { View, Text, Image, Pressable, ScrollView, TouchableOpacity, StyleSheet 
 import React, { useState } from 'react'
 import { Heart, MessageCircle, X } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { useAuth } from '@/contexts/AuthContext'
 import ImageViewing from "react-native-image-viewing";
 import defaultAvatar from '@/assets/images/profile.png'
+
+// interface PostItemProps {
+//     post: {
+//         _id: string,
+//         content: string;
+//         author: {
+//             _id: string,
+//             username: string;
+//             profile_picture?: string;
+//         };
+//         media: string[],
+//         likes_count: number;
+//         comments_count: number,
+//         createdAt: string,
+//         is_followed: boolean
+//     },
+// }
 
 interface PostItemProps {
     post: {
         _id: string,
         content: string;
         author: {
+            _id: string,
             username: string;
             profile_picture?: string;
         };
         media: string[],
         likes_count: number;
         comments_count: number,
-        createdAt: string
-    }
+        createdAt: string,
+    },
 }
 
 const timeAgo = (createdAt: string) => {
@@ -49,6 +68,7 @@ const timeAgo = (createdAt: string) => {
 
 const PostCard = ({ post }: PostItemProps) => {
 
+    const { user, token, logout } = useAuth()
     const [visible, setVisible] = useState(false);
     const [imageIndex, setImageIndex] = useState(0);
 

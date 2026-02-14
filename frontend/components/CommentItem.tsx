@@ -1,9 +1,9 @@
 import { Heart, MessagesSquare } from "lucide-react-native";
 import { View, Text, Image, Pressable } from "react-native";
 
-const timeAgo = (created_at: string) => {
+const timeAgo = (createdAt: string) => {
     const now = new Date();
-    const created = new Date(created_at);
+    const created = new Date(createdAt);
 
     const diffMs = now.getTime() - created.getTime();
     const diffSeconds = Math.floor(diffMs / 1000);
@@ -40,7 +40,7 @@ export default function CommentItem({ comment }: any) {
                     <Text className='text-base font-semibold text-dark-100'>
                         {comment.user.username}
                     </Text>
-                    <Text className='ml-1 text-sm font-normal text-dark-200'> {timeAgo(comment.created_at)}</Text>
+                    <Text className='ml-1 text-sm font-normal text-dark-200'> {timeAgo(comment.createdAt)}</Text>
                 </View>
 
                 <Text className='text-base text-dark-100 mt-1'>

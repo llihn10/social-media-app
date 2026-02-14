@@ -15,7 +15,7 @@ app.use('/auth', authRoutes)
 
 app.use('/', userRoutes)
 
-app.use('/api/posts', postRoutes)
+app.use('/posts', postRoutes)
 
 app.use('/search', searchRoutes)
 

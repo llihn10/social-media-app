@@ -5,10 +5,92 @@ import { CommentModel } from '../models/Comment'
 import { AuthRequest } from '../middlewares/auth.middleware'
 import { cloudinary } from '../configs/cloudinary'
 import * as streamifier from 'streamifier'
+import { FollowModel } from '../models/Follow'
+
+// export const getPosts = async (req: any, res: Response) => {
+//     try {
+//         const userId = req.user?.id
+
+//         const posts = await PostModel.find()
+//             .populate('author', '_id username profile_picture')
+//             .sort({ createdAt: -1 })
+//             .limit(20)
+//             .lean()
+
+//         const follows = await FollowModel.find({ follower: userId })
+//             .select('following')
+//             .lean()
+
+//         const followingIds = new Set(
+//             follows.map(f => f.following.toString())
+//         )
+
+//         const formattedPosts = posts.map((post: any) => {
+//             const authorId = post.author?._id?.toString()
+
+//             return {
+//                 ...post,
+//                 is_followed: followingIds.has(authorId)
+//             }
+//         })
+
+//         res.json({ success: true, data: formattedPosts })
+//     } catch (error) {
+//         console.error(error)
+//         res.status(500).json({ message: 'Server error' })
+//     }
+// }
+
+// export const getPostDetail = async (req: any, res: Response) => {
+//     try {
+//         const userId = req.user?.id
+//         const { postId } = req.params;
+
+//         const post = await PostModel.findById(postId)
+//             .populate('author', '_id username profile_picture')
+//             .lean()
+
+//         if (!post) {
+//             return res.status(404).json({ message: 'Post not found' })
+//         }
+
+//         let is_followed = false
+
+//         if (userId) {
+//             const authorId = post.author._id.toString()
+
+//             const isFollowed = await FollowModel.exists({
+//                 follower: userId,
+//                 following: authorId
+//             })
+
+//             is_followed = !!isFollowed
+//         }
+
+//         const comments = await CommentModel.find({ post_id: postId })
+//             .populate('user_id', '_id username profile_picture')
+//             .sort({ createdAt: -1 })
+//             .lean()
+
+//         res.json({
+//             ...post,
+//             comments: comments.map((c) => ({
+//                 _id: c._id,
+//                 user: c.user_id,
+//                 comment: c.comment,
+//                 createdAt: c.createdAt,
+//             })),
+//             is_followed
+//         })
+//     } catch (error) {
+//         console.error(error)
+//         res.status(500).json({ message: 'Server error' })
+//     }
+// }
 
 export const getPosts = async (req: Request, res: Response) => {
     const posts = await PostModel.find()
-        .populate('author', 'username profile_picture')
+        .populate('author', '_id username profile_picture')
         .sort({ createdAt: -1 })
         .limit(20)
 
@@ -20,7 +102,7 @@ export const getPostDetail = async (req: Request, res: Response) => {
         const { postId } = req.params;
 
         const post = await PostModel.findById(postId)
-            .populate('author', 'username profile_picture')
+            .populate('author', '_id username profile_picture')
             .lean()
 
         if (!post) {
@@ -28,7 +110,7 @@ export const getPostDetail = async (req: Request, res: Response) => {
         }
 
         const comments = await CommentModel.find({ post_id: postId })
-            .populate('user_id', 'username profile_picture')
+            .populate('user_id', '_id username profile_picture')
             .sort({ createdAt: -1 })
             .lean()
 
@@ -58,8 +140,8 @@ export const getUserPost = async (req: AuthRequest, res: Response) => {
             .lean()
 
         res.status(200).json({ data: posts })
-    } catch (err) {
-        console.error(err)
+    } catch (error) {
+        console.error(error)
         res.status(500).json({ message: 'Server error' })
     }
 }
@@ -99,8 +181,8 @@ export const createNewPost = async (req: any, res: Response) => {
             message: 'Post created successfully',
             data: newPost
         })
-    } catch (err) {
-        console.error(err)
+    } catch (error) {
+        console.error(error)
         res.status(500).json({ message: 'Server error' })
     }
 }
