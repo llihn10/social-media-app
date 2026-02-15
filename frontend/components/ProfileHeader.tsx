@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { MoreHorizontal } from 'lucide-react-native'
 import defaultAvatar from '@/assets/images/profile.png'
@@ -38,7 +38,7 @@ const ProfileHeader = ({ profile, postNum }: ProfileHeaderProps) => {
 
                 <View>
                     <View className="w-full mt-1">
-                        <Text className="text-3xl font-bold text-dark-100">{profile.username}</Text>
+                        <Text className="text-2xl font-bold text-dark-100">{profile.username}</Text>
                     </View>
 
                     {/* Bio */}
@@ -51,15 +51,15 @@ const ProfileHeader = ({ profile, postNum }: ProfileHeaderProps) => {
             {/* Stats */}
             <View className="flex-row justify-around mt-6">
                 <View className="items-center">
-                    <Text className="text-2xl font-semibold text-dark-400">{postNum}</Text>
+                    <Text className="text-xl font-semibold text-dark-400">{postNum}</Text>
                     <Text className="text-light-400">stories</Text>
                 </View>
                 <View className="items-center">
-                    <Text className="text-2xl font-semibold text-dark-400">{profile.followers_count}</Text>
+                    <Text className="text-xl font-semibold text-dark-400">{profile.followers_count}</Text>
                     <Text className="text-light-400">followers</Text>
                 </View>
                 <View className="items-center">
-                    <Text className="text-2xl font-semibold text-dark-400">{profile.following_count}</Text>
+                    <Text className="text-xl font-semibold text-dark-400">{profile.following_count}</Text>
                     <Text className="text-light-400">following</Text>
                 </View>
             </View>

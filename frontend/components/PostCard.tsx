@@ -69,15 +69,20 @@ const PostCard = memo(({ post }: PostItemProps) => {
             {/* Avatar + Username + Post Content */}
             <View className='px-4 flex-row'>
                 {/* Avatar */}
-                <Image
-                    source={
-                        post.author.profile_picture &&
-                            post.author.profile_picture.trim() !== ''
-                            ? { uri: post.author.profile_picture }
-                            : defaultAvatar
-                    }
-                    className='w-12 h-12 rounded-full mt-1'
-                />
+                <Pressable onPress={() => router.push({
+                    pathname: '/user/[id]',
+                    params: { id: post.author._id },
+                })}>
+                    <Image
+                        source={
+                            post.author.profile_picture &&
+                                post.author.profile_picture.trim() !== ''
+                                ? { uri: post.author.profile_picture }
+                                : defaultAvatar
+                        }
+                        className='w-12 h-12 rounded-full mt-1'
+                    />
+                </Pressable>
 
                 <View className='px-3 flex-1'>
                     <View className='flex-row items-baseline'>

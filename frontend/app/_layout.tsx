@@ -1,35 +1,10 @@
-import { Redirect, Stack, useRootNavigationState, useRouter, useSegments } from 'expo-router';
+import { Stack, useRootNavigationState, useRouter, useSegments } from 'expo-router';
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { View } from 'lucide-react-native';
-
-// export default function RootLayout() {
-//   const { token } = useAuth()
-
-//   return (
-//     <AuthProvider>
-//       <Stack>
-//         <Stack.Screen
-//           name="(auth)"
-//           options={{ headerShown: false }}
-//         />
-
-//         <Stack.Screen
-//           name="(tabs)"
-//           options={{ headerShown: false }}
-//         />
-
-//         <Stack.Screen
-//           name="post/[id]"
-//           options={{ headerShown: false }}
-//         />
-//       </Stack>
-//     </AuthProvider>
-//   )
-// }
 
 function RootLayoutNav() {
   const { token, isLoading } = useAuth()
@@ -64,6 +39,7 @@ function RootLayoutNav() {
       <Stack.Screen name='(auth)' />
       <Stack.Screen name='(tabs)' />
       <Stack.Screen name='post/[id]' />
+      <Stack.Screen name='user/[id]' />
     </Stack>
   )
 }

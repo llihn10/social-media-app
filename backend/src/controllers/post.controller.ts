@@ -6,6 +6,7 @@ import { AuthRequest } from '../middlewares/auth.middleware'
 import { cloudinary } from '../configs/cloudinary'
 import * as streamifier from 'streamifier'
 import { FollowModel } from '../models/Follow'
+import mongoose from 'mongoose'
 
 export const getPosts = async (req: any, res: Response) => {
     try {
@@ -44,7 +45,7 @@ export const getPosts = async (req: any, res: Response) => {
 export const getPostDetail = async (req: any, res: Response) => {
     try {
         const userId = req.user?.id
-        const { postId } = req.params;
+        const { postId } = req.params
 
         const post = await PostModel.findById(postId)
             .populate('author', '_id username profile_picture')
@@ -88,9 +89,32 @@ export const getPostDetail = async (req: any, res: Response) => {
     }
 }
 
-export const getUserPost = async (req: AuthRequest, res: Response) => {
+export const getMyPost = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user!.id
+
+        const posts = await PostModel
+            .find({ author: userId })
+            .sort({ createdAt: -1 })
+            .populate('author', 'username profile_picture')
+            .lean()
+
+        res.status(200).json({ data: posts })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Server error' })
+    }
+}
+
+export const getUserPost = async (req: any, res: Response) => {
+    try {
+        const viewerId = req.user?.id
+
+        const { id: userId } = req.params
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' })
+        }
 
         const posts = await PostModel
             .find({ author: userId })

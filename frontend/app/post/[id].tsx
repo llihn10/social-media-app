@@ -5,7 +5,7 @@ import PostHeader from '@/components/PostHeader';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, View, FlatList } from 'react-native';
+import { ActivityIndicator, Text, View, FlatList, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -15,7 +15,6 @@ export default function PostDetail() {
     const { user, token, logout } = useAuth()
     const [post, setPost] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -29,7 +28,7 @@ export default function PostDetail() {
                 setPost(json);
             } catch (err) {
                 console.error(err);
-                setError('Failed to load posts')
+                Alert.alert('Error', 'Failed to load posts')
             } finally {
                 setLoading(false);
             }

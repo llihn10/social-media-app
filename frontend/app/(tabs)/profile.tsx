@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '@/contexts/AuthContext'
-import { MoreHorizontal } from 'lucide-react-native'
 import PostCard from '@/components/PostCard'
 import { authFetch } from '@/services/authFetch'
-import defaultAvatar from '@/assets/images/profile.png'
 import ProfileHeader from '@/components/ProfileHeader'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
@@ -23,7 +21,6 @@ export default function ProfileScreen() {
         if (!token) return
         const loadData = async () => {
             try {
-
                 const [profileRes, postsRes] = await Promise.all([
                     authFetch(`${API_URL}/profile`,
                         {},
@@ -58,7 +55,7 @@ export default function ProfileScreen() {
                 setPosts(postsJson.data || [])
             } catch (err) {
                 console.error(err);
-                setError('Failed to load data')
+                Alert.alert('Error', 'Failed to load data')
             } finally {
                 setLoading(false);
             }
@@ -83,15 +80,6 @@ export default function ProfileScreen() {
         )
     }
 
-    if (error) {
-        return (
-            <SafeAreaView className="flex-1 items-center justify-center">
-                <Text>{error}</Text>
-                <Text>{user.username}</Text>
-            </SafeAreaView>
-        )
-    }
-
     return (
         <SafeAreaView className='flex-1 bg-secondary' edges={['top']}>
             <FlatList
@@ -101,6 +89,7 @@ export default function ProfileScreen() {
                 ListHeaderComponent={<ProfileHeader profile={profile} postNum={postNum} />}
                 ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 40 }}
             />
         </SafeAreaView>
     )
