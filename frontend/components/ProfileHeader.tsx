@@ -6,9 +6,9 @@ import defaultAvatar from '@/assets/images/profile.png'
 interface ProfileHeaderProps {
     profile: {
         _id: string,
-        username: string;
+        username: string,
         email: string,
-        profile_picture?: string;
+        profile_picture?: string,
         bio?: string,
         followers_count: number,
         following_count: number,
