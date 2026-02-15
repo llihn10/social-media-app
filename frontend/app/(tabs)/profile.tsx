@@ -6,6 +6,7 @@ import { MoreHorizontal } from 'lucide-react-native'
 import PostCard from '@/components/PostCard'
 import { authFetch } from '@/services/authFetch'
 import defaultAvatar from '@/assets/images/profile.png'
+import ProfileHeader from '@/components/ProfileHeader'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -16,6 +17,7 @@ export default function ProfileScreen() {
     const [posts, setPosts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const postNum = posts?.length
 
     useEffect(() => {
         if (!token) return
@@ -90,62 +92,13 @@ export default function ProfileScreen() {
         )
     }
 
-    // Header profile
-    const renderHeader = () => (
-        <View className='bg-secondary px-4 pt-2 pb-6 border-b border-gray-200'>
-
-            {/* Top bar */}
-            <View className='flex-row justify-end'>
-                <TouchableOpacity>
-                    <MoreHorizontal color='#333' size={26} />
-                </TouchableOpacity>
-            </View>
-
-            {/* Avatar + Username */}
-            <View className='flex-row items-start gap-4 ml-2'>
-                <Image source={profile?.profile_picture
-                    ? { uri: profile.profile_picture }
-                    : defaultAvatar}
-                    className='w-20 h-20 rounded-full'
-                />
-
-                <View>
-                    <View className="w-full mt-1">
-                        <Text className="text-3xl font-bold text-dark-100">{profile.username}</Text>
-                    </View>
-
-                    {/* Bio */}
-                    <View>
-                        <Text className='text-base font-normal text-dark-200 mt-3'>{profile.bio}</Text>
-                    </View>
-                </View>
-            </View>
-
-            {/* Stats */}
-            <View className="flex-row justify-around mt-6">
-                <View className="items-center">
-                    <Text className="text-2xl font-semibold text-dark-400">{posts?.length}</Text>
-                    <Text className="text-light-400">stories</Text>
-                </View>
-                <View className="items-center">
-                    <Text className="text-2xl font-semibold text-dark-400">{profile.followers_count}</Text>
-                    <Text className="text-light-400">followers</Text>
-                </View>
-                <View className="items-center">
-                    <Text className="text-2xl font-semibold text-dark-400">{profile.following_count}</Text>
-                    <Text className="text-light-400">following</Text>
-                </View>
-            </View>
-        </View>
-    )
-
     return (
         <SafeAreaView className='flex-1 bg-secondary' edges={['top']}>
             <FlatList
                 data={posts}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (<PostCard post={item} />)}
-                ListHeaderComponent={renderHeader}
+                ListHeaderComponent={<ProfileHeader profile={profile} postNum={postNum} />}
                 ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
                 showsVerticalScrollIndicator={false}
             />
