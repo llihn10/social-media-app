@@ -9,7 +9,7 @@ import UserItem from '@/components/UserItem'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-interface FollowUser {
+export interface FollowUser {
     _id: string,
     username: string,
     profile_picture?: string,
@@ -18,21 +18,26 @@ interface FollowUser {
 
 export default function FollowScreen() {
     const { user: currentUser, token, logout } = useAuth()
-    const { userId, tab = 'followers' } = useLocalSearchParams<{ userId?: string, tab?: string }>()
+    const { id, tab = 'followers' } = useLocalSearchParams<{ id?: string, tab?: string }>()
     const [activeTab, setActiveTab] = useState(tab)
     const [data, setData] = useState<FollowUser[]>([])
     const [loading, setLoading] = useState(true)
 
-    const isMe = !userId || userId === currentUser?._id
+    const isMe = id === undefined || id === currentUser?._id
+
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true)
 
-                const endpoint = activeTab === 'followers'
-                    ? (isMe ? 'followers/me' : `followers/${userId}`)
-                    : (isMe ? 'following/me' : `following/${userId}`)
+                let endpoint: string
+
+                if (activeTab === 'followers') {
+                    endpoint = isMe ? 'followers/me' : `followers/${id}`;
+                } else {
+                    endpoint = isMe ? 'following/me' : `following/${id}`;
+                }
 
                 const res = await authFetch(`${API_URL}/users/${endpoint}`,
                     {},
@@ -53,18 +58,18 @@ export default function FollowScreen() {
         }
 
         fetchData()
-    }, [activeTab, userId])
+    }, [activeTab, id, isMe])
 
     const Header = () => (
-        <View className='flex-row border-b border-gray-200'>
+        <View className='flex-row justify-center gap-16 py-4 border-b border-gray-200'>
             <Pressable onPress={() => setActiveTab('followers')}>
-                <Text className={activeTab === 'followers' ? 'font-bold' : ''}>
+                <Text className={`text-lg ${activeTab === 'followers' ? 'font-bold text-primary' : 'text-gray-500'}`}>
                     Followers
                 </Text>
             </Pressable>
 
             <Pressable onPress={() => setActiveTab('following')}>
-                <Text className={activeTab === 'following' ? 'font-bold' : ''}>
+                <Text className={`text-lg ${activeTab === 'following' ? 'font-bold text-primary' : 'text-gray-500'}`}>
                     Following
                 </Text>
             </Pressable>
@@ -84,7 +89,7 @@ export default function FollowScreen() {
                 <FlatList
                     data={data}
                     keyExtractor={(item) => item._id}
-                    renderItem={({ item }) => <UserItem user={item} />}
+                    renderItem={({ item }) => <UserItem item={item} isMe={isMe} />}
                     overScrollMode="never"
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={

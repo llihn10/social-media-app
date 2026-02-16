@@ -55,19 +55,25 @@ const ProfileHeader = ({ profile, postNum }: ProfileHeaderProps) => {
                     <Text className="text-xl font-semibold text-dark-400">{postNum}</Text>
                     <Text className="text-light-400">stories</Text>
                 </View>
-                <View className="items-center">
-                    <Pressable onPress={() => router.push({
-                        pathname: '/follow',
-                        params: { tab: 'followers' }
-                    })}>
+                <Pressable onPress={() => router.push({
+                    pathname: '/follow',
+                    params: { id: profile._id, tab: 'followers' }
+                })}>
+                    <View className="items-center">
                         <Text className="text-xl font-semibold text-dark-400">{profile.followers_count}</Text>
-                    </Pressable>
-                    <Text className="text-light-400">followers</Text>
-                </View>
-                <View className="items-center">
-                    <Text className="text-xl font-semibold text-dark-400">{profile.following_count}</Text>
-                    <Text className="text-light-400">following</Text>
-                </View>
+                        <Text className="text-light-400">followers</Text>
+                    </View>
+                </Pressable>
+
+                <Pressable onPress={() => router.push({
+                    pathname: '/follow',
+                    params: { id: profile._id, tab: 'following' }
+                })}>
+                    <View className="items-center">
+                        <Text className="text-xl font-semibold text-dark-400">{profile.following_count}</Text>
+                        <Text className="text-light-400">following</Text>
+                    </View>
+                </Pressable>
             </View>
         </View>
     )
