@@ -25,7 +25,6 @@ export default function FollowScreen() {
 
     const isMe = id === undefined || id === currentUser?._id
 
-
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -89,7 +88,7 @@ export default function FollowScreen() {
                 <FlatList
                     data={data}
                     keyExtractor={(item) => item._id}
-                    renderItem={({ item }) => <UserItem item={item} isMe={isMe} />}
+                    renderItem={({ item }) => <UserItem item={item} />}
                     overScrollMode="never"
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={

@@ -10,14 +10,14 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL
 
 interface UserItemProps {
     item: FollowUser,
-    isMe: boolean
 }
 
-const UserItem: React.FC<UserItemProps> = ({ item, isMe }) => {
+const UserItem: React.FC<UserItemProps> = ({ item }) => {
 
-    const { user, token, logout } = useAuth()
+    const { user: currentUser, token, logout } = useAuth()
     const [isFollowing, setIsFollowing] = useState(item.is_followed)
     const [loading, setLoading] = useState(false)
+    const isMe = item._id === undefined || item._id === currentUser?._id
 
     const navigateToProfile = () => {
         router.push({
@@ -29,6 +29,8 @@ const UserItem: React.FC<UserItemProps> = ({ item, isMe }) => {
     // follow/unfollow action
     const handleFollow = async () => {
         try {
+            setLoading(true)
+
             const method = isFollowing ? 'DELETE' : 'POST'
 
             const res = await authFetch(`${API_URL}/users/follow/${item._id}`,
@@ -64,22 +66,22 @@ const UserItem: React.FC<UserItemProps> = ({ item, isMe }) => {
                 </View>
             </TouchableOpacity>
 
-            <TouchableOpacity
-                onPress={handleFollow}
-                disabled={loading}
-                className={`px-5 py-2 rounded-xl border ${isFollowing ? 'bg-secondary border-gray-300' : 'bg-primary border-primary'}`}
-            >
-                {loading ? (
-                    <ActivityIndicator size="small" color={isFollowing ? "#000" : "#fff"} />
-                ) : (
-                    <Text className={`font-bold ${isFollowing ? 'text-dark-100' : 'text-white'}`}>
-                        {isFollowing ? 'Following' : 'Follow'}
-                    </Text>
-                )}
-            </TouchableOpacity>
-
+            {!isMe && (
+                <TouchableOpacity
+                    onPress={handleFollow}
+                    disabled={loading}
+                    className={`px-5 py-2 rounded-xl border ${isFollowing ? 'bg-secondary border-gray-300' : 'bg-primary border-primary'}`}
+                >
+                    {loading ? (
+                        <ActivityIndicator size="small" color={isFollowing ? "#000" : "#fff"} />
+                    ) : (
+                        <Text className={`font-bold ${isFollowing ? 'text-dark-100' : 'text-white'}`}>
+                            {isFollowing ? 'Following' : 'Follow'}
+                        </Text>
+                    )}
+                </TouchableOpacity>
+            )}
         </View>
-
     )
 }
 
