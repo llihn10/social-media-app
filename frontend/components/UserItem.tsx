@@ -3,18 +3,16 @@ import React from 'react'
 import defaultAvatar from '@/assets/images/profile.png'
 
 interface UserItemProps {
-    user: {
-        _id: string,
-        username: string,
-        profile_picture?: string,
-        is_followed: boolean
-    }
+    _id: string,
+    username: string,
+    profile_picture?: string,
+    is_followed: boolean
 }
-const UserItem = ({ user }: UserItemProps) => {
+const UserItem = ({ user }: { user: UserItemProps }) => {
     return (
         <TouchableOpacity>
             <View>
-                <Image source={user?.profile_picture
+                <Image source={user.profile_picture
                     ? { uri: user.profile_picture }
                     : defaultAvatar}
                     className='w-20 h-20 rounded-full'

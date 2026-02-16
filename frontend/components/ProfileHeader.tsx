@@ -1,7 +1,8 @@
-import { Image, Text, TouchableOpacity, View } from 'react-native'
+import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { MoreHorizontal } from 'lucide-react-native'
 import defaultAvatar from '@/assets/images/profile.png'
+import { router } from 'expo-router'
 
 interface ProfileHeaderProps {
     profile: {
@@ -55,7 +56,12 @@ const ProfileHeader = ({ profile, postNum }: ProfileHeaderProps) => {
                     <Text className="text-light-400">stories</Text>
                 </View>
                 <View className="items-center">
-                    <Text className="text-xl font-semibold text-dark-400">{profile.followers_count}</Text>
+                    <Pressable onPress={() => router.push({
+                        pathname: '/follow',
+                        params: { tab: 'followers' }
+                    })}>
+                        <Text className="text-xl font-semibold text-dark-400">{profile.followers_count}</Text>
+                    </Pressable>
                     <Text className="text-light-400">followers</Text>
                 </View>
                 <View className="items-center">
