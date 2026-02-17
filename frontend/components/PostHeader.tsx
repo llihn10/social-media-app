@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext'
 import defaultAvatar from '@/assets/images/profile.png'
 import { authFetch } from "@/services/authFetch";
+import { router } from "expo-router";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -92,17 +93,27 @@ export default function PostHeader({ post }: PostItemProps) {
             {/* Author */}
             {post.author && (
                 <View className='items-center flex-row'>
-                    <Image
-                        source={
-                            post.author.profile_picture &&
-                                post.author.profile_picture.trim() !== ''
-                                ? { uri: post.author.profile_picture }
-                                : defaultAvatar
-                        }
-                        className='w-12 h-12 rounded-full mt-1'
-                    />
+                    <Pressable onPress={() => router.push({
+                        pathname: '/user/[id]',
+                        params: { id: post.author._id },
+                    })}>
+                        <Image
+                            source={
+                                post.author.profile_picture &&
+                                    post.author.profile_picture.trim() !== ''
+                                    ? { uri: post.author.profile_picture }
+                                    : defaultAvatar
+                            }
+                            className='w-12 h-12 rounded-full mt-1'
+                        />
+                    </Pressable>
                     <View className='flex-row items-baseline'>
-                        <Text className='text-lg font-semibold text-dark-100 ml-3'>{post.author.username}</Text>
+                        <Pressable onPress={() => router.push({
+                            pathname: '/user/[id]',
+                            params: { id: post.author._id },
+                        })}>
+                            <Text className='text-lg font-semibold text-dark-100 ml-3'>{post.author.username}</Text>
+                        </Pressable>
                         <Text className='ml-3 text-sm font-normal text-dark-200'> {timeAgo(post.createdAt)}</Text>
 
                         {/* Follow Button */}

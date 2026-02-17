@@ -1,8 +1,9 @@
 import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
-import { MoreHorizontal } from 'lucide-react-native'
+import { ArrowLeft, MoreHorizontal } from 'lucide-react-native'
 import defaultAvatar from '@/assets/images/profile.png'
-import { router } from 'expo-router'
+import { router, useSegments } from 'expo-router'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface ProfileHeaderProps {
     profile: {
@@ -19,11 +20,25 @@ interface ProfileHeaderProps {
 }
 
 const ProfileHeader = ({ profile, postNum }: ProfileHeaderProps) => {
+    const { user: currentUser, token, logout } = useAuth()
+
+    const segments = useSegments()
+    const isProfileTab = segments.length === 2 && segments[1] === 'profile'
+    const showBackButton = !isProfileTab
+
     return (
         <View className='bg-secondary px-4 pt-2 pb-6 border-b border-gray-200'>
 
             {/* Top bar */}
-            <View className='flex-row justify-end'>
+            <View className='flex-row justify-between mb-3'>
+                {showBackButton ? (
+                    <TouchableOpacity onPress={() => router.back()}>
+                        <ArrowLeft color='#333' size={26} />
+                    </TouchableOpacity>
+                ) : (
+                    <View />
+                )}
+
                 <TouchableOpacity>
                     <MoreHorizontal color='#333' size={26} />
                 </TouchableOpacity>
