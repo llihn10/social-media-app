@@ -214,8 +214,8 @@ const PostCard = memo(({ post }: PostItemProps) => {
                 >
                     <Heart
                         size={17}
-                        color={isLiked ? '#ff2d55' : '#000'}
-                        fill={isLiked ? '#ff2d55' : 'none'}
+                        color={liked ? '#ff2d55' : '#000'}
+                        fill={liked ? '#ff2d55' : 'none'}
                     />
                     <Text className="text-sm text-dark-100 font-medium">{likesCount}</Text>
                 </Pressable>
