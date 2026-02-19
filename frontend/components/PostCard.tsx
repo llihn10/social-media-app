@@ -1,10 +1,13 @@
-import { View, Text, Image, Pressable, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, Image, Pressable, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native'
 import React, { useState, memo } from 'react'
 import { Heart, MessageCircle, X } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext'
 import ImageViewing from "react-native-image-viewing";
 import defaultAvatar from '@/assets/images/profile.png'
+import { authFetch } from '@/services/authFetch';
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL
 
 interface PostItemProps {
     post: {
@@ -18,6 +21,7 @@ interface PostItemProps {
         media: string[],
         likes_count: number;
         comments_count: number,
+        is_liked?: boolean,
         createdAt: string,
     },
 }
@@ -54,8 +58,66 @@ const PostCard = memo(({ post }: PostItemProps) => {
     const { user, token, logout } = useAuth()
     const [visible, setVisible] = useState(false);
     const [imageIndex, setImageIndex] = useState(0);
+    // const [liked, setLiked] = useState(post.is_liked)
+    const [liked, setLiked] = useState<boolean>(!!post.is_liked)
+    // const [likesCount, setLikesCount] = useState(post.likes_count)
+    const [likesCount, setLikesCount] = useState<number>(post.likes_count)
 
-    const images = post.media.map((url: string) => ({ uri: url }));
+    const images = post.media.map((url: string) => ({ uri: url }))
+    const isLiked = post?.is_liked
+    const postId = post._id
+
+    // const handleToggleLike = async () => {
+    //     try {
+    //         const method = isLiked ? 'DELETE' : 'POST'
+
+    //         setLiked(prev => !prev)
+    //         setLikesCount(prev => prev + (liked ? -1 : 1))
+
+    //         const res = await authFetch(`${API_URL}/post/${postId}/like`,
+    //             { method },
+    //             token,
+    //             logout
+    //         )
+    //         if (!res.ok) throw new Error('Like failed')
+    //     } catch (error) {
+    //         setLiked(prev => !prev)
+    //         setLikesCount(prev => prev + (liked ? 1 : -1))
+    //         console.error(error);
+    //         Alert.alert('Error', 'Failed to like post')
+    //     }
+    // }
+
+    const handleToggleLike = async () => {
+        const nextLiked = !liked
+
+        // Optimistic update
+        setLiked(nextLiked)
+        setLikesCount(prev => prev + (nextLiked ? 1 : -1))
+
+        try {
+            const method = liked ? 'DELETE' : 'POST'
+
+            const res = await authFetch(
+                `${API_URL}/post/${postId}/like`,
+                { method },
+                token,
+                logout
+            )
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.message || 'Like failed')
+            }
+
+        } catch (error) {
+            setLiked(liked)
+            setLikesCount(prev => prev + (liked ? 1 : -1))
+            console.error(error)
+            Alert.alert('Error', 'Failed to like post')
+        }
+    }
 
     return (
 
@@ -146,13 +208,16 @@ const PostCard = memo(({ post }: PostItemProps) => {
 
             {/* Post Actions: like + comment */}
             <View className='flex-row mt-2 gap-6' style={{ marginLeft: 58 }}>
-                <Pressable className="flex-row items-center gap-2 p-2">
+                <Pressable
+                    className="flex-row items-center gap-2 p-2"
+                    onPress={handleToggleLike}
+                >
                     <Heart
                         size={17}
-                        color={'#000'}
-                        fill='none'
+                        color={isLiked ? '#ff2d55' : '#000'}
+                        fill={isLiked ? '#ff2d55' : 'none'}
                     />
-                    <Text className="text-sm text-dark-100 font-medium">{post.likes_count}</Text>
+                    <Text className="text-sm text-dark-100 font-medium">{likesCount}</Text>
                 </Pressable>
 
                 <Pressable className="flex-row items-center gap-2 p-2">
