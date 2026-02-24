@@ -58,35 +58,11 @@ const PostCard = memo(({ post }: PostItemProps) => {
     const { user, token, logout } = useAuth()
     const [visible, setVisible] = useState(false);
     const [imageIndex, setImageIndex] = useState(0);
-    // const [liked, setLiked] = useState(post.is_liked)
     const [liked, setLiked] = useState<boolean>(!!post.is_liked)
-    // const [likesCount, setLikesCount] = useState(post.likes_count)
     const [likesCount, setLikesCount] = useState<number>(post.likes_count)
 
     const images = post.media.map((url: string) => ({ uri: url }))
-    const isLiked = post?.is_liked
     const postId = post._id
-
-    // const handleToggleLike = async () => {
-    //     try {
-    //         const method = isLiked ? 'DELETE' : 'POST'
-
-    //         setLiked(prev => !prev)
-    //         setLikesCount(prev => prev + (liked ? -1 : 1))
-
-    //         const res = await authFetch(`${API_URL}/post/${postId}/like`,
-    //             { method },
-    //             token,
-    //             logout
-    //         )
-    //         if (!res.ok) throw new Error('Like failed')
-    //     } catch (error) {
-    //         setLiked(prev => !prev)
-    //         setLikesCount(prev => prev + (liked ? 1 : -1))
-    //         console.error(error);
-    //         Alert.alert('Error', 'Failed to like post')
-    //     }
-    // }
 
     const handleToggleLike = async () => {
         const nextLiked = !liked
@@ -98,8 +74,7 @@ const PostCard = memo(({ post }: PostItemProps) => {
         try {
             const method = liked ? 'DELETE' : 'POST'
 
-            const res = await authFetch(
-                `${API_URL}/post/${postId}/like`,
+            const res = await authFetch(`${API_URL}/post/${postId}/like`,
                 { method },
                 token,
                 logout

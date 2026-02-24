@@ -50,6 +50,7 @@ interface PostItemProps {
         comments_count: number,
         comments?: [],
         createdAt: string,
+        is_liked?: boolean,
         is_followed: boolean
     },
 }
@@ -61,8 +62,40 @@ export default function PostHeader({ post }: PostItemProps) {
     const [index, setIndex] = useState(0)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [liked, setLiked] = useState<boolean>(!!post.is_liked)
+    const [likesCount, setLikesCount] = useState<number>(post.likes_count)
     const [isFollowed, setIsFollowed] = useState(post?.is_followed ?? false)
+    const postId = post._id
     const isOwnPost = user?._id === post.author?._id
+
+    // like/unlike post
+    const handleToggleLike = async () => {
+        const nextLiked = !liked
+
+        setLiked(nextLiked)
+        setLikesCount(prev => prev + (nextLiked ? 1 : -1))
+
+        try {
+            const method = liked ? 'DELETE' : 'POST'
+
+            const res = await authFetch(`${API_URL}/post/${postId}/like`,
+                { method },
+                token,
+                logout
+            )
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.message || 'Like failed')
+            }
+        } catch (error) {
+            setLiked(liked)
+            setLikesCount(prev => prev + (liked ? 1 : -1))
+            console.error(error)
+            Alert.alert('Error', 'Failed to like post')
+        }
+    }
 
     // follow/unfollow action
     const handleFollow = async () => {
@@ -166,13 +199,16 @@ export default function PostHeader({ post }: PostItemProps) {
 
             {/* Post Actions: like + comment */}
             <View className='flex-row gap-5 py-2'>
-                <Pressable className="flex-row items-center gap-2 p-2">
+                <Pressable
+                    className="flex-row items-center gap-2 p-2"
+                    onPress={handleToggleLike}
+                >
                     <Heart
                         size={19}
-                        color={'#000'}
-                        fill='none'
+                        color={liked ? '#ff2d55' : '#000'}
+                        fill={liked ? '#ff2d55' : 'none'}
                     />
-                    <Text className="text-base text-dark-100 font-medium">{post.likes_count}</Text>
+                    <Text className="text-base text-dark-100 font-medium">{likesCount}</Text>
                 </Pressable>
 
                 <Pressable className="flex-row items-center gap-2 p-2">
