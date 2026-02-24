@@ -57,10 +57,10 @@ interface PostItemProps {
 export default function PostHeader({ post }: PostItemProps) {
 
     const { user, token, logout } = useAuth()
-    const [visible, setVisible] = useState(false);
-    const [index, setIndex] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [visible, setVisible] = useState(false)
+    const [index, setIndex] = useState(0)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
     const [isFollowed, setIsFollowed] = useState(post?.is_followed ?? false)
     const isOwnPost = user?._id === post.author?._id
 

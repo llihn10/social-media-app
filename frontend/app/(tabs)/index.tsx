@@ -10,10 +10,10 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export default function HomeScreen() {
 
   const { user, token, logout } = useAuth()
-  const [posts, setPosts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('foryou');
+  const [posts, setPosts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('foryou')
 
   useEffect(() => {
     const fetchPosts = async () => {

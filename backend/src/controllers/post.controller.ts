@@ -7,6 +7,7 @@ import { cloudinary } from '../configs/cloudinary'
 import * as streamifier from 'streamifier'
 import { FollowModel } from '../models/Follow'
 import mongoose from 'mongoose'
+import { LikeModel } from '../models/Like'
 
 export const getPosts = async (req: any, res: Response) => {
     try {
@@ -18,20 +19,23 @@ export const getPosts = async (req: any, res: Response) => {
             .limit(20)
             .lean()
 
-        const follows = await FollowModel.find({ follower: userId })
-            .select('following')
-            .lean()
+        const postIds = posts.map(post => post._id)
 
-        const followingIds = new Set(
-            follows.map(f => f.following.toString())
-        )
+        const [follows, likes] = await Promise.all([
+            FollowModel.find({ follower: userId }).select('following').lean(),
+            LikeModel.find({ user_id: userId, post_id: { $in: postIds } }).select('post_id').lean()
+        ])
+
+        const followingIds = new Set(follows.map(f => f.following.toString()))
+        const likedPostIds = new Set(likes.map(l => l.post_id.toString()))
 
         const formattedPosts = posts.map((post: any) => {
             const authorId = post.author?._id?.toString()
 
             return {
                 ...post,
-                is_followed: followingIds.has(authorId)
+                is_followed: followingIds.has(authorId),
+                is_liked: likedPostIds.has(post._id.toString())
             }
         })
 
@@ -56,16 +60,18 @@ export const getPostDetail = async (req: any, res: Response) => {
         }
 
         let is_followed = false
+        let is_liked = false
 
         if (userId) {
             const authorId = post.author._id.toString()
 
-            const isFollowed = await FollowModel.exists({
-                follower: userId,
-                following: authorId
-            })
+            const [isFollowed, isLiked] = await Promise.all([
+                FollowModel.exists({ follower: userId, following: authorId }),
+                LikeModel.exists({ user_id: userId, post_id: { $in: postId } })
+            ])
 
             is_followed = !!isFollowed
+            is_liked = !!isLiked
         }
 
         const comments = await CommentModel.find({ post_id: postId })
@@ -81,7 +87,8 @@ export const getPostDetail = async (req: any, res: Response) => {
                 comment: c.comment,
                 createdAt: c.createdAt,
             })),
-            is_followed
+            is_followed,
+            is_liked
         })
     } catch (error) {
         console.error(error)
@@ -89,7 +96,7 @@ export const getPostDetail = async (req: any, res: Response) => {
     }
 }
 
-export const getMyPost = async (req: AuthRequest, res: Response) => {
+export const getMyPost = async (req: any, res: Response) => {
     try {
         const userId = req.user!.id
 
@@ -99,7 +106,19 @@ export const getMyPost = async (req: AuthRequest, res: Response) => {
             .populate('author', 'username profile_picture')
             .lean()
 
-        res.status(200).json({ data: posts })
+        const postIds = posts.map(post => post._id)
+
+        const likes = await LikeModel.find({ user_id: userId, post_id: { $in: postIds } }).select('post_id').lean()
+        const likePostIds = new Set(likes.map(l => l.post_id.toString()))
+
+        const formattedPosts = posts.map((post: any) => {
+            return {
+                ...post,
+                is_liked: likePostIds.has(post._id.toString())
+            }
+        })
+
+        res.status(200).json({ data: formattedPosts })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Server error' })
@@ -122,7 +141,19 @@ export const getUserPost = async (req: any, res: Response) => {
             .populate('author', 'username profile_picture')
             .lean()
 
-        res.status(200).json({ data: posts })
+        const postIds = posts.map(post => post._id)
+
+        const likes = await LikeModel.find({ user_id: viewerId, post_id: { $in: postIds } }).select('post_id').lean()
+        const likePostIds = new Set(likes.map(l => l.post_id.toString()))
+
+        const formattedPosts = posts.map((post: any) => {
+            return {
+                ...post,
+                is_liked: likePostIds.has(post._id.toString())
+            }
+        })
+
+        res.status(200).json({ data: formattedPosts })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Server error' })
