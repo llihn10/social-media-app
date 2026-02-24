@@ -59,7 +59,7 @@ const fetchFollowerList = async (
     }))
 }
 
-export const fetchFollowingList = async (
+const fetchFollowingList = async (
     { targetUserId, viewerId }: { targetUserId: string; viewerId?: string }
 ) => {
     const followings = await FollowModel

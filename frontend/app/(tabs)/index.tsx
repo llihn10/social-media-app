@@ -2,7 +2,7 @@ import PostCard from '@/components/PostCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
 import { useEffect, useState } from 'react';
-import { Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -10,34 +10,42 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export default function HomeScreen() {
 
   const { user, token, logout } = useAuth()
-  const [posts, setPosts] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('foryou')
+  const [postsForYou, setPostsForYou] = useState<any[]>([])
+  const [postsFollowing, setPostsFollowing] = useState<any[]>([])
+  const [loadingTab, setLoadingTab] = useState<'foryou' | 'following' | null>(null)
+
+  const fetchPosts = async (tab: 'foryou' | 'following') => {
+    try {
+      setLoadingTab(tab)
+
+      const endpoint = tab === 'foryou'
+        ? `${API_URL}/posts`
+        : `${API_URL}/posts/following`
+
+      const res = await authFetch(endpoint, {}, token, logout);
+      const json = await res.json();
+
+      if (tab === 'foryou') setPostsForYou(json.data)
+      else setPostsFollowing(json.data)
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load posts')
+    } finally {
+      setLoadingTab(null);
+    }
+  }
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true);
-
-        const res = await authFetch(`${API_URL}/posts`,
-          {},
-          token,
-          logout
-        );
-        const json = await res.json();
-
-        setPosts(json.data);
-      } catch (err) {
-        console.error(err);
-        setError('Failed to load posts')
-      } finally {
-        setLoading(false);
-      }
+    if (activeTab === 'foryou' && postsForYou.length === 0) {
+      fetchPosts('foryou')
     }
 
-    fetchPosts();
-  }, [])
+    if (activeTab === 'following' && postsFollowing.length === 0) {
+      fetchPosts('following')
+    }
+  }, [activeTab])
 
   const Header = () => (
     <View className='items-center pt-4 border-b border-gray-100 bg-secondary'>
@@ -73,30 +81,34 @@ export default function HomeScreen() {
     </View>
   )
 
-  if (loading) return null;
-  if (error) return null;
+  const displayedPosts = activeTab === 'foryou' ? postsForYou : postsFollowing
+
+  if (error) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-secondary">
+        <Text className="text-red-500">{error}</Text>
+      </SafeAreaView>
+    )
+  }
 
   return (
     <SafeAreaView className='flex-1 bg-secondary' edges={['top']}>
 
       <FlatList
-        data={posts}
-        // data={activeTab === 'foryou' ? postsForYou : postsFollowing}
+        data={displayedPosts}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (<PostCard post={item} />)}
-
         ListHeaderComponent={Header}
-
         extraData={activeTab}
-
         ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
         showsVerticalScrollIndicator={false}
       />
 
-      {/* <Link href="/profile" className="text-blue-500">
-        Profile
-      </Link> */}
-
+      {loadingTab === activeTab && (
+        <View className="py-3">
+          <ActivityIndicator size="small" />
+        </View>
+      )}
     </SafeAreaView>
   );
 }

@@ -1,5 +1,5 @@
 import { Router, RequestHandler } from 'express'
-import { getPosts, getPostDetail, createNewPost, getMyPost, getUserPost } from '../controllers/post.controller'
+import { getPosts, getFollowingPosts, getPostDetail, createNewPost, getMyPost, getUserPost } from '../controllers/post.controller'
 import { auth } from '../middlewares/auth.middleware'
 import { upload } from '../middlewares/upload.middleware'
 import { body, param, validationResult } from 'express-validator'
@@ -39,6 +39,7 @@ export const validate: RequestHandler = (req, res, next) => {
 const router = Router()
 
 router.get('/', auth, getPosts)
+router.get('/following', auth, getFollowingPosts)
 router.get('/my-posts', auth, getMyPost)
 router.post('/create', auth, upload.array('media', 5), createNewPostValidation, validate, createNewPost)
 router.get('/user/:id', auth, getUserPostValidation, validate, getUserPost)
