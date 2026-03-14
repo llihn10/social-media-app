@@ -1,4 +1,4 @@
-import { NextFunction, Router, Response, RequestHandler } from 'express'
+import { Router, RequestHandler } from 'express'
 import { toggleFollow, getMyFollowers, getMyFollowings, getUserFollowers, getUserFollowings } from '../controllers/follow.controller'
 import { auth } from '../middlewares/auth.middleware'
 import { param, validationResult } from 'express-validator'
