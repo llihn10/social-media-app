@@ -26,3 +26,28 @@ export const createComment = async (req: any, res: Response) => {
         res.status(500).json({ message: 'Server error' })
     }
 }
+
+export const deleteComment = async (req: any, res: Response) => {
+    try {
+        const { commentId } = req.params
+        const userId = req.user!.id
+
+        const comment = await CommentModel.findById(commentId)
+
+        if (!comment) {
+            return res.status(404).json({ message: "Comment not found" })
+        }
+
+        if (comment.user_id !== userId) {
+            return res.status(403).json({ message: "Unauthorized" })
+        }
+
+        await CommentModel.findByIdAndDelete(commentId)
+        await PostModel.findByIdAndUpdate(comment.post_id, { $inc: { comments_count: -1 } })
+
+        res.status(200).json({ message: "Comment deleted successfully" })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Server error' })
+    }
+}
