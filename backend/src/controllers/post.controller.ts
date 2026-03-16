@@ -174,7 +174,11 @@ export const createNewPost = async (req: any, res: Response) => {
             for (const file of files) {
                 const uploadResult = await new Promise<any>((resolve, reject) => {
                     const stream = cloudinary.uploader.upload_stream(
-                        { folder: 'posts' }, (error, result) => {
+                        {
+                            folder: 'posts',
+                            resource_type: 'auto'
+                        },
+                        (error, result) => {
                             if (error) reject(error)
                             else resolve(result)
                         }

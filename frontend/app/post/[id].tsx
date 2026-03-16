@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
 import PostHeader from '@/components/PostHeader';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Send } from 'lucide-react-native';
+import { AlertCircle, ArrowLeft, Send } from 'lucide-react-native';
 import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, Text, View, FlatList, Alert, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,7 +12,7 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function PostDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const { user, token, logout } = useAuth()
+    const { user, token, logout } = useAuth();
     const [post, setPost] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [comment, setComment] = useState('');
@@ -29,7 +29,7 @@ export default function PostDetail() {
             setPost(json);
         } catch (err) {
             console.error(err);
-            Alert.alert('Error', 'Failed to load posts')
+            Alert.alert('Error', 'Failed to load posts');
         } finally {
             setLoading(false);
         }
@@ -37,7 +37,7 @@ export default function PostDetail() {
 
     useEffect(() => {
         fetchPost();
-    }, [fetchPost])
+    }, [fetchPost]);
 
     const handleComment = async () => {
         if (!comment.trim()) return;
@@ -63,71 +63,105 @@ export default function PostDetail() {
         }
     };
 
-    const Header = () => (
-        <View className='flex-row items-center pb-2 ml-3 border-b border-gray-100'>
-            <ArrowLeft
-                size={24}
-                color="#7B4A2E"
-                strokeWidth={2.2}
-                onPress={() => router.back()}
-            />
-            <Text className='ml-4 text-2xl font-semibold text-dark-100'>The Hut</Text>
-        </View>
-    )
-
     if (loading) {
-        return <ActivityIndicator />
+        return (
+            <SafeAreaView className="flex-1 bg-white justify-center items-center">
+                <ActivityIndicator size="large" color="#7B4A2E" />
+            </SafeAreaView>
+        );
     }
 
     if (!post) {
-        return <Text>Post not found.</Text>
+        return (
+            <SafeAreaView className="flex-1 bg-white justify-center items-center px-6">
+                <AlertCircle size={48} color="#9CA3AF" />
+                <Text className="mt-4 text-xl font-semibold text-gray-800">Post not found</Text>
+                <Text className="mt-2 text-center text-gray-500 mb-6">The post you are looking for doesn't exist or has been removed.</Text>
+                <TouchableOpacity 
+                    className="px-8 py-3 bg-[#7B4A2E] rounded-full active:bg-[#5A3622]"
+                    onPress={() => router.back()}
+                >
+                    <Text className="text-white font-semibold text-base">Go Back</Text>
+                </TouchableOpacity>
+            </SafeAreaView>
+        );
     }
 
-    const keyboardOffset = Platform.OS === 'ios' ? 40 : 0;
+    // Usually SafeAreaView handles edges gracefully without keyboard offset on iOS depending on standard Expo navigation setups.
+    const keyboardOffset = Platform.OS === 'ios' ? 0 : 0; 
 
     return (
-        <SafeAreaView className='flex-1 bg-secondary' edges={['top', 'bottom']}>
+        <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 keyboardVerticalOffset={keyboardOffset}
             >
-                <Header />
+                {/* Modernized Header */}
+                <View className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100 z-10">
+                    <TouchableOpacity 
+                        onPress={() => router.back()} 
+                        className="p-2 -ml-2 rounded-full active:bg-gray-100"
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                        <ArrowLeft size={24} color="#1F2937" strokeWidth={2.5} />
+                    </TouchableOpacity>
+                    <Text className="ml-3 text-lg font-bold text-gray-900">Comments</Text>
+                </View>
 
+                {/* Content */}
                 <FlatList
-                    className='flex-1 bg-secondary'
+                    className="flex-1 bg-gray-50"
                     data={post.comments}
                     overScrollMode="never"
                     showsVerticalScrollIndicator={false}
-                    keyExtractor={(item, index) => item._id || index.toString()}
-                    ListHeaderComponent={<PostHeader post={post} />}
-                    renderItem={({ item }) => <CommentItem comment={item} />}
-                    contentContainerStyle={{ paddingBottom: 20 }}
+                    keyExtractor={(item, index) => item?._id || index.toString()}
+                    ListHeaderComponent={
+                        <View className="bg-white mb-2 pb-2 border-b border-gray-100">
+                            <PostHeader post={post} />
+                        </View>
+                    }
+                    renderItem={({ item }) => (
+                        <View className="bg-white px-4 border-b border-gray-50">
+                            <CommentItem comment={item} />
+                        </View>
+                    )}
+                    contentContainerStyle={{ paddingBottom: 24 }}
+                    ListEmptyComponent={
+                        <View className="py-12 items-center justify-center">
+                            <Text className="text-gray-400 text-base">No comments yet. Be the first to reply!</Text>
+                        </View>
+                    }
                 />
 
-                <View className="flex-row items-center px-4 py-3 border-t border-gray-200 bg-secondary">
+                {/* Modern Comment Input Area */}
+                <View className="flex-row items-end px-4 py-3 border-t border-gray-200 bg-white">
                     <TextInput
-                        className="flex-1 bg-gray-100 rounded-2xl px-4 py-2 text-base max-h-32"
+                        className="flex-1 bg-gray-100 rounded-3xl px-5 pt-3.5 pb-3.5 text-base text-gray-900 max-h-32 border border-gray-200"
                         placeholder="Add a comment..."
+                        placeholderTextColor="#9CA3AF"
                         value={comment}
                         onChangeText={setComment}
                         multiline
                         maxLength={500}
+                        textAlignVertical="center"
                     />
                     <TouchableOpacity
-                        className="ml-3 p-2 rounded-full items-center justify-center h-10 w-10"
-                        style={{ backgroundColor: (!comment.trim() || submitting) ? '#D1D5DB' : '#7B4A2E' }}
+                        className={`ml-3 mb-1 rounded-full items-center justify-center h-12 w-12 ${
+                            (!comment.trim() || submitting) ? 'bg-gray-200' : 'bg-[#7B4A2E]'
+                        }`}
                         onPress={handleComment}
                         disabled={!comment.trim() || submitting}
+                        activeOpacity={0.8}
                     >
                         {submitting ? (
                             <ActivityIndicator size="small" color="#FFF" />
                         ) : (
-                            <Send size={18} color="#FFF" style={{ marginLeft: 3 }} />
+                            <Send size={20} color={(!comment.trim() || submitting) ? "#9CA3AF" : "#FFF"} style={{ marginLeft: -2, marginTop: 2 }} />
                         )}
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>
-    )
+    );
 }

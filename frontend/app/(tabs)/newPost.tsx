@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { authFetch } from '@/services/authFetch'
 import defaultAvatar from '@/assets/images/profile.png'
 import * as ImagePicker from 'expo-image-picker'
+import { VideoPreview } from '@/components/VideoPreview'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -29,11 +30,18 @@ export default function NewPostScreen() {
             formData.append('content', content)
 
             // append images
+            // images.forEach((img, index) => {
+            //     formData.append('media', {
+            //         uri: img.uri,
+            //         name: img.fileName || `photo_${index}.jpg`,
+            //         type: img.type === 'image' ? 'image/jpeg' : img.mimeType || 'image/jpeg',
+            //     } as any)
+            // })
             images.forEach((img, index) => {
                 formData.append('media', {
                     uri: img.uri,
-                    name: img.fileName || `photo_${index}.jpg`,
-                    type: img.type === 'image' ? 'image/jpeg' : img.mimeType || 'image/jpeg',
+                    name: img.fileName || `media_${index}`,
+                    type: img.mimeType || (img.type === "video" ? "video/mp4" : "image/jpeg"),
                 } as any)
             })
 
@@ -96,14 +104,33 @@ export default function NewPostScreen() {
         }
 
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
+            // mediaTypes: ['images'],
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsMultipleSelection: true,
             allowsEditing: false,
             quality: 1,
         })
 
         if (!result.canceled) {
-            const validAssets = result.assets.filter(asset => asset.uri)
+            // const validAssets = result.assets.filter(asset => asset.uri)
+
+            const validAssets = result.assets.filter(asset => {
+                if (!asset.uri) return false
+
+                // limit video duration
+                if (asset.type === "video" && asset.duration && asset.duration > 30000) {
+                    Alert.alert("Video too long", "Video must be under 30 seconds")
+                    return false
+                }
+
+                // limit file size
+                if (asset.fileSize && asset.fileSize > 50 * 1024 * 1024) {
+                    Alert.alert("File too large", "File must be under 50MB")
+                    return false
+                }
+
+                return true
+            })
 
             setImages(prev => {
                 const newImages = [...prev, ...validAssets]
@@ -122,12 +149,29 @@ export default function NewPostScreen() {
         }
 
         const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ['images'],
+            // mediaTypes: ['images'],
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
             quality: 1,
         })
 
         if (!result.canceled) {
-            const validAssets = result.assets.filter(asset => asset.uri)
+            // const validAssets = result.assets.filter(asset => asset.uri)
+
+            const validAssets = result.assets.filter(asset => {
+                if (!asset.uri) return false
+
+                if (asset.type === "video" && asset.duration && asset.duration > 30000) {
+                    Alert.alert("Video too long", "Video must be under 30 seconds")
+                    return false
+                }
+
+                if (asset.fileSize && asset.fileSize > 50 * 1024 * 1024) {
+                    Alert.alert("File too large", "File must be under 50MB")
+                    return false
+                }
+
+                return true
+            })
 
             setImages(prev => {
                 const newImages = [...prev, ...validAssets]
@@ -203,7 +247,7 @@ export default function NewPostScreen() {
                             scrollEventThrottle={16}
                             contentContainerStyle={{ paddingLeft: 48, paddingRight: 12, gap: 4 }}
                         >
-                            {images
+                            {/* {images
                                 .filter(img => img?.uri)
                                 .map((img, index) => (
                                     <Image
@@ -211,6 +255,20 @@ export default function NewPostScreen() {
                                         source={{ uri: img.uri }}
                                         className="w-64 h-64 rounded-lg"
                                     />
+                                ))} */}
+
+                            {images
+                                .filter(img => img?.uri)
+                                .map((img, index) => (
+                                    img.type === "video" ? (
+                                        <VideoPreview key={index} uri={img.uri} />
+                                    ) : (
+                                        <Image
+                                            key={img.uri}
+                                            source={{ uri: img.uri }}
+                                            className="w-64 h-64 rounded-lg"
+                                        />
+                                    )
                                 ))}
                         </ScrollView>
                     )}

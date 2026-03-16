@@ -6,6 +6,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import defaultAvatar from '@/assets/images/profile.png'
 import { authFetch } from "@/services/authFetch";
 import { router } from "expo-router";
+import { PostVideo } from "./PostVideo";
+import { VideoViewer } from "./VideoViewer";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -60,32 +62,30 @@ export default function PostHeader({ post }: PostItemProps) {
     const { user, token, logout } = useAuth()
     const [visible, setVisible] = useState(false)
     const [index, setIndex] = useState(0)
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [liked, setLiked] = useState<boolean>(!!post.is_liked)
     const [likesCount, setLikesCount] = useState<number>(post.likes_count)
     const [isFollowed, setIsFollowed] = useState(post?.is_followed ?? false)
+    const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
+    const [videoViewerVisible, setVideoViewerVisible] = useState(false)
     const postId = post._id
     const isOwnPost = user?._id === post.author?._id
 
     // like/unlike post
     const handleToggleLike = async () => {
         const nextLiked = !liked
-
         setLiked(nextLiked)
         setLikesCount(prev => prev + (nextLiked ? 1 : -1))
 
         try {
             const method = liked ? 'DELETE' : 'POST'
-
             const res = await authFetch(`${API_URL}/post/${postId}/like`,
                 { method },
                 token,
                 logout
             )
-
             const data = await res.json()
-
             if (!res.ok) {
                 throw new Error(data.message || 'Like failed')
             }
@@ -99,17 +99,15 @@ export default function PostHeader({ post }: PostItemProps) {
 
     // follow/unfollow action
     const handleFollow = async () => {
+        setLoading(true);
         try {
             const method = isFollowed ? 'DELETE' : 'POST'
-
             const res = await authFetch(`${API_URL}/users/follow/${post.author._id}`,
                 { method },
                 token,
                 logout
             )
-
             if (!res.ok) throw new Error('Follow failed')
-
             setIsFollowed(!isFollowed)
         } catch (err) {
             console.error(err);
@@ -119,107 +117,155 @@ export default function PostHeader({ post }: PostItemProps) {
         }
     }
 
+    const navigateToUser = () => {
+        if (post.author?._id) {
+            router.push({
+                pathname: '/user/[id]',
+                params: { id: post.author._id },
+            });
+        }
+    }
+
+    const isVideo = (url: string) => {
+        return url.match(/\.(mp4|mov|webm|m4v)$/i)
+    }
+
+    const imageUris = (post?.media || []).filter(url => !isVideo(url));
+
+    const handleMediaPress = (url: string, idx: number) => {
+        if (isVideo(url)) {
+            setSelectedVideo(url);
+            setVideoViewerVisible(true);
+        } else {
+            const imageIndex = imageUris.indexOf(url);
+            setIndex(imageIndex !== -1 ? imageIndex : 0);
+            setVisible(true);
+        }
+    };
+
     return (
-
-        <View className='px-3 pt-3'>
-
-            {/* Author */}
+        <View className="px-4 pt-4 bg-white">
+            {/* Author Section */}
             {post.author && (
-                <View className='items-center flex-row'>
-                    <Pressable onPress={() => router.push({
-                        pathname: '/user/[id]',
-                        params: { id: post.author._id },
-                    })}>
-                        <Image
-                            source={
-                                post.author.profile_picture &&
-                                    post.author.profile_picture.trim() !== ''
-                                    ? { uri: post.author.profile_picture }
-                                    : defaultAvatar
-                            }
-                            className='w-12 h-12 rounded-full mt-1'
-                        />
-                    </Pressable>
-                    <View className='flex-row items-baseline'>
-                        <Pressable onPress={() => router.push({
-                            pathname: '/user/[id]',
-                            params: { id: post.author._id },
-                        })}>
-                            <Text className='text-lg font-semibold text-dark-100 ml-3'>{post.author.username}</Text>
+                <View className="flex-row items-center justify-between mb-1">
+                    <View className="flex-row items-center flex-1">
+                        <Pressable onPress={navigateToUser}>
+                            <Image
+                                source={
+                                    post.author.profile_picture && post.author.profile_picture.trim() !== ''
+                                        ? { uri: post.author.profile_picture }
+                                        : defaultAvatar
+                                }
+                                className="w-11 h-11 rounded-full bg-gray-100"
+                            />
                         </Pressable>
-                        <Text className='ml-3 text-sm font-normal text-dark-200'> {timeAgo(post.createdAt)}</Text>
-
-                        {/* Follow Button */}
-                        {!isOwnPost && (
-                            <TouchableOpacity
-                                onPress={handleFollow}
-                                activeOpacity={0.7}
-                            >
-                                <View className="flex-row items-baseline">
-                                    <Text className="mx-3 text-dark-200">•</Text>
-                                    {isFollowed ? (
-                                        <Text className="text-success font-bold text-sm">Followed</Text>
-                                    ) : (
-                                        <Text className="text-accent font-bold text-sm">Follow</Text>
-                                    )}
-                                </View>
-
-                            </TouchableOpacity>
-                        )}
+                        <View className="ml-3 justify-center flex-1 pr-2">
+                            <Pressable onPress={navigateToUser}>
+                                <Text className="text-base font-bold text-gray-900" numberOfLines={1}>
+                                    {post.author.username}
+                                </Text>
+                            </Pressable>
+                            <Text className="text-sm text-gray-500 mt-0.5" numberOfLines={1}>
+                                {timeAgo(post.createdAt)}
+                            </Text>
+                        </View>
                     </View>
+
+                    {/* Follow Button */}
+                    {!isOwnPost && (
+                        <TouchableOpacity
+                            onPress={handleFollow}
+                            disabled={loading}
+                            activeOpacity={0.7}
+                            className={`px-4 py-1.5 rounded-full border ${isFollowed ? 'border-gray-300 bg-white' : 'border-[#7B4A2E] bg-[#7B4A2E]'}`}
+                        >
+                            <Text className={`text-sm font-semibold ${isFollowed ? 'text-gray-700' : 'text-white'}`}>
+                                {isFollowed ? 'Following' : 'Follow'}
+                            </Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             )}
 
             {/* Content */}
-            <Text className='text-base text-dark-100 my-3'>{post.content}</Text>
+            <Text className="text-base text-gray-800 my-3 leading-6">
+                {post.content}
+            </Text>
 
             {/* Media */}
-            {post?.media?.map((url: string, index: number) => (
-                <Pressable
-                    key={url}
-                    onPress={() => {
-                        setIndex(index);
-                        setVisible(true);
-                    }}
-                >
-                    <Image
-                        source={{ uri: url }}
-                        style={{ width: "100%", height: 300, marginTop: 8 }}
-                        resizeMode="cover"
-                    />
-                </Pressable>
-            ))}
+            {post?.media && post.media.length > 0 && (
+                <View className="mt-2 mb-1">
+                    {post.media.map((url: string, index: number) => (
+                        <Pressable
+                            key={url}
+                            onPress={() => handleMediaPress(url, index)}
+                            className="w-full mb-3 rounded-2xl overflow-hidden bg-gray-100 border border-gray-100"
+                        >
+                            {/* <Image
+                                source={{ uri: url }}
+                                style={{ width: "100%", height: 300 }}
+                                resizeMode="cover"
+                            /> */}
 
-            <ImageViewing
-                images={(post?.media ?? []).map((uri: string) => ({ uri }))}
-                imageIndex={index}
-                visible={visible}
-                onRequestClose={() => setVisible(false)}
-            />
+                            {isVideo(url) ? (
+                                <PostVideo uri={url} />
+                            ) : (
+                                <Image
+                                    source={{ uri: url }}
+                                    style={{ width: "100%", height: 300 }}
+                                    resizeMode="cover"
+                                />
+                            )}
+                        </Pressable>
+                    ))}
+                    <ImageViewing
+                        images={imageUris.map((uri: string) => ({ uri }))}
+                        imageIndex={index}
+                        visible={visible}
+                        onRequestClose={() => setVisible(false)}
+                    />
+                    
+                    {selectedVideo && (
+                        <VideoViewer
+                            uri={selectedVideo}
+                            visible={videoViewerVisible}
+                            onClose={() => setVideoViewerVisible(false)}
+                        />
+                    )}
+                </View>
+            )}
 
             {/* Post Actions: like + comment */}
-            <View className='flex-row gap-5 py-2'>
-                <Pressable
-                    className="flex-row items-center gap-2 p-2"
+            <View className="flex-row items-center border-t border-gray-100 pt-3 pb-1 mt-1">
+                <TouchableOpacity
+                    className="flex-row items-center mr-6 px-1 py-2 active:opacity-70"
                     onPress={handleToggleLike}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                     <Heart
-                        size={19}
-                        color={liked ? '#ff2d55' : '#000'}
-                        fill={liked ? '#ff2d55' : 'none'}
+                        size={22}
+                        color={liked ? '#F43F5E' : '#4B5563'}
+                        fill={liked ? '#F43F5E' : 'transparent'}
+                        strokeWidth={liked ? 0 : 1.8}
                     />
-                    <Text className="text-base text-dark-100 font-medium">{likesCount}</Text>
-                </Pressable>
+                    <Text className={`text-sm font-medium ml-2 ${liked ? 'text-rose-500' : 'text-gray-600'}`}>
+                        {likesCount > 0 ? likesCount : 'Like'}
+                    </Text>
+                </TouchableOpacity>
 
-                <Pressable className="flex-row items-center gap-2 p-2">
+                <TouchableOpacity
+                    className="flex-row items-center px-1 py-2 active:opacity-70"
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
                     <MessageCircle
-                        size={19}
-                        color={'#000'}
-                        fill='none'
+                        size={22}
+                        color="#4B5563"
+                        strokeWidth={1.8}
                     />
-                    <Text className="text-base text-dark-100 font-medium">{post.comments_count}</Text>
-                </Pressable>
-
+                    <Text className="text-sm font-medium text-gray-600 ml-2">
+                        {post.comments_count > 0 ? post.comments_count : 'Comment'}
+                    </Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
