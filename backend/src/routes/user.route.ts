@@ -1,7 +1,8 @@
 import { RequestHandler, Router } from 'express'
-import { getMyProfile, getUserProfile } from '../controllers/user.controller'
+import { getMyProfile, getUserProfile, updateProfile } from '../controllers/user.controller'
 import { auth } from '../middlewares/auth.middleware'
 import { validationResult, param } from 'express-validator'
+import { upload } from '../middlewares/upload.middleware'
 
 // validation middleware - get user profile 
 const getUserProfileValidation = [
@@ -25,6 +26,7 @@ export const validate: RequestHandler = (req, res, next) => {
 const router = Router()
 
 router.get('/profile', auth, getMyProfile)
+router.patch('/profile', auth, upload.single('profile_picture'), updateProfile)
 router.get('/user/:id', auth, getUserProfileValidation, validate, getUserProfile)
 
 export default router

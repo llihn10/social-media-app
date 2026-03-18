@@ -84,7 +84,7 @@ export default function NewPostScreen() {
                 setContent('')
                 setImages([])
 
-                router.replace('/(tabs)')
+                router.replace('/(drawer)/(tabs)')
             }
         } catch (error: any) {
             Alert.alert('Error', error.message)
@@ -185,7 +185,7 @@ export default function NewPostScreen() {
 
             {/* Header */}
             <View className='flex-row items-center justify-between px-6 py-4 border-b border-gray-200'>
-                <TouchableOpacity onPress={() => router.replace('/(tabs)')}>
+                <TouchableOpacity onPress={() => router.replace('/(drawer)/(tabs)')}>
                     <Text className='text-lg text-dark-200'>Cancel</Text>
                 </TouchableOpacity>
 

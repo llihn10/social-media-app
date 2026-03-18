@@ -23,7 +23,7 @@ const ProfileHeader = ({ profile, postNum }: ProfileHeaderProps) => {
     const { user: currentUser, token, logout } = useAuth()
 
     const segments = useSegments()
-    const isProfileTab = segments.length === 2 && segments[1] === 'profile'
+    const isProfileTab = segments[segments.length - 1] === 'profile'
     const showBackButton = !isProfileTab
 
     return (

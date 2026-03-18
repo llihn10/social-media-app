@@ -6,6 +6,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import ImageViewing from "react-native-image-viewing";
 import defaultAvatar from '@/assets/images/profile.png'
 import { authFetch } from '@/services/authFetch';
+import { PostVideo } from "./PostVideo";
+import { VideoViewer } from "./VideoViewer";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -60,8 +62,14 @@ const PostCard = memo(({ post }: PostItemProps) => {
     const [imageIndex, setImageIndex] = useState(0);
     const [liked, setLiked] = useState<boolean>(!!post.is_liked)
     const [likesCount, setLikesCount] = useState<number>(post.likes_count)
+    const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
+    const [videoViewerVisible, setVideoViewerVisible] = useState(false)
 
-    const images = post.media.map((url: string) => ({ uri: url }))
+    const isVideo = (url: string) => {
+        return url.match(/\.(mp4|mov|webm|m4v)$/i)
+    }
+
+    const imageUris = (post?.media || []).filter(url => !isVideo(url));
     const postId = post._id
 
     const handleToggleLike = async () => {
@@ -130,7 +138,8 @@ const PostCard = memo(({ post }: PostItemProps) => {
                     </View>
 
                     <Text className='text-lg text-dark-100 mt-1'>
-                        {post.content}
+                        {/* {post.content} */}
+                        {typeof post.content === 'string' ? post.content : ''}
                     </Text>
                 </View>
             </View>
@@ -151,23 +160,35 @@ const PostCard = memo(({ post }: PostItemProps) => {
                         key={index}
                         activeOpacity={0.9}
                         onPress={() => {
-                            setImageIndex(index);
-                            setVisible(true);
+                            if (isVideo(item)) {
+                                setSelectedVideo(item);
+                                setVideoViewerVisible(true);
+                            } else {
+                                const idx = imageUris.indexOf(item);
+                                setImageIndex(idx !== -1 ? idx : 0);
+                                setVisible(true);
+                            }
                         }}
                     >
-                        <Image
-                            key={index}
-                            source={{ uri: item }}
-                            style={{ width: 250, height: 270 }}
-                            className="rounded-md overflow-hidden shadow-sm"
-                            resizeMode="cover"
-                        />
+                        {isVideo(item) ? (
+                            <View style={{ width: 250, height: 270 }} className="rounded-md overflow-hidden shadow-sm">
+                                <PostVideo uri={item} />
+                            </View>
+                        ) : (
+                            <Image
+                                key={index}
+                                source={{ uri: item }}
+                                style={{ width: 250, height: 270 }}
+                                className="rounded-md overflow-hidden shadow-sm"
+                                resizeMode="cover"
+                            />
+                        )}
                     </TouchableOpacity>
                 ))}
             </ScrollView>
 
             <ImageViewing
-                images={images}
+                images={imageUris.map((uri) => ({ uri }))}
                 imageIndex={imageIndex}
                 visible={visible}
                 onRequestClose={() => setVisible(false)}
@@ -180,6 +201,14 @@ const PostCard = memo(({ post }: PostItemProps) => {
                     </TouchableOpacity>
                 )}
             />
+
+            {selectedVideo && (
+                <VideoViewer
+                    uri={selectedVideo}
+                    visible={videoViewerVisible}
+                    onClose={() => setVideoViewerVisible(false)}
+                />
+            )}
 
             {/* Post Actions: like + comment */}
             <View className='flex-row mt-2 gap-6' style={{ marginLeft: 58 }}>

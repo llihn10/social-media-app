@@ -2,8 +2,11 @@ import PostCard from '@/components/PostCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
 import { useEffect, useState } from 'react';
-import { Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Menu } from 'lucide-react-native';
+import { DrawerActions } from '@react-navigation/native';
+import { useNavigation } from 'expo-router';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -15,10 +18,11 @@ export default function HomeScreen() {
   const [postsForYou, setPostsForYou] = useState<any[]>([])
   const [postsFollowing, setPostsFollowing] = useState<any[]>([])
   const [loadingTab, setLoadingTab] = useState<'foryou' | 'following' | null>(null)
+  const [refreshing, setRefreshing] = useState(false)
 
-  const fetchPosts = async (tab: 'foryou' | 'following') => {
+  const fetchPosts = async (tab: 'foryou' | 'following', isRefresh = false) => {
     try {
-      setLoadingTab(tab)
+      if (!isRefresh) setLoadingTab(tab)
 
       const endpoint = tab === 'foryou'
         ? `${API_URL}/posts`
@@ -33,8 +37,14 @@ export default function HomeScreen() {
       console.error(err);
       setError('Failed to load posts')
     } finally {
-      setLoadingTab(null);
+      if (!isRefresh) setLoadingTab(null);
     }
+  }
+
+  const onRefresh = async () => {
+    setRefreshing(true)
+    await fetchPosts(activeTab as 'foryou' | 'following', true)
+    setRefreshing(false)
   }
 
   useEffect(() => {
@@ -47,9 +57,17 @@ export default function HomeScreen() {
     }
   }, [activeTab])
 
+  const navigation = useNavigation();
+
   const Header = () => (
-    <View className='items-center pt-4 border-b border-gray-100 bg-secondary'>
-      <Text className='text-2xl font-semibold text-dark-100 mb-4'>The Hut</Text>
+    <View className='pt-4 border-b border-gray-100 bg-secondary'>
+      <View className='flex-row items-center justify-between px-4 mb-4'>
+        <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())} className="p-1">
+          <Menu size={26} color="#4B5563" />
+        </TouchableOpacity>
+        <Text className='text-2xl font-semibold text-dark-100'>The Hut</Text>
+        <View style={{ width: 34 }} />
+      </View>
 
       <View className='flex-row w-full justify-around'>
         {/* Tab - For you */}
@@ -83,6 +101,14 @@ export default function HomeScreen() {
 
   const displayedPosts = activeTab === 'foryou' ? postsForYou : postsFollowing
 
+  if (!user) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center">
+        <Text>Please login</Text>
+      </SafeAreaView>
+    )
+  }
+
   if (error) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-secondary">
@@ -102,6 +128,9 @@ export default function HomeScreen() {
         extraData={activeTab}
         ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#7B4A2E" colors={["#7B4A2E"]} />
+        }
       />
 
       {loadingTab === activeTab && (

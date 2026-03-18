@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ActivityIndicator, Alert, FlatList, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, Text, View, RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '@/contexts/AuthContext'
 import PostCard from '@/components/PostCard'
@@ -14,14 +14,22 @@ export default function ProfileScreen() {
     const [profile, setProfile] = useState<any>(null)
     const [posts, setPosts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const postNum = posts?.length
 
+    // Sync profile state if context user changes (e.g., from edit profile)
     useEffect(() => {
-        if (!token) return
-        const loadData = async () => {
-            try {
-                const [profileRes, postsRes] = await Promise.all([
+        if (user) {
+            setProfile((prev: any) => ({ ...prev, ...user }))
+        }
+    }, [user])
+
+    const loadData = async (isRefresh = false) => {
+        if (!token) return;
+        try {
+            if (!isRefresh) setLoading(true);
+            const [profileRes, postsRes] = await Promise.all([
                     authFetch(`${API_URL}/profile`,
                         {},
                         token,
@@ -57,10 +65,17 @@ export default function ProfileScreen() {
                 console.error(err);
                 Alert.alert('Error', 'Failed to load data')
             } finally {
-                setLoading(false);
+                if (!isRefresh) setLoading(false);
             }
-        }
+    }
 
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await loadData(true);
+        setRefreshing(false);
+    }
+
+    useEffect(() => {
         loadData()
     }, [token])
 
@@ -90,6 +105,9 @@ export default function ProfileScreen() {
                 ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 40 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#7B4A2E" colors={["#7B4A2E"]} />
+                }
             />
         </SafeAreaView>
     )

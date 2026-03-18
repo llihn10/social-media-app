@@ -3,6 +3,8 @@ import { UserModel } from "../models/User"
 import { AuthRequest } from "../middlewares/auth.middleware"
 import { FollowModel } from "../models/Follow"
 import mongoose from "mongoose"
+import { cloudinary } from "../configs/cloudinary"
+import * as streamifier from 'streamifier'
 
 export const getMyProfile = async (req: AuthRequest, res: Response) => {
     try {
@@ -54,6 +56,50 @@ export const getUserProfile = async (req: any, res: Response) => {
                 is_followed
             }
         })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Server error' })
+    }
+}
+
+export const updateProfile = async (req: any, res: Response) => {
+    try {
+        const userId = req.user!.id
+
+        const { username, bio } = req.body
+        const profile_picture = req.file as Express.Multer.File | undefined
+
+        const user = await UserModel.findById(userId)
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' })
+        }
+
+        user.username = username
+        user.bio = bio
+
+        if (profile_picture) {
+            const uploadResult = await new Promise<any>((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: 'avatars',
+                        resource_type: 'image'
+                    },
+                    (error, result) => {
+                        if (error) reject(error)
+                        else resolve(result)
+                    }
+                )
+
+                streamifier.createReadStream(profile_picture.buffer).pipe(stream)
+            })
+
+            user.profile_picture = uploadResult.secure_url
+        }
+
+        await user.save()
+
+        res.status(200).json({ data: user })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Server error' })

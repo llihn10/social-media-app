@@ -3,8 +3,8 @@ import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
-import { ActivityIndicator } from 'react-native';
-import { View } from 'lucide-react-native';
+import { View, ActivityIndicator } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 function RootLayoutNav() {
   const { token, isLoading } = useAuth()
@@ -21,7 +21,7 @@ function RootLayoutNav() {
     if (!token && !inAuthGroup) {
       router.replace('/(auth)/login')
     } else if (token && inAuthGroup) {
-      router.replace('/(tabs)')
+      router.replace('/(drawer)/(tabs)')
     }
 
   }, [token, segments, isLoading, navigationState?.key])
@@ -37,7 +37,7 @@ function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name='(auth)' />
-      <Stack.Screen name='(tabs)' />
+      <Stack.Screen name='(drawer)' />
       <Stack.Screen name='post/[id]' />
       <Stack.Screen name='user/[id]' />
     </Stack>
@@ -46,8 +46,10 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </GestureHandlerRootView>
   )
 }

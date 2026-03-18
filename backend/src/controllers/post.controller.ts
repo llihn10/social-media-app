@@ -238,3 +238,32 @@ export const getFollowingPosts = async (req: any, res: Response) => {
         res.status(500).json({ message: 'Server error' })
     }
 }
+
+export const getLikedPosts = async (req: any, res: Response) => {
+    try {
+        const userId = req.user!.id
+
+        const likes = await LikeModel.find({ user_id: userId })
+            .select('post_id')
+            .lean()
+
+        const postIds = likes.map(l => l.post_id)
+
+        const posts = await PostModel.find({ _id: { $in: postIds } })
+            .populate('author', '_id username profile_picture')
+            .sort({ createdAt: -1 })
+            .lean()
+
+        const formattedPosts = posts.map((post: any) => {
+            return {
+                ...post,
+                is_liked: true
+            }
+        })
+
+        res.status(200).json({ data: formattedPosts })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Server error' })
+    }
+}

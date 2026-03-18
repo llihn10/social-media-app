@@ -18,6 +18,7 @@ interface AuthContextType {
     isLoading: boolean
     login: (token: string, user: User) => void
     logout: () => void
+    updateUser: (user: User) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -54,6 +55,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await AsyncStorage.setItem('userData', JSON.stringify(user))
     }
 
+    const updateUser = async (updatedUser: User) => {
+        setUser(updatedUser)
+        await AsyncStorage.setItem('userData', JSON.stringify(updatedUser))
+    }
+
     const logout = async () => {
         setToken(null)
         setUser(null)
@@ -62,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ user, token, isLoading, login, logout }}>
+        <AuthContext.Provider value={{ user, token, isLoading, login, logout, updateUser }}>
             {children}
         </AuthContext.Provider>
     )
