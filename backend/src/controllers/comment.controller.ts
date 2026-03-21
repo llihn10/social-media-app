@@ -1,6 +1,8 @@
 import { Response } from "express";
 import { CommentModel } from "../models/Comment";
 import { PostModel } from "../models/Post";
+import { IReply } from "../interfaces/comment.interface";
+import { Types } from "mongoose";
 
 export const createComment = async (req: any, res: Response) => {
     try {
@@ -13,7 +15,7 @@ export const createComment = async (req: any, res: Response) => {
         }
 
         const comment = await CommentModel.create({
-            comment: content,
+            content: content,
             user_id: userId,
             post_id: postId
         })
@@ -51,3 +53,137 @@ export const deleteComment = async (req: any, res: Response) => {
         res.status(500).json({ message: 'Server error' })
     }
 }
+
+export const likeComment = async (req: any, res: Response) => {
+    try {
+        const userId = req.user!.id;
+        const { commentId } = req.params;
+
+        const comment = await CommentModel.findById(commentId);
+
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+
+        const likeIndex = comment.likes.findIndex(id => id.toString() === userId);
+
+        if (likeIndex === -1) {
+            comment.likes.push(userId);
+        } else {
+            comment.likes.splice(likeIndex, 1);
+        }
+
+        await comment.save();
+
+        res.json({ message: 'Comment like updated', likesCount: comment.likes.length });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const replyComment = async (req: any, res: Response) => {
+    try {
+        const userId = req.user!.id
+        const { commentId } = req.params
+        const { content } = req.body
+
+        if (!content || !content.trim()) {
+            return res.status(400).json({ message: 'Reply content is required' });
+        }
+
+        const comment = await CommentModel.findById(commentId);
+
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+
+        const reply: IReply = {
+            author_id: userId,
+            content,
+            likes: [] as Types.ObjectId[],
+        };
+
+        comment.replies.push(reply);
+
+        await comment.save();
+
+        res.status(201).json({ message: 'Reply added successfully', reply });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const deleteReply = async (req: any, res: Response) => {
+    try {
+        const userId = req.user!.id;
+        const { commentId, replyId } = req.params;
+
+        const comment = await CommentModel.findById(commentId);
+
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+
+        const reply = comment.replies.find(
+            r => r._id?.toString() === replyId
+        );
+
+        if (!reply) {
+            return res.status(404).json({ message: 'Reply not found' });
+        }
+
+        if (reply.author_id.toString() !== userId) {
+            return res.status(403).json({ message: 'Not authorized to delete this reply' });
+        }
+
+        (reply as any).deleteOne();
+
+        await comment.save();
+
+        return res.json({
+            message: 'Reply deleted successfully'
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const likeReply = async (req: any, res: Response) => {
+    try {
+        const userId = req.user!.id;
+        const { commentId, replyId } = req.params;
+
+        const comment = await CommentModel.findById(commentId);
+
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+
+        const reply = comment.replies.find(
+            r => r._id?.toString() === replyId
+        );
+
+        if (!reply) {
+            return res.status(404).json({ message: 'Reply not found' });
+        }
+
+        const likeIndex = reply.likes.findIndex(id => id.toString() === userId);
+
+        if (likeIndex === -1) {
+            reply.likes.push(userId);
+        } else {
+            reply.likes.splice(likeIndex, 1);
+        }
+
+        await comment.save();
+
+        res.json({ message: 'Reply like updated', likesCount: reply.likes.length });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

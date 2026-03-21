@@ -43,7 +43,7 @@ export default function PostDetail() {
         if (!comment.trim()) return;
         setSubmitting(true);
         try {
-            const res = await authFetch(`${API_URL}/post/${id}/comment`, {
+            const res = await authFetch(`${API_URL}/comment/${id}`, {
                 method: 'POST',
                 body: JSON.stringify({ content: comment.trim() })
             }, token, logout);

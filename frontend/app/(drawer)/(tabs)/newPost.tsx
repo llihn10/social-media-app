@@ -16,11 +16,22 @@ export default function NewPostScreen() {
     const [content, setContent] = useState('')
     const [images, setImages] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
+    const [contentError, setContentError] = useState<string | null>(null)
 
     const avatarUri =
         user?.profile_picture && user.profile_picture.trim() !== ''
             ? user.profile_picture
             : null
+
+    const handleContentChange = (text: string) => {
+        if (text.length > 300) {
+            const extra = text.length - 300;
+            setContentError(`Content exceeds limit (-${extra})`);
+        } else {
+            setContentError(null);
+        }
+        setContent(text);
+    };
 
     const uploadPost = async () => {
         try {
@@ -29,14 +40,6 @@ export default function NewPostScreen() {
             // append content
             formData.append('content', content)
 
-            // append images
-            // images.forEach((img, index) => {
-            //     formData.append('media', {
-            //         uri: img.uri,
-            //         name: img.fileName || `photo_${index}.jpg`,
-            //         type: img.type === 'image' ? 'image/jpeg' : img.mimeType || 'image/jpeg',
-            //     } as any)
-            // })
             images.forEach((img, index) => {
                 formData.append('media', {
                     uri: img.uri,
@@ -112,8 +115,6 @@ export default function NewPostScreen() {
         })
 
         if (!result.canceled) {
-            // const validAssets = result.assets.filter(asset => asset.uri)
-
             const validAssets = result.assets.filter(asset => {
                 if (!asset.uri) return false
 
@@ -155,8 +156,6 @@ export default function NewPostScreen() {
         })
 
         if (!result.canceled) {
-            // const validAssets = result.assets.filter(asset => asset.uri)
-
             const validAssets = result.assets.filter(asset => {
                 if (!asset.uri) return false
 
@@ -185,20 +184,19 @@ export default function NewPostScreen() {
 
             {/* Header */}
             <View className='flex-row items-center justify-between px-6 py-4 border-b border-gray-200'>
-                <TouchableOpacity onPress={() => router.replace('/(drawer)/(tabs)')}>
-                    <Text className='text-lg text-dark-200'>Cancel</Text>
-                </TouchableOpacity>
-
                 <Text className='text-lg font-bold'>New story</Text>
 
                 <TouchableOpacity
                     onPress={handlePost}
-                    disabled={!content.trim()}
+                    disabled={!!contentError || !content.trim() || loading}
                 >
                     {loading ? (
                         <ActivityIndicator size="small" color="#3B82F6" />
                     ) : (
-                        <Text className={`text-lg font-semibold ${content.trim() ? 'text-accent' : 'text-gray-400'}`}                    >
+                        <Text
+                            className={`text-lg font-semibold ${!content.trim() || contentError ? 'text-gray-400' : 'text-accent'
+                                }`}
+                        >
                             Post
                         </Text>
                     )}
@@ -225,7 +223,7 @@ export default function NewPostScreen() {
 
                             <TextInput
                                 value={content}
-                                onChangeText={setContent}
+                                onChangeText={handleContentChange}
                                 placeholder='Tell a story...'
                                 placeholderTextColor="#A0A0A0"
                                 multiline
@@ -233,6 +231,12 @@ export default function NewPostScreen() {
                                 textAlignVertical='top'
                                 style={{ minHeight: 50 }}
                             />
+
+                            {contentError && (
+                                <Text style={{ color: '#f05b62', marginTop: 15 }}>
+                                    {contentError}
+                                </Text>
+                            )}
                         </View>
                     </View>
 
@@ -247,16 +251,6 @@ export default function NewPostScreen() {
                             scrollEventThrottle={16}
                             contentContainerStyle={{ paddingLeft: 48, paddingRight: 12, gap: 4 }}
                         >
-                            {/* {images
-                                .filter(img => img?.uri)
-                                .map((img, index) => (
-                                    <Image
-                                        key={index}
-                                        source={{ uri: img.uri }}
-                                        className="w-64 h-64 rounded-lg"
-                                    />
-                                ))} */}
-
                             {images
                                 .filter(img => img?.uri)
                                 .map((img, index) => (
@@ -286,9 +280,7 @@ export default function NewPostScreen() {
                         </TouchableOpacity>
                     </View>
                 </View>
-
             </KeyboardAvoidingView>
-
         </SafeAreaView >
     )
 }

@@ -1,5 +1,5 @@
 import { Router, RequestHandler } from 'express'
-import { createComment } from '../controllers/comment.controller'
+import { createComment, deleteReply, likeComment, likeReply, replyComment } from '../controllers/comment.controller'
 import { auth } from '../middlewares/auth.middleware'
 import { body, param, validationResult } from 'express-validator'
 
@@ -28,6 +28,10 @@ export const validate: RequestHandler = (req, res, next) => {
 
 const router = Router()
 
-router.post('/:postId/comment', auth, commentValidation, validate, createComment)
+router.post('/:postId', auth, commentValidation, validate, createComment)
+router.post('/:commentId/like', auth, likeComment)
+router.post('/:commentId/reply', auth, replyComment)
+router.post('/:commentId/replies/:replyId/like', auth, likeReply)
+router.delete('/:commentId/replies/:replyId', auth, deleteReply)
 
 export default router

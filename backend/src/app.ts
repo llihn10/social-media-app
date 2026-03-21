@@ -25,6 +25,6 @@ app.use('/users', followRoutes)
 
 app.use('/post', likeRoutes)
 
-app.use('/post', commentRoutes)
+app.use('/comment', commentRoutes)
 
 export default app

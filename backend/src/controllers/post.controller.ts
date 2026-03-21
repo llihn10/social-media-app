@@ -72,19 +72,64 @@ export const getPostDetail = async (req: any, res: Response) => {
             is_liked = !!isLiked
         }
 
+        // const comments = await CommentModel.find({ post_id: postId })
+        //     .populate('user_id', '_id username profile_picture')
+        //     .sort({ createdAt: -1 })
+        //     .lean()
+
+        // const comments = await CommentModel.find({ post_id: postId })
+        //     .populate('user_id', '_id username profile_picture')
+        //     .populate('replies.author_id', '_id username profile_picture')
+        //     .populate('comment')
+        //     .sort({ createdAt: -1 })
+        //     .lean();
+
+        // const formattedComments = comments.map(c => ({
+        //     _id: c._id,
+        //     user: c.user_id,
+        //     content: c.content,
+        //     likes: c.likes || [],
+        //     createdAt: c.createdAt,
+        //     replies: (c.replies || []).map(r => ({
+        //         _id: r._id,
+        //         author: r.author_id,
+        //         content: r.content,
+        //         likes: r.likes || [],
+        //         createdAt: r.createdAt
+        //     }))
+        // }));
+
         const comments = await CommentModel.find({ post_id: postId })
             .populate('user_id', '_id username profile_picture')
+            .populate({
+                path: 'replies.author_id',
+                select: '_id username profile_picture'
+            })
+            .populate({
+                path: 'replies.likes',
+                select: '_id username profile_picture'
+            })
             .sort({ createdAt: -1 })
-            .lean()
+            .lean();
+
+        const formattedComments = comments.map(c => ({
+            _id: c._id,
+            user: c.user_id,
+            content: c.content,
+            likesCount: (c.likes || []).length,
+            createdAt: c.createdAt,
+            replies: (c.replies || []).map(r => ({
+                _id: r._id,
+                author: r.author_id,
+                content: r.content,
+                likesCount: (r.likes || []).length,
+                createdAt: r.createdAt
+            }))
+        }));
 
         res.json({
             ...post,
-            comments: comments.map((c) => ({
-                _id: c._id,
-                user: c.user_id,
-                comment: c.comment,
-                createdAt: c.createdAt,
-            })),
+            comments: formattedComments,
             is_followed,
             is_liked
         })

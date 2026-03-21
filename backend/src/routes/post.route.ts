@@ -7,7 +7,9 @@ import { body, param, validationResult } from 'express-validator'
 // validation middleware - create new post 
 const createNewPostValidation = [
     body('content')
-        .notEmpty().withMessage('Story content is required').trim(),
+        .notEmpty().withMessage('Content is required').trim()
+        .trim()
+        .isLength({ max: 300 }).withMessage('Content must be at most 300 characters'),
 
     body('media.*')
         .optional()

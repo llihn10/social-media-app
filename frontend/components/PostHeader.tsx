@@ -165,7 +165,6 @@ export default function PostHeader({ post }: PostItemProps) {
 
             if (res.ok) {
                 setModalVisible(false);
-                Alert.alert('Success', 'Post deleted successfully');
                 router.back();
             } else {
                 const data = await res.json();
