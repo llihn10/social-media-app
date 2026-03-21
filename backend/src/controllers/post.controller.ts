@@ -116,12 +116,14 @@ export const getPostDetail = async (req: any, res: Response) => {
             _id: c._id,
             user: c.user_id,
             content: c.content,
+            likes: (c.likes || []).map(id => id.toString()),
             likesCount: (c.likes || []).length,
             createdAt: c.createdAt,
             replies: (c.replies || []).map(r => ({
                 _id: r._id,
                 author: r.author_id,
                 content: r.content,
+                likes: (r.likes || []).map((like: any) => like._id ? like._id.toString() : like.toString()),
                 likesCount: (r.likes || []).length,
                 createdAt: r.createdAt
             }))

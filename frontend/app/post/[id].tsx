@@ -17,6 +17,7 @@ export default function PostDetail() {
     const [loading, setLoading] = useState(true);
     const [comment, setComment] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [activeReplyCommentId, setActiveReplyCommentId] = useState<string | null>(null);
 
     const fetchPost = useCallback(async () => {
         try {
@@ -123,7 +124,12 @@ export default function PostDetail() {
                         }
                         renderItem={({ item }) => (
                             <View className="bg-white px-4 border-b border-gray-50">
-                                <CommentItem comment={item} />
+                                <CommentItem
+                                    comment={item}
+                                    onRefresh={fetchPost}
+                                    activeReplyCommentId={activeReplyCommentId}
+                                    setActiveReplyCommentId={setActiveReplyCommentId}
+                                />
                             </View>
                         )}
                         contentContainerStyle={{ paddingBottom: 24 }}
@@ -135,31 +141,33 @@ export default function PostDetail() {
                     />
 
                     {/* Comment Input Area */}
-                    <View className="flex-row items-end px-4 py-3 border-t border-gray-200 bg-white">
-                        <TextInput
-                            className="flex-1 bg-gray-100 rounded-3xl px-5 pt-3.5 pb-3.5 text-base text-gray-900 max-h-32 border border-gray-200"
-                            placeholder="Add a comment..."
-                            placeholderTextColor="#9CA3AF"
-                            value={comment}
-                            onChangeText={setComment}
-                            multiline
-                            maxLength={500}
-                            textAlignVertical="center"
-                        />
-                        <TouchableOpacity
-                            className={`ml-3 mb-1 rounded-full items-center justify-center h-12 w-12 ${(!comment.trim() || submitting) ? 'bg-gray-200' : 'bg-[#7B4A2E]'
-                                }`}
-                            onPress={handleComment}
-                            disabled={!comment.trim() || submitting}
-                            activeOpacity={0.8}
-                        >
-                            {submitting ? (
-                                <ActivityIndicator size="small" color="#FFF" />
-                            ) : (
-                                <Send size={20} color={(!comment.trim() || submitting) ? "#9CA3AF" : "#FFF"} style={{ marginLeft: -2, marginTop: 2 }} />
-                            )}
-                        </TouchableOpacity>
-                    </View>
+                    {!activeReplyCommentId && (
+                        <View className="flex-row items-end px-4 py-3 border-t border-gray-200 bg-white">
+                            <TextInput
+                                className="flex-1 bg-gray-100 rounded-3xl px-5 pt-3.5 pb-3.5 text-base text-gray-900 max-h-32 border border-gray-200"
+                                placeholder="Add a comment..."
+                                placeholderTextColor="#9CA3AF"
+                                value={comment}
+                                onChangeText={setComment}
+                                multiline
+                                maxLength={500}
+                                textAlignVertical="center"
+                            />
+                            <TouchableOpacity
+                                className={`ml-3 mb-1 rounded-full items-center justify-center h-12 w-12 ${(!comment.trim() || submitting) ? 'bg-gray-200' : 'bg-[#7B4A2E]'
+                                    }`}
+                                onPress={handleComment}
+                                disabled={!comment.trim() || submitting}
+                                activeOpacity={0.8}
+                            >
+                                {submitting ? (
+                                    <ActivityIndicator size="small" color="#FFF" />
+                                ) : (
+                                    <Send size={20} color={(!comment.trim() || submitting) ? "#9CA3AF" : "#FFF"} style={{ marginLeft: -2, marginTop: 2 }} />
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    )}
                 </KeyboardAvoidingView>
             </SafeAreaView>
         </>
