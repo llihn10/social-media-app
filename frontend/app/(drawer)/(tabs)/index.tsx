@@ -1,12 +1,12 @@
 import PostCard from '@/components/PostCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Menu } from 'lucide-react-native';
 import { DrawerActions } from '@react-navigation/native';
-import { useNavigation } from 'expo-router';
+import { useNavigation, useFocusEffect } from 'expo-router';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -56,6 +56,22 @@ export default function HomeScreen() {
       fetchPosts('following')
     }
   }, [activeTab])
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (activeTab === 'foryou' && postsForYou.length === 0) {
+  //       fetchPosts('foryou');
+  //     } else if (activeTab === 'following' && postsFollowing.length === 0) {
+  //       fetchPosts('following');
+  //     }
+  //   }, [activeTab, postsForYou.length, postsFollowing.length])
+  // );
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPosts('foryou');
+    }, [activeTab])
+  );
 
   const navigation = useNavigation();
 
@@ -129,7 +145,7 @@ export default function HomeScreen() {
         ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
         showsVerticalScrollIndicator={false}
         refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#7B4A2E" colors={["#7B4A2E"]} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#7B4A2E" colors={["#7B4A2E"]} />
         }
       />
 

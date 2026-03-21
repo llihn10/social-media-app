@@ -1,8 +1,6 @@
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import { PostModel } from '../models/Post'
-import { UserModel } from '../models/User'
 import { CommentModel } from '../models/Comment'
-import { AuthRequest } from '../middlewares/auth.middleware'
 import { cloudinary } from '../configs/cloudinary'
 import * as streamifier from 'streamifier'
 import { FollowModel } from '../models/Follow'
@@ -198,6 +196,75 @@ export const createNewPost = async (req: any, res: Response) => {
         res.status(201).json({
             message: 'Post created successfully',
             data: newPost
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Server error' })
+    }
+}
+
+// atlas
+// export const deletePost = async (req: any, res: Response) => {
+//     const session = await mongoose.startSession();
+
+//     try {
+//         session.startTransaction();
+
+//         const userId = req.user!.id
+//         const { postId } = req.params
+
+//         const post = await PostModel.findById(postId).session(session)
+
+//         if (!post) {
+//             await session.abortTransaction()
+//             return res.status(404).json({ message: 'Post not found' });
+//         }
+
+//         if (post.author.toString() !== userId) {
+//             await session.abortTransaction()
+//             return res.status(403).json({ message: 'Not authorized' });
+//         }
+
+//         await CommentModel.deleteMany({ post_id: postId }).session(session)
+//         await LikeModel.deleteMany({ post_id: postId }).session(session)
+//         await PostModel.findByIdAndDelete(postId).session(session)
+
+//         await session.commitTransaction()
+
+//         res.status(200).json({
+//             message: 'Delete post successfully'
+//         })
+//     } catch (error) {
+//         await session.abortTransaction()
+//         console.error(error)
+//         res.status(500).json({ message: 'Server error' })
+//     } finally {
+//         session.endSession()
+//     }
+// }
+
+export const deletePost = async (req: any, res: Response) => {
+    try {
+
+        const userId = req.user!.id
+        const { postId } = req.params
+
+        const post = await PostModel.findById(postId)
+
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        if (post.author.toString() !== userId) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
+        await CommentModel.deleteMany({ post_id: postId })
+        await LikeModel.deleteMany({ post_id: postId })
+        await PostModel.findByIdAndDelete(postId)
+
+        res.status(200).json({
+            message: 'Delete post successfully'
         })
     } catch (error) {
         console.error(error)

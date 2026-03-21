@@ -14,7 +14,7 @@ export default function EditProfileScreen() {
 
     // Fallbacks just in case user object doesn't have some properties typed
     const [username, setUsername] = useState(user?.username || '');
-    const [bio, setBio] = useState((user as any)?.bio || '');
+    const [bio, setBio] = useState(user?.bio || '');
     const [avatar, setAvatar] = useState<string | null>(user?.profile_picture || null);
     const [loading, setLoading] = useState(false);
 

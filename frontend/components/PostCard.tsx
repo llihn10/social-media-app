@@ -1,7 +1,7 @@
 import { View, Text, Image, Pressable, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native'
 import React, { useState, memo } from 'react'
 import { Heart, MessageCircle, X } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, usePathname, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext'
 import ImageViewing from "react-native-image-viewing";
 import defaultAvatar from '@/assets/images/profile.png'
@@ -26,6 +26,7 @@ interface PostItemProps {
         is_liked?: boolean,
         createdAt: string,
     },
+    profileId?: string;
 }
 
 const timeAgo = (createdAt: string) => {
@@ -55,7 +56,7 @@ const timeAgo = (createdAt: string) => {
     return `${day}/${month}/${year.toString().slice(-2)}`;
 };
 
-const PostCard = memo(({ post }: PostItemProps) => {
+const PostCard = memo(({ post, profileId }: PostItemProps) => {
 
     const { user, token, logout } = useAuth()
     const [visible, setVisible] = useState(false);
@@ -64,6 +65,9 @@ const PostCard = memo(({ post }: PostItemProps) => {
     const [likesCount, setLikesCount] = useState<number>(post.likes_count)
     const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
     const [videoViewerVisible, setVideoViewerVisible] = useState(false)
+
+    const pathname = usePathname();
+    const { id: currentProfileId } = useLocalSearchParams();
 
     const isVideo = (url: string) => {
         return url.match(/\.(mp4|mov|webm|m4v)$/i)
@@ -102,6 +106,26 @@ const PostCard = memo(({ post }: PostItemProps) => {
         }
     }
 
+    const handleAvatarPress = (e: any) => {
+        e.stopPropagation();
+
+        const targetAuthorId = String(post.author._id);
+        const myId = String(user?._id);
+
+        if (pathname.includes('/profile') && targetAuthorId === myId) {
+            return;
+        }
+
+        if (currentProfileId === targetAuthorId) {
+            return;
+        }
+
+        router.push({
+            pathname: '/user/[id]',
+            params: { id: targetAuthorId },
+        });
+    };
+
     return (
 
         <View className='py-3 bg-secondary relative'>
@@ -114,10 +138,7 @@ const PostCard = memo(({ post }: PostItemProps) => {
             {/* Avatar + Username + Post Content */}
             <View className='px-4 flex-row'>
                 {/* Avatar */}
-                <Pressable onPress={() => router.push({
-                    pathname: '/user/[id]',
-                    params: { id: post.author._id },
-                })}>
+                <Pressable onPress={handleAvatarPress} >
                     <Image
                         source={
                             post.author.profile_picture &&

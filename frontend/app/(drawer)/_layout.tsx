@@ -15,10 +15,10 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
   const handleLogout = async () => {
     try {
       if (logout) {
-          await logout();
+        await logout();
       }
       router.replace('/(auth)/login');
-    } catch(err) {
+    } catch (err) {
       console.error(err)
     }
   };
@@ -34,7 +34,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
           />
           <View className="ml-4 flex-1">
             <Text className="text-white text-lg font-bold" numberOfLines={1}>{user?.username || 'User'}</Text>
-            <Text className="text-white/80 text-sm mt-1" numberOfLines={1}>{(user as any)?.bio || 'Welcome back!'}</Text>
+            <Text className="text-white/80 text-sm mt-1" numberOfLines={1}>{user?.bio || 'Welcome back!'}</Text>
           </View>
         </View>
 
@@ -58,7 +58,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 export default function DrawerLayout() {
   return (
     <Drawer
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      drawerContent={CustomDrawerContent}
       screenOptions={{
         headerShown: true,
         drawerActiveBackgroundColor: '#F3F4F6',

@@ -18,7 +18,6 @@ export default function ProfileScreen() {
     const [error, setError] = useState<string | null>(null);
     const postNum = posts?.length
 
-    // Sync profile state if context user changes (e.g., from edit profile)
     useEffect(() => {
         if (user) {
             setProfile((prev: any) => ({ ...prev, ...user }))
@@ -30,43 +29,43 @@ export default function ProfileScreen() {
         try {
             if (!isRefresh) setLoading(true);
             const [profileRes, postsRes] = await Promise.all([
-                    authFetch(`${API_URL}/profile`,
-                        {},
-                        token,
-                        logout
-                    ),
-                    authFetch(`${API_URL}/posts/my-posts`,
-                        {},
-                        token,
-                        logout)
+                authFetch(`${API_URL}/profile`,
+                    {},
+                    token,
+                    logout
+                ),
+                authFetch(`${API_URL}/posts/my-posts`,
+                    {},
+                    token,
+                    logout)
 
-                ])
+            ])
 
-                if (!profileRes.ok || !postsRes.ok) {
-                    throw new Error('Fetch failed');
-                }
-
-                if (!profileRes.ok) {
-                    console.log('Profile error:', profileRes.status);
-                    throw new Error('Profile fetch failed');
-                }
-
-                if (!postsRes.ok) {
-                    console.log('Posts error:', postsRes.status);
-                    throw new Error('Posts fetch failed');
-                }
-
-                const profileJson = await profileRes.json()
-                const postsJson = await postsRes.json()
-
-                setProfile(profileJson.data)
-                setPosts(postsJson.data || [])
-            } catch (err) {
-                console.error(err);
-                Alert.alert('Error', 'Failed to load data')
-            } finally {
-                if (!isRefresh) setLoading(false);
+            if (!profileRes.ok || !postsRes.ok) {
+                throw new Error('Fetch failed');
             }
+
+            if (!profileRes.ok) {
+                console.log('Profile error:', profileRes.status);
+                throw new Error('Profile fetch failed');
+            }
+
+            if (!postsRes.ok) {
+                console.log('Posts error:', postsRes.status);
+                throw new Error('Posts fetch failed');
+            }
+
+            const profileJson = await profileRes.json()
+            const postsJson = await postsRes.json()
+
+            setProfile(profileJson.data)
+            setPosts(postsJson.data || [])
+        } catch (err) {
+            console.error(err);
+            Alert.alert('Error', 'Failed to load data')
+        } finally {
+            if (!isRefresh) setLoading(false);
+        }
     }
 
     const onRefresh = async () => {
@@ -100,7 +99,7 @@ export default function ProfileScreen() {
             <FlatList
                 data={posts}
                 keyExtractor={(item) => item._id}
-                renderItem={({ item }) => (<PostCard post={item} />)}
+                renderItem={({ item }) => (<PostCard post={item} profileId={profile?._id} />)}
                 ListHeaderComponent={<ProfileHeader profile={profile} postNum={postNum} />}
                 ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
                 showsVerticalScrollIndicator={false}
