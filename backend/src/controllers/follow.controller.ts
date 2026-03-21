@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import { AuthRequest } from '../middlewares/auth.middleware'
+import { Response } from "express";
 import { UserModel } from '../models/User'
 import { FollowModel } from "../models/Follow"
+import { sendNotificationToUser } from "../configs/socket";
 
 export const toggleFollow = async (req: any, res: Response) => {
     const targetUserId: string = req.params.id
@@ -23,6 +23,18 @@ export const toggleFollow = async (req: any, res: Response) => {
             await FollowModel.create({ follower: userId, following: targetUserId })
             await UserModel.findByIdAndUpdate(userId, { $inc: { following_count: 1 } })
             await UserModel.findByIdAndUpdate(targetUserId, { $inc: { followers_count: 1 } })
+
+            const senderUser = await UserModel.findById(userId).select('username profile_picture');
+
+            sendNotificationToUser(targetUserId, {
+                receiver: targetUserId,
+                sender: userId,
+                senderName: senderUser?.username || 'Someone',
+                senderAvatar: senderUser?.profile_picture || '',
+                type: 'FOLLOW',
+                message: 'started following you',
+            })
+
             return res.status(200).json({ followed: true })
         }
     } catch (error) {

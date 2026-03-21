@@ -7,7 +7,6 @@ import defaultAvatar from '@/assets/images/profile.png';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
-// Custom Drawer Content
 function CustomDrawerContent(props: DrawerContentComponentProps) {
   const { user, logout } = useAuth();
   const insets = useSafeAreaInsets();

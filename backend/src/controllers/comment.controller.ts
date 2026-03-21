@@ -3,6 +3,8 @@ import { CommentModel } from "../models/Comment";
 import { PostModel } from "../models/Post";
 import { IReply } from "../interfaces/comment.interface";
 import { Types } from "mongoose";
+import { sendNotificationToUser } from "../configs/socket";
+import { UserModel } from "../models/User";
 
 export const createComment = async (req: any, res: Response) => {
     try {
@@ -21,6 +23,22 @@ export const createComment = async (req: any, res: Response) => {
         })
 
         await PostModel.findByIdAndUpdate(postId, { $inc: { comments_count: 1 } })
+
+        const post = await PostModel.findById(postId);
+        if (post && post.author.toString() !== userId) {
+            const senderUser = await UserModel.findById(userId).select('username profile_picture');
+
+            sendNotificationToUser(post.author.toString(), {
+                receiver: post.author.toString(),
+                sender: userId,
+                senderName: senderUser?.username || 'Someone',
+                senderAvatar: senderUser?.profile_picture || '',
+                type: 'COMMENT_POST',
+                post: postId,
+                comment: comment._id.toString(),
+                message: 'commented on your post'
+            })
+        }
 
         res.status(201).json({ message: "Comment created successfully", comment })
     } catch (error) {
@@ -69,6 +87,20 @@ export const likeComment = async (req: any, res: Response) => {
 
         if (likeIndex === -1) {
             comment.likes.push(userId);
+            if (comment.user_id.toString() !== userId) {
+                const senderUser = await UserModel.findById(userId).select('username profile_picture');
+
+                sendNotificationToUser(comment.user_id.toString(), {
+                    receiver: comment.user_id.toString(),
+                    sender: userId,
+                    senderName: senderUser?.username || 'Someone',
+                    senderAvatar: senderUser?.profile_picture || '',
+                    type: 'LIKE_COMMENT',
+                    comment: commentId,
+                    post: comment.post_id?.toString(),
+                    message: 'liked your comment'
+                })
+            }
         } else {
             comment.likes.splice(likeIndex, 1);
         }
@@ -107,6 +139,21 @@ export const replyComment = async (req: any, res: Response) => {
         comment.replies.push(reply);
 
         await comment.save();
+
+        if (comment.user_id.toString() !== userId) {
+            const senderUser = await UserModel.findById(userId).select('username profile_picture');
+
+            sendNotificationToUser(comment.user_id.toString(), {
+                receiver: comment.user_id.toString(),
+                sender: userId,
+                senderName: senderUser?.username || 'Someone',
+                senderAvatar: senderUser?.profile_picture || '',
+                type: 'REPLY_COMMENT',
+                comment: commentId,
+                post: comment.post_id?.toString(),
+                message: 'replied to your comment'
+            })
+        }
 
         res.status(201).json({ message: 'Reply added successfully', reply });
     } catch (error) {
@@ -175,6 +222,21 @@ export const likeReply = async (req: any, res: Response) => {
 
         if (likeIndex === -1) {
             reply.likes.push(userId);
+            if (reply.author_id.toString() !== userId) {
+                const senderUser = await UserModel.findById(userId).select('username profile_picture');
+
+                sendNotificationToUser(reply.author_id.toString(), {
+                    receiver: reply.author_id.toString(),
+                    sender: userId,
+                    senderName: senderUser?.username || 'Someone',
+                    senderAvatar: senderUser?.profile_picture || '',
+                    type: 'LIKE_REPLY',
+                    comment: commentId,
+                    reply: replyId,
+                    post: comment.post_id?.toString(),
+                    message: 'liked your reply'
+                })
+            }
         } else {
             reply.likes.splice(likeIndex, 1);
         }

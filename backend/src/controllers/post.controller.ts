@@ -72,33 +72,6 @@ export const getPostDetail = async (req: any, res: Response) => {
             is_liked = !!isLiked
         }
 
-        // const comments = await CommentModel.find({ post_id: postId })
-        //     .populate('user_id', '_id username profile_picture')
-        //     .sort({ createdAt: -1 })
-        //     .lean()
-
-        // const comments = await CommentModel.find({ post_id: postId })
-        //     .populate('user_id', '_id username profile_picture')
-        //     .populate('replies.author_id', '_id username profile_picture')
-        //     .populate('comment')
-        //     .sort({ createdAt: -1 })
-        //     .lean();
-
-        // const formattedComments = comments.map(c => ({
-        //     _id: c._id,
-        //     user: c.user_id,
-        //     content: c.content,
-        //     likes: c.likes || [],
-        //     createdAt: c.createdAt,
-        //     replies: (c.replies || []).map(r => ({
-        //         _id: r._id,
-        //         author: r.author_id,
-        //         content: r.content,
-        //         likes: r.likes || [],
-        //         createdAt: r.createdAt
-        //     }))
-        // }));
-
         const comments = await CommentModel.find({ post_id: postId })
             .populate('user_id', '_id username profile_picture')
             .populate({
