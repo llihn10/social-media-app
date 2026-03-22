@@ -12,7 +12,6 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export default function EditProfileScreen() {
     const { user, token, logout, updateUser } = useAuth();
 
-    // Fallbacks just in case user object doesn't have some properties typed
     const [username, setUsername] = useState(user?.username || '');
     const [bio, setBio] = useState(user?.bio || '');
     const [avatar, setAvatar] = useState<string | null>(user?.profile_picture || null);
@@ -91,12 +90,12 @@ export default function EditProfileScreen() {
     }
 
     return (
-        <ScrollView className="flex-1 bg-white px-5 pt-6">
+        <ScrollView className="flex-1 bg-white px-8 pt-12">
             <View className="items-center mb-8">
                 <TouchableOpacity onPress={pickImage} className="relative">
                     <Image
                         source={avatar ? { uri: avatar } : defaultAvatar}
-                        className="w-24 h-24 rounded-full bg-gray-100"
+                        className="w-24 h-24 rounded-full bg-gray-50"
                     />
                     <View className="absolute bottom-0 right-0 bg-[#7B4A2E] p-2 rounded-full border-2 border-white">
                         <Camera size={16} color="white" />
@@ -104,18 +103,19 @@ export default function EditProfileScreen() {
                 </TouchableOpacity>
             </View>
 
-            <View className="mb-4">
-                <Text className="text-gray-700 font-medium mb-2 w-full">Username</Text>
+            <View className="mb-6">
+                <Text className="text-gray-700 font-medium mb-4 w-full">Username</Text>
                 <TextInput
                     value={username}
                     onChangeText={setUsername}
-                    className="border border-gray-300 rounded-xl px-4 py-3 text-base text-gray-900 bg-gray-50 focus:border-[#7B4A2E] w-full"
+                    className="border border-gray-300 rounded-xl px-4 py-4 text-base text-gray-900 bg-gray-50 focus:border-[#7B4A2E] w-full"
                     placeholder="Enter username"
+                    maxLength={30}
                 />
             </View>
 
             <View className="mb-8">
-                <Text className="text-gray-700 font-medium mb-2 w-full">Bio</Text>
+                <Text className="text-gray-700 font-medium mb-4 w-full">Bio</Text>
                 <TextInput
                     value={bio}
                     onChangeText={setBio}
@@ -124,13 +124,14 @@ export default function EditProfileScreen() {
                     className="border border-gray-300 rounded-xl px-4 py-3 text-base text-gray-900 bg-gray-50 h-28 focus:border-[#7B4A2E] w-full"
                     placeholder="Write something about yourself..."
                     textAlignVertical="top"
+                    maxLength={100}
                 />
             </View>
 
             <TouchableOpacity
                 onPress={handleSave}
                 disabled={loading}
-                className="bg-[#7B4A2E] rounded-xl py-4 items-center mb-[200px]" // extra margin bottom
+                className="bg-[#7B4A2E] rounded-full py-4 items-center mb-[200px]" // extra margin bottom
             >
                 {loading ? (
                     <ActivityIndicator color="white" />

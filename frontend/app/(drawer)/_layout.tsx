@@ -23,31 +23,39 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 0 }}>
         {/* Header Profile Section */}
-        <View className="px-5 py-10 bg-[#7B4A2E] flex-row items-center pt-16">
+        <View
+          className="px-6 pb-10 bg-[#7B4A2E] pt-16 rounded-br-3xl flex-row items-center"
+          style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, elevation: 5 }}
+        >
           <Image
             source={user?.profile_picture ? { uri: user.profile_picture } : defaultAvatar}
             className="w-16 h-16 rounded-full border-2 border-white bg-gray-200"
           />
           <View className="ml-4 flex-1">
             <Text className="text-white text-lg font-bold" numberOfLines={1}>{user?.username || 'User'}</Text>
-            <Text className="text-white/80 text-sm mt-1" numberOfLines={1}>{user?.bio || 'Welcome back!'}</Text>
+            <Text className="text-white/80 text-base mt-1" numberOfLines={2}>{user?.bio || 'Welcome back!'}</Text>
           </View>
         </View>
 
         {/* Drawer Item List */}
-        <View className="flex-1 bg-white pt-2">
+        <View className="flex-1 px-2 pt-4">
           <DrawerItemList {...props} />
         </View>
       </DrawerContentScrollView>
 
       {/* Logout Button */}
-      <View style={{ paddingBottom: insets.bottom + 10 }} className="p-5 border-t border-gray-100 bg-white">
-        <TouchableOpacity onPress={handleLogout} className="flex-row items-center py-2">
-          <LogOut size={22} color="#EF4444" />
-          <Text className="ml-4 text-base font-medium text-red-500">Logout</Text>
+      <View style={{ paddingBottom: insets.bottom + 20 }} className="px-5 pt-4 border-t border-gray-50">
+        <TouchableOpacity
+          onPress={handleLogout}
+          className="flex-row items-center p-4 bg-red-50 rounded-2xl active:bg-red-100"
+        >
+          <View className="w-10 h-10 bg-white rounded-xl items-center justify-center shadow-sm">
+            <LogOut size={20} color="#EF4444" />
+          </View>
+          <Text className="ml-4 text-base font-bold text-red-600">Sign Out</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -60,12 +68,23 @@ export default function DrawerLayout() {
       drawerContent={CustomDrawerContent}
       screenOptions={{
         headerShown: true,
-        drawerActiveBackgroundColor: '#F3F4F6',
+        drawerType: 'slide',
+        drawerStyle: {
+          width: '82%',
+          backgroundColor: '#fff',
+        },
+        drawerActiveBackgroundColor: '#F8F4F2',
         drawerActiveTintColor: '#7B4A2E',
-        drawerInactiveTintColor: '#4B5563',
+        drawerInactiveTintColor: '#6B7280',
+        drawerItemStyle: {
+          borderRadius: 12,
+          paddingHorizontal: 5,
+          marginVertical: 4,
+        },
         drawerLabelStyle: {
-          marginLeft: -10,
+          marginLeft: 5,
           fontSize: 15,
+          fontWeight: '600',
         },
       }}
     >

@@ -183,15 +183,18 @@ export default function NewPostScreen() {
         <SafeAreaView className='flex-1 bg-secondary'>
 
             {/* Header */}
-            <View className='flex-row items-center justify-between px-6 py-4 border-b border-gray-200'>
-                <Text className='text-lg font-bold'>New story</Text>
+            <View className='flex-row items-center justify-between border-b border-gray-100'>
+                <View className="px-5 py-3">
+                    <Text className="text-2xl font-bold text-gray-900">New story</Text>
+                </View>
 
                 <TouchableOpacity
+                    className='px-8 py-3'
                     onPress={handlePost}
                     disabled={!!contentError || !content.trim() || loading}
                 >
                     {loading ? (
-                        <ActivityIndicator size="small" color="#3B82F6" />
+                        <ActivityIndicator size="small" color="#D88A3D" />
                     ) : (
                         <Text
                             className={`text-lg font-semibold ${!content.trim() || contentError ? 'text-gray-400' : 'text-accent'

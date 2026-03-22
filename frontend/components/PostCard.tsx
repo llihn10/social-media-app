@@ -244,7 +244,10 @@ const PostCard = memo(({ post, profileId }: PostItemProps) => {
                     <Text className="text-sm text-dark-100 font-medium">{likesCount}</Text>
                 </Pressable>
 
-                <Pressable className="flex-row items-center gap-2 p-2">
+                <Pressable
+                    className="flex-row items-center gap-2 p-2"
+                    onPress={() => router.push(`/post/${post._id}`)}
+                >
                     <MessageCircle
                         size={17}
                         color={'#000'}

@@ -2,8 +2,8 @@ import PostCard from '@/components/PostCard';
 import ProfileCard from '@/components/ProfileCard';
 import SearchBar from '@/components/SearchBar'
 import { ChevronDown } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
+import { ActivityIndicator, FlatList, Text, TouchableOpacity, View, RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -15,37 +15,44 @@ export default function SearchScreen() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [sortOption, setSortOption] = useState('Top posts');
+    const [refreshing, setRefreshing] = useState(false);
 
     const handleSearch = (text: string) => {
         setSearchQuery(text);
     };
 
-    useEffect(() => {
+    const fetchResult = async (isRefreshing = false) => {
         const trimmedQuery = searchQuery.trim();
 
-        if (!trimmedQuery.trim()) {
+        if (!trimmedQuery) {
             setUsers([]);
             setPosts([]);
             return;
         }
 
-        const fetchResult = async () => {
-            try {
-                setLoading(true);
+        try {
+            if (!isRefreshing) setLoading(true);
 
-                const res = await fetch(`${API_URL}/search?searchQuery=${encodeURIComponent(trimmedQuery)}`);
-                const json = await res.json();
+            const res = await fetch(`${API_URL}/search?searchQuery=${encodeURIComponent(trimmedQuery)}`);
+            const json = await res.json();
 
-                setUsers(json.data.users || [])
-                setPosts(json.data.posts || []);
-            } catch (err) {
-                console.error(err);
-                setError('Failed to load result')
-            } finally {
-                setLoading(false);
-            }
+            setUsers(json.data.users || [])
+            setPosts(json.data.posts || []);
+        } catch (err) {
+            console.error(err);
+            setError('Failed to load result')
+        } finally {
+            if (!isRefreshing) setLoading(false);
         }
+    };
 
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await fetchResult(true);
+        setRefreshing(false);
+    }, [searchQuery]);
+
+    useEffect(() => {
         const timeout = setTimeout(() => {
             fetchResult();
         }, 400);
@@ -68,6 +75,9 @@ export default function SearchScreen() {
                 renderItem={({ item }) => (<PostCard post={item} />)}
                 ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#D88A3D"]} tintColor="#D88A3D" />
+                }
 
                 ListEmptyComponent={() => {
                     const hasQuery = searchQuery.trim().length > 0;

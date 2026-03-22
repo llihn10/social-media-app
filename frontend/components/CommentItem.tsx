@@ -1,4 +1,4 @@
-import { Heart, MessagesSquare, MoreHorizontal } from "lucide-react-native";
+import { Heart, MessagesSquare, MoreHorizontal, Send } from "lucide-react-native";
 import { View, Text, Image, Pressable, TextInput, TouchableOpacity, ActivityIndicator, Modal, Alert } from "react-native";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -422,28 +422,47 @@ export default function CommentItem({ comment, onRefresh, activeReplyCommentId, 
 
                         {/* Reply Input */}
                         {isReplying && (
-                            <View className="mt-2 mb-3 flex-row items-end">
-                                <TextInput
-                                    className="flex-1 rounded-3xl px-5 py-4 text-base text-gray-900 border border-gray-200"
-                                    style={{ textAlignVertical: 'center' }}
-                                    placeholder="Write a reply..."
-                                    placeholderTextColor="#9CA3AF"
-                                    value={replyContent}
-                                    onChangeText={setReplyContent}
-                                    multiline
-                                    maxLength={200}
-                                    autoFocus={true}
-                                />
+                            <View className="mt-3 mb-2 animate-fade-in">
+                                <View className="flex-row items-stretch bg-white rounded-2xl border border-gray-200 p-2 shadow-gray-500/10">
+                                    <TextInput
+                                        className="flex-1 px-3 py-2 text-base text-gray-800"
+                                        style={{
+                                            textAlignVertical: 'top',
+                                            maxHeight: 120,
+                                        }}
+                                        placeholder="Write a reply..."
+                                        placeholderTextColor="#9CA3AF"
+                                        value={replyContent}
+                                        onChangeText={setReplyContent}
+                                        multiline
+                                        maxLength={100}
+                                        autoFocus={true}
+                                    />
+
+                                    <View className="flex-col items-center justify-end ml-2 pb-1">
+                                        <Text className={`text-[10px] mb-1 ${replyContent.length >= 100 ? 'text-red-500' : 'text-gray-400'}`}>
+                                            {replyContent.length}/100
+                                        </Text>
+
+                                        <TouchableOpacity
+                                            onPress={handleReplySubmit}
+                                            disabled={!replyContent.trim() || isSubmitting}
+                                            className={`rounded-full px-4 py-2 flex-row items-center justify-center ${!replyContent.trim() ? 'bg-gray-100' : 'bg-[#7B4A2E]'}`}
+                                        >
+                                            {isSubmitting ? (
+                                                <ActivityIndicator size="small" color="#FFF" />
+                                            ) : (
+                                                <Send size={20} color={(!replyContent.trim() || isSubmitting) ? "#9CA3AF" : "#FFF"} style={{ marginLeft: -2, marginTop: 2 }} />
+                                            )}
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+
                                 <TouchableOpacity
-                                    className={`ml-2 mb-0.5 rounded-full items-center justify-center h-10 w-10 ${(!replyContent.trim() || isReplying) ? 'bg-gray-200' : 'bg-[#7B4A2E]'}`}
-                                    onPress={handleReplySubmit}
-                                    disabled={!replyContent.trim() || isSubmitting}
+                                    onPress={() => setActiveReplyCommentId(null)}
+                                    className="mt-2 self-start px-2"
                                 >
-                                    {isSubmitting ? (
-                                        <ActivityIndicator size="small" color="#FFF" />
-                                    ) : (
-                                        <Text className={`font-semibold text-sm ${(!replyContent.trim() || isReplying) ? 'text-gray-400' : 'text-white'}`}>Post</Text>
-                                    )}
+                                    <Text className="text-sm text-gray-400">Cancel</Text>
                                 </TouchableOpacity>
                             </View>
                         )}

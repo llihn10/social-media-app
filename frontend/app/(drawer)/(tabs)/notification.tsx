@@ -61,7 +61,7 @@ export default function NotificationScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-            <View className="px-4 py-3 border-b border-gray-100">
+            <View className="px-5 py-3 border-b border-gray-100">
                 <Text className="text-2xl font-bold text-gray-900">Notifications</Text>
             </View>
 

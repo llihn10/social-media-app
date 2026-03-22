@@ -5,7 +5,7 @@ import PostHeader from '@/components/PostHeader';
 import { router, useLocalSearchParams } from 'expo-router';
 import { AlertCircle, ArrowLeft, Send } from 'lucide-react-native';
 import React, { useEffect, useState, useCallback } from 'react';
-import { ActivityIndicator, Text, View, FlatList, Alert, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity, Modal } from 'react-native';
+import { ActivityIndicator, Text, View, FlatList, Alert, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -18,6 +18,7 @@ export default function PostDetail() {
     const [comment, setComment] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [activeReplyCommentId, setActiveReplyCommentId] = useState<string | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
 
     const fetchPost = useCallback(async () => {
         try {
@@ -38,6 +39,12 @@ export default function PostDetail() {
 
     useEffect(() => {
         fetchPost();
+    }, [fetchPost]);
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await fetchPost();
+        setRefreshing(false);
     }, [fetchPost]);
 
     const handleComment = async () => {
@@ -117,6 +124,9 @@ export default function PostDetail() {
                         overScrollMode="never"
                         showsVerticalScrollIndicator={false}
                         keyExtractor={(item, index) => item?._id || index.toString()}
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#7B4A2E"]} tintColor="#7B4A2E" />
+                        }
                         ListHeaderComponent={
                             <View className="bg-white mb-2 pb-2 border-b border-gray-100">
                                 <PostHeader post={post} />

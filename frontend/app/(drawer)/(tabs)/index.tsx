@@ -57,16 +57,6 @@ export default function HomeScreen() {
     }
   }, [activeTab])
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     if (activeTab === 'foryou' && postsForYou.length === 0) {
-  //       fetchPosts('foryou');
-  //     } else if (activeTab === 'following' && postsFollowing.length === 0) {
-  //       fetchPosts('following');
-  //     }
-  //   }, [activeTab, postsForYou.length, postsFollowing.length])
-  // );
-
   useFocusEffect(
     useCallback(() => {
       fetchPosts('foryou');
