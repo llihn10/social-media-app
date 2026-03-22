@@ -4,7 +4,7 @@ import { PostModel } from "../models/Post";
 import { IReply } from "../interfaces/comment.interface";
 import { Types } from "mongoose";
 import { sendNotificationToUser } from "../configs/socket";
-import { UserModel } from "../models/User";
+import { NotificationModel } from "../models/Notification";
 
 export const createComment = async (req: any, res: Response) => {
     try {
@@ -26,18 +26,30 @@ export const createComment = async (req: any, res: Response) => {
 
         const post = await PostModel.findById(postId);
         if (post && post.author.toString() !== userId) {
-            const senderUser = await UserModel.findById(userId).select('username profile_picture');
-
-            sendNotificationToUser(post.author.toString(), {
-                receiver: post.author.toString(),
+            const newNotif = await NotificationModel.create({
+                receiver: post.author,
                 sender: userId,
-                senderName: senderUser?.username || 'Someone',
-                senderAvatar: senderUser?.profile_picture || '',
                 type: 'COMMENT_POST',
                 post: postId,
-                comment: comment._id.toString(),
-                message: 'commented on your post'
-            })
+                comment: comment._id,
+                isRead: false
+            });
+
+            const populatedNotif = await NotificationModel.findById(newNotif._id)
+                .populate('sender', 'username profile_picture');
+
+            if (populatedNotif) {
+                sendNotificationToUser(post.author.toString(), {
+                    receiver: post.author.toString(),
+                    sender: userId,
+                    senderName: (populatedNotif.sender as any).username,
+                    senderAvatar: (populatedNotif.sender as any).profile_picture,
+                    type: 'COMMENT_POST',
+                    post: postId,
+                    comment: comment._id.toString(),
+                    message: 'commented on your post'
+                })
+            }
         }
 
         res.status(201).json({ message: "Comment created successfully", comment })
@@ -88,18 +100,30 @@ export const likeComment = async (req: any, res: Response) => {
         if (likeIndex === -1) {
             comment.likes.push(userId);
             if (comment.user_id.toString() !== userId) {
-                const senderUser = await UserModel.findById(userId).select('username profile_picture');
-
-                sendNotificationToUser(comment.user_id.toString(), {
-                    receiver: comment.user_id.toString(),
+                const newNotif = await NotificationModel.create({
+                    receiver: comment.user_id,
                     sender: userId,
-                    senderName: senderUser?.username || 'Someone',
-                    senderAvatar: senderUser?.profile_picture || '',
                     type: 'LIKE_COMMENT',
                     comment: commentId,
-                    post: comment.post_id?.toString(),
-                    message: 'liked your comment'
-                })
+                    post: comment.post_id,
+                    isRead: false
+                });
+
+                const populatedNotif = await NotificationModel.findById(newNotif._id)
+                    .populate('sender', 'username profile_picture')
+
+                if (populatedNotif) {
+                    sendNotificationToUser(comment.user_id.toString(), {
+                        receiver: comment.user_id.toString(),
+                        sender: userId,
+                        senderName: (populatedNotif.sender as any).username,
+                        senderAvatar: (populatedNotif.sender as any).profile_picture,
+                        type: 'LIKE_COMMENT',
+                        comment: commentId,
+                        post: comment.post_id?.toString(),
+                        message: 'liked your comment'
+                    })
+                }
             }
         } else {
             comment.likes.splice(likeIndex, 1);
@@ -141,18 +165,30 @@ export const replyComment = async (req: any, res: Response) => {
         await comment.save();
 
         if (comment.user_id.toString() !== userId) {
-            const senderUser = await UserModel.findById(userId).select('username profile_picture');
-
-            sendNotificationToUser(comment.user_id.toString(), {
-                receiver: comment.user_id.toString(),
+            const newNotif = await NotificationModel.create({
+                receiver: comment.user_id,
                 sender: userId,
-                senderName: senderUser?.username || 'Someone',
-                senderAvatar: senderUser?.profile_picture || '',
                 type: 'REPLY_COMMENT',
                 comment: commentId,
-                post: comment.post_id?.toString(),
-                message: 'replied to your comment'
-            })
+                post: comment.post_id,
+                isRead: false
+            });
+
+            const populatedNotif = await NotificationModel.findById(newNotif._id)
+                .populate('sender', 'username profile_picture');
+
+            if (populatedNotif) {
+                sendNotificationToUser(comment.user_id.toString(), {
+                    receiver: comment.user_id.toString(),
+                    sender: userId,
+                    senderName: (populatedNotif.sender as any).username,
+                    senderAvatar: (populatedNotif.sender as any).profile_picture,
+                    type: 'REPLY_COMMENT',
+                    comment: commentId,
+                    post: comment.post_id?.toString(),
+                    message: 'replied to your comment'
+                })
+            }
         }
 
         res.status(201).json({ message: 'Reply added successfully', reply });
@@ -223,19 +259,32 @@ export const likeReply = async (req: any, res: Response) => {
         if (likeIndex === -1) {
             reply.likes.push(userId);
             if (reply.author_id.toString() !== userId) {
-                const senderUser = await UserModel.findById(userId).select('username profile_picture');
-
-                sendNotificationToUser(reply.author_id.toString(), {
-                    receiver: reply.author_id.toString(),
+                const newNotif = await NotificationModel.create({
+                    receiver: reply.author_id,
                     sender: userId,
-                    senderName: senderUser?.username || 'Someone',
-                    senderAvatar: senderUser?.profile_picture || '',
                     type: 'LIKE_REPLY',
                     comment: commentId,
                     reply: replyId,
-                    post: comment.post_id?.toString(),
-                    message: 'liked your reply'
-                })
+                    post: comment.post_id,
+                    isRead: false
+                });
+
+                const populatedNotif = await NotificationModel.findById(newNotif._id)
+                    .populate('sender', 'username profile_picture');
+
+                if (populatedNotif) {
+                    sendNotificationToUser(reply.author_id.toString(), {
+                        receiver: reply.author_id.toString(),
+                        sender: userId,
+                        senderName: (populatedNotif.sender as any).username,
+                        senderAvatar: (populatedNotif.sender as any).profile_picture,
+                        type: 'LIKE_REPLY',
+                        comment: commentId,
+                        reply: replyId,
+                        post: comment.post_id?.toString(),
+                        message: 'liked your reply'
+                    })
+                }
             }
         } else {
             reply.likes.splice(likeIndex, 1);

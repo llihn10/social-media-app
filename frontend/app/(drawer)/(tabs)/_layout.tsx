@@ -1,11 +1,12 @@
 import { Tabs } from "expo-router";
 import React from 'react';
 import { Home, Search, PlusCircle, Bell, User2 } from 'lucide-react-native';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 const _Layout = () => {
+    const { unreadCount } = useNotifications();
 
     return (
-
         // Navigation Tab
         <Tabs
             screenOptions={{
@@ -75,7 +76,13 @@ const _Layout = () => {
             <Tabs.Screen
                 name="notification"
                 options={{
-                    title: 'Notification',
+                    title: 'Notifications',
+                    tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+                    tabBarBadgeStyle: {
+                        backgroundColor: '#EF4444',
+                        color: '#FFFFFF',
+                        fontSize: 10,
+                    },
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
                         <Bell

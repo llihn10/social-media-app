@@ -1,7 +1,7 @@
 import { Stack, useRootNavigationState, useRouter, useSegments } from 'expo-router';
 import './globals.css';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 import { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -52,8 +52,10 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
         <SocketProvider>
-          <RootLayoutNav />
-          <Toast config={toastConfig} />
+          <NotificationProvider>
+            <RootLayoutNav />
+            <Toast config={toastConfig} />
+          </NotificationProvider>
         </SocketProvider>
       </AuthProvider>
     </GestureHandlerRootView>

@@ -17,6 +17,7 @@
     "@react-navigation/drawer": "^7.9.4",
     "@react-navigation/elements": "^2.6.3",
     "axios": "^1.13.5",
+    "date-fns": "^4.1.0",
     "expo": "~54.0.31",
     "expo-av": "~16.0.8",
     "expo-constants": "~18.0.13",

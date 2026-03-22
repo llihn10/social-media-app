@@ -7,6 +7,7 @@ import followRoutes from './routes/follow.route'
 import likeRoutes from './routes/like.route'
 import commentRoutes from './routes/comment.route'
 import searchRoutes from './routes/search.route'
+import notificationRoutes from './routes/notification.route'
 
 const app = express()
 
@@ -26,5 +27,7 @@ app.use('/users', followRoutes)
 app.use('/post', likeRoutes)
 
 app.use('/comment', commentRoutes)
+
+app.use('/notifications', notificationRoutes)
 
 export default app

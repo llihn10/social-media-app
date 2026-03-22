@@ -3,6 +3,7 @@ import { View, Text, Image, Pressable, TextInput, TouchableOpacity, ActivityIndi
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { authFetch } from "@/services/authFetch";
+import defaultAvatar from '@/assets/images/profile.png'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -85,8 +86,13 @@ function ReplyItem({ reply, commentId, onRefresh }: any) {
     return (
         <View className="flex-row mb-3 mt-3">
             <Image
-                source={{ uri: reply.author?.profile_picture }}
-                className='w-11 h-11 rounded-full bg-gray-200'
+                source={
+                    reply.author.profile_picture &&
+                        reply.author.profile_picture.trim() !== ''
+                        ? { uri: reply.author.profile_picture }
+                        : defaultAvatar
+                }
+                className='w-11 h-11 rounded-full mt-1'
             />
             <View className='ml-3 flex-1'>
                 <View className='flex-row items-baseline'>
@@ -187,8 +193,18 @@ export default function CommentItem({ comment, onRefresh, activeReplyCommentId, 
     return (
         <View className="px-3 py-4 border-t border-gray-100">
             <View className="flex-row">
-                <Image source={{ uri: comment.user?.profile_picture }}
+                {/* <Image source={{ uri: comment.user?.profile_picture }}
                     className='w-12 h-12 rounded-full'
+                /> */}
+
+                <Image
+                    source={
+                        comment.user.profile_picture &&
+                            comment.user.profile_picture.trim() !== ''
+                            ? { uri: comment.user.profile_picture }
+                            : defaultAvatar
+                    }
+                    className='w-12 h-12 rounded-full mt-1'
                 />
 
                 <View className='px-3 flex-1'>

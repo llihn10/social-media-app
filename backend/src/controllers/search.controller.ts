@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { PostModel } from '../models/Post'
 import { UserModel } from '../models/User'
-import { CommentModel } from '../models/Comment'
 
 export const searchAll = async (req: Request, res: Response) => {
     try {

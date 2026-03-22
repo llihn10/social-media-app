@@ -2,6 +2,7 @@ import { Response } from "express";
 import { UserModel } from '../models/User'
 import { FollowModel } from "../models/Follow"
 import { sendNotificationToUser } from "../configs/socket";
+import { NotificationModel } from "../models/Notification";
 
 export const toggleFollow = async (req: any, res: Response) => {
     const targetUserId: string = req.params.id
@@ -24,16 +25,26 @@ export const toggleFollow = async (req: any, res: Response) => {
             await UserModel.findByIdAndUpdate(userId, { $inc: { following_count: 1 } })
             await UserModel.findByIdAndUpdate(targetUserId, { $inc: { followers_count: 1 } })
 
-            const senderUser = await UserModel.findById(userId).select('username profile_picture');
-
-            sendNotificationToUser(targetUserId, {
+            const newNotif = await NotificationModel.create({
                 receiver: targetUserId,
                 sender: userId,
-                senderName: senderUser?.username || 'Someone',
-                senderAvatar: senderUser?.profile_picture || '',
                 type: 'FOLLOW',
-                message: 'started following you',
-            })
+                isRead: false
+            });
+
+            const populatedNotif = await NotificationModel.findById(newNotif._id)
+                .populate('sender', 'username profile_picture');
+
+            if (populatedNotif) {
+                sendNotificationToUser(targetUserId, {
+                    receiver: targetUserId,
+                    sender: userId,
+                    senderName: (populatedNotif.sender as any).username,
+                    senderAvatar: (populatedNotif.sender as any).profile_picture,
+                    type: 'FOLLOW',
+                    message: 'started following you',
+                })
+            }
 
             return res.status(200).json({ followed: true })
         }
