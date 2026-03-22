@@ -192,7 +192,7 @@ export default function PostHeader({ post }: PostItemProps) {
                                             ? { uri: post.author.profile_picture }
                                             : defaultAvatar
                                     }
-                                    className="w-11 h-11 rounded-full bg-gray-100"
+                                    className="w-12 h-12 rounded-full bg-gray-100"
                                 />
                             </Pressable>
                             <View className="ml-3 justify-center flex-1 pr-2">
@@ -324,7 +324,7 @@ export default function PostHeader({ post }: PostItemProps) {
                 onRequestClose={() => setMenuVisible(false)}
             >
                 <Pressable
-                    className="flex-1 bg-black/30"
+                    className="flex-1 bg-gray/30"
                     onPress={() => setMenuVisible(false)}
                 >
                     <View

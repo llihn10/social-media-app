@@ -102,7 +102,7 @@ export default function SearchScreen() {
                         )}
 
                         {/* Sort options */}
-                        {!loading && searchQuery.trim().length > 0 && (
+                        {/* {!loading && searchQuery.trim().length > 0 && (
                             <View>
                                 {posts && posts.length > 0 && (
                                     <TouchableOpacity
@@ -113,7 +113,7 @@ export default function SearchScreen() {
                                     </TouchableOpacity>
                                 )}
                             </View>
-                        )}
+                        )} */}
 
                         {/* Loading indicator */}
                         {loading && searchQuery.trim() !== '' && (

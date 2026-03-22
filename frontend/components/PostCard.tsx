@@ -146,7 +146,7 @@ const PostCard = memo(({ post, profileId }: PostItemProps) => {
                                 ? { uri: post.author.profile_picture }
                                 : defaultAvatar
                         }
-                        className='w-12 h-12 rounded-full mt-1'
+                        className='w-12 h-12 rounded-full mt-1 bg-gray-100'
                     />
                 </Pressable>
 
@@ -159,7 +159,6 @@ const PostCard = memo(({ post, profileId }: PostItemProps) => {
                     </View>
 
                     <Text className='text-lg text-dark-100 mt-1'>
-                        {/* {post.content} */}
                         {typeof post.content === 'string' ? post.content : ''}
                     </Text>
                 </View>

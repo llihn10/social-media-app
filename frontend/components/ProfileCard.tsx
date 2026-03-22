@@ -1,5 +1,6 @@
 import { Image, Pressable, Text, View } from 'react-native'
 import React from 'react'
+import defaultAvatar from '@/assets/images/profile.png'
 
 interface ProfileCardProps {
     user: {
@@ -15,8 +16,10 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
             {/* Avatar */}
             <View className='items-center mt-2'>
                 <Image
-                    source={{ uri: user.profile_picture }}
-                    className="w-20 h-20 rounded-full"
+                    source={user.profile_picture
+                        ? { uri: user.profile_picture }
+                        : defaultAvatar}
+                    className="w-20 h-20 rounded-full bg-gray-100"
                 />
             </View>
 

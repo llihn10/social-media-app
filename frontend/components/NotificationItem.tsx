@@ -28,7 +28,7 @@ export default function NotificationItem({ item, onPress }: { item: any, onPress
                         ? { uri: item.sender.profile_picture }
                         : defaultAvatar
                 }
-                className="w-12 h-12 rounded-full bg-gray-200"
+                className="w-12 h-12 rounded-full bg-gray-100"
             />
             <View className="flex-1 ml-4 justify-center">
                 <Text className="text-[15px] text-gray-900 leading-5">

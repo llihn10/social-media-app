@@ -49,7 +49,7 @@ const ProfileHeader = ({ profile, postNum }: ProfileHeaderProps) => {
                 <Image source={profile?.profile_picture
                     ? { uri: profile.profile_picture }
                     : defaultAvatar}
-                    className='w-20 h-20 rounded-full'
+                    className='w-20 h-20 rounded-full bg-gray-100'
                 />
 
                 <View>

@@ -70,7 +70,7 @@ export const deleteComment = async (req: any, res: Response) => {
             return res.status(404).json({ message: "Comment not found" })
         }
 
-        if (comment.user_id !== userId) {
+        if (comment.user_id.toString() !== userId) {
             return res.status(403).json({ message: "Unauthorized" })
         }
 
@@ -127,6 +127,12 @@ export const likeComment = async (req: any, res: Response) => {
             }
         } else {
             comment.likes.splice(likeIndex, 1);
+
+            await NotificationModel.findOneAndDelete({
+                sender: userId,
+                comment: commentId,
+                type: 'LIKE_COMMENT'
+            });
         }
 
         await comment.save();
@@ -171,6 +177,7 @@ export const replyComment = async (req: any, res: Response) => {
                 type: 'REPLY_COMMENT',
                 comment: commentId,
                 post: comment.post_id,
+                reply: reply._id,
                 isRead: false
             });
 
@@ -221,9 +228,17 @@ export const deleteReply = async (req: any, res: Response) => {
             return res.status(403).json({ message: 'Not authorized to delete this reply' });
         }
 
-        (reply as any).deleteOne();
+        await NotificationModel.deleteMany({ reply: replyId });
 
+        (reply as any).deleteOne();
         await comment.save();
+
+        // Giảm comments_count của Post (vì Reply cũng tính là 1 comment trong tổng số)
+        // if (comment.post_id) {
+        //     await PostModel.findByIdAndUpdate(comment.post_id, { 
+        //         $inc: { comments_count: -1 } 
+        //     });
+        // }
 
         return res.json({
             message: 'Reply deleted successfully'
@@ -288,6 +303,13 @@ export const likeReply = async (req: any, res: Response) => {
             }
         } else {
             reply.likes.splice(likeIndex, 1);
+
+            await NotificationModel.findOneAndDelete({
+                sender: userId,
+                comment: commentId,
+                reply: replyId,
+                type: 'LIKE_REPLY'
+            });
         }
 
         await comment.save();

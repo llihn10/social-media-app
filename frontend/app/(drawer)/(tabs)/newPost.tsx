@@ -212,7 +212,7 @@ export default function NewPostScreen() {
                         {/* User avatar */}
                         <Image
                             source={avatarUri ? { uri: avatarUri } : defaultAvatar}
-                            className='w-10 h-10 rounded-full'
+                            className='w-11 h-11 rounded-full bg-gray-100'
                         />
 
                         <View className='flex-1 ml-3'>

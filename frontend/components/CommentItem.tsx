@@ -1,5 +1,5 @@
-import { Heart, MessagesSquare } from "lucide-react-native";
-import { View, Text, Image, Pressable, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Heart, MessagesSquare, MoreHorizontal } from "lucide-react-native";
+import { View, Text, Image, Pressable, TextInput, TouchableOpacity, ActivityIndicator, Modal, Alert } from "react-native";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { authFetch } from "@/services/authFetch";
@@ -42,6 +42,12 @@ function ReplyItem({ reply, commentId, onRefresh }: any) {
 
     const currentUserId = user?._id;
 
+    const isOwnReply = user?._id?.toString() === reply.author?._id?.toString();
+    const [menuVisible, setMenuVisible] = useState(false);
+    const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+    const [modalVisible, setModalVisible] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
     const [isLiked, setIsLiked] = useState(() =>
         reply.likes?.includes(currentUserId) ?? false
     );
@@ -83,41 +89,157 @@ function ReplyItem({ reply, commentId, onRefresh }: any) {
         }
     };
 
+    const handleDeleteReply = async () => {
+        try {
+            setDeleting(true);
+            const res = await authFetch(
+                `${API_URL}/comment/${commentId}/replies/${reply._id}`,
+                { method: 'DELETE' },
+                token,
+                logout
+            );
+
+            if (res.ok) {
+                setModalVisible(false);
+                onRefresh?.();
+            } else {
+                const data = await res.json();
+                Alert.alert('Error', data.message || 'Delete failed');
+            }
+        } catch (err) {
+            console.error(err);
+            Alert.alert('Error', 'Something went wrong');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
     return (
-        <View className="flex-row mb-3 mt-3">
-            <Image
-                source={
-                    reply.author.profile_picture &&
-                        reply.author.profile_picture.trim() !== ''
-                        ? { uri: reply.author.profile_picture }
-                        : defaultAvatar
-                }
-                className='w-11 h-11 rounded-full mt-1'
-            />
-            <View className='ml-3 flex-1'>
-                <View className='flex-row items-baseline'>
-                    <Text className='text-base font-semibold text-dark-100'>
-                        {reply.author?.username || 'User'}
-                    </Text>
-                    <Text className='ml-1 text-sm font-normal text-dark-200'> {timeAgo(reply.createdAt)}</Text>
-                </View>
+        <>
+            <View className="flex-row mb-3 mt-3">
+                <Image
+                    source={
+                        reply.author.profile_picture &&
+                            reply.author.profile_picture.trim() !== ''
+                            ? { uri: reply.author.profile_picture }
+                            : defaultAvatar
+                    }
+                    className='w-11 h-11 rounded-full mt-1 bg-gray-100'
+                />
+                <View className='ml-3 flex-1 relative'>
+                    <View className='flex-row items-baseline'>
+                        <Text className='text-base font-semibold text-dark-100'>
+                            {reply.author?.username || 'User'}
+                        </Text>
+                        <Text className='ml-1 text-sm font-normal text-dark-200'> {timeAgo(reply.createdAt)}</Text>
 
-                <Text className='text-base text-dark-100 mt-1'>
-                    {reply.content}
-                </Text>
-
-                <View className='flex-row items-center mt-2'>
-                    <Pressable onPress={handleLikeReply} className="flex-row items-center gap-2 p-1 -m-1">
-                        <Heart size={16} color={isLiked ? '#F43F5E' : '#6B7280'} fill={isLiked ? '#F43F5E' : 'none'} />
-                        {likesCount > 0 && (
-                            <Text className={`text-sm font-medium ${isLiked ? 'text-red-500' : 'text-gray-500'}`}>
-                                {likesCount}
-                            </Text>
+                        {isOwnReply && (
+                            <TouchableOpacity
+                                onPress={(event) => {
+                                    const { pageX, pageY } = event.nativeEvent;
+                                    setMenuPosition({ x: pageX, y: pageY });
+                                    setMenuVisible(true);
+                                }}
+                                style={{ position: 'absolute', right: 9, top: -5 }}
+                                className="p-2 rounded-full active:bg-gray-100"
+                            >
+                                <MoreHorizontal size={20} color="#374151" />
+                            </TouchableOpacity>
                         )}
-                    </Pressable>
+                    </View>
+
+                    <Text className='text-base text-dark-100 mt-1'>
+                        {reply.content}
+                    </Text>
+
+                    <View className='flex-row items-center mt-2'>
+                        <Pressable onPress={handleLikeReply} className="flex-row items-center gap-2 p-1 -m-1">
+                            <Heart size={16} color={isLiked ? '#F43F5E' : '#6B7280'} fill={isLiked ? '#F43F5E' : 'none'} />
+                            {likesCount > 0 && (
+                                <Text className={`text-sm font-medium ${isLiked ? 'text-red-500' : 'text-gray-500'}`}>
+                                    {likesCount}
+                                </Text>
+                            )}
+                        </Pressable>
+                    </View>
                 </View>
             </View>
-        </View>
+
+            {/* Options modal */}
+            <Modal
+                transparent
+                visible={menuVisible}
+                animationType="fade"
+                onRequestClose={() => setMenuVisible(false)}
+            >
+                <Pressable
+                    className="flex-1 bg-gray/30"
+                    onPress={() => setMenuVisible(false)}
+                >
+                    <View
+                        style={{
+                            position: 'absolute',
+                            top: menuPosition.y + 20,
+                            right: 30,
+                        }}
+                        className="bg-white rounded-xl shadow-md w-40"
+                    >
+                        <TouchableOpacity
+                            onPress={() => {
+                                setMenuVisible(false);
+                                setModalVisible(true);
+                            }}
+                            className="px-4 py-3"
+                        >
+                            <Text className="text-red-500 font-medium">Delete</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Pressable>
+            </Modal>
+
+            {/* Confirm delete modal */}
+            <Modal
+                animationType="fade"
+                transparent
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View className="flex-1 justify-center items-center bg-black/40 px-6">
+                    <View className="bg-white w-full rounded-2xl p-6">
+                        <Text className="text-lg font-bold text-gray-900 mb-2">
+                            Delete Comment
+                        </Text>
+
+                        <Text className="text-gray-500 mb-6">
+                            Are you sure you want to delete this comment?
+                        </Text>
+
+                        <View className="flex-row justify-end space-x-3 gap-2">
+                            {/* Cancel */}
+                            <TouchableOpacity
+                                onPress={() => setModalVisible(false)}
+                                className="px-4 py-2 rounded-lg bg-gray-200"
+                            >
+                                <Text className="text-gray-700 font-medium">Cancel</Text>
+                            </TouchableOpacity>
+
+                            {/* Delete */}
+                            <TouchableOpacity
+                                onPress={handleDeleteReply}
+                                disabled={deleting}
+                                className="px-4 py-2 rounded-lg bg-red-500"
+                            >
+                                {deleting ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text className="text-white font-medium">Delete</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </>
     );
 }
 
@@ -133,6 +255,12 @@ export default function CommentItem({ comment, onRefresh, activeReplyCommentId, 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const isReplying = activeReplyCommentId === comment._id;
+
+    const isOwnComment = user?._id.toString() === comment.user?._id.toString()
+    const [modalVisible, setModalVisible] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [menuVisible, setMenuVisible] = useState(false);
+    const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
         if (!comment) return;
@@ -188,113 +316,234 @@ export default function CommentItem({ comment, onRefresh, activeReplyCommentId, 
         }
     };
 
+    const handleDeleteComment = async () => {
+        try {
+            setDeleting(true);
+
+            const res = await authFetch(
+                `${API_URL}/comment/${comment._id}`,
+                { method: 'DELETE' },
+                token,
+                logout
+            );
+
+            if (res.ok) {
+                setModalVisible(false);
+                onRefresh?.();
+            } else {
+                const data = await res.json();
+                Alert.alert('Error', data.message || 'Delete failed');
+            }
+        } catch (err) {
+            console.error(err);
+            Alert.alert('Error', 'Something went wrong');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
     const replies = comment?.replies || [];
 
     return (
-        <View className="px-3 py-4 border-t border-gray-100">
-            <View className="flex-row">
-                {/* <Image source={{ uri: comment.user?.profile_picture }}
-                    className='w-12 h-12 rounded-full'
-                /> */}
+        <>
+            <View className="px-3 py-4 border-t border-gray-100">
+                <View className="flex-row">
+                    <Image
+                        source={
+                            comment.user.profile_picture &&
+                                comment.user.profile_picture.trim() !== ''
+                                ? { uri: comment.user.profile_picture }
+                                : defaultAvatar
+                        }
+                        className='w-12 h-12 rounded-full mt-1 bg-gray-100'
+                    />
 
-                <Image
-                    source={
-                        comment.user.profile_picture &&
-                            comment.user.profile_picture.trim() !== ''
-                            ? { uri: comment.user.profile_picture }
-                            : defaultAvatar
-                    }
-                    className='w-12 h-12 rounded-full mt-1'
-                />
+                    <View className='px-3 flex-1 relative'>
+                        <View className='flex-row items-baseline'>
+                            <Text className='text-base font-semibold text-dark-100'>
+                                {comment.user?.username}
+                            </Text>
+                            <Text className='ml-1 text-sm font-normal text-dark-200'>
+                                {timeAgo(comment.createdAt)}
+                            </Text>
 
-                <View className='px-3 flex-1'>
-                    <View className='flex-row items-baseline'>
-                        <Text className='text-base font-semibold text-dark-100'>
-                            {comment.user?.username}
-                        </Text>
-                        <Text className='ml-1 text-sm font-normal text-dark-200'> {timeAgo(comment.createdAt)}</Text>
-                    </View>
+                            {/* <View className="flex-1" /> */}
 
-                    <Text className='text-base text-dark-100 mt-1'>
-                        {comment.content}
-                    </Text>
+                            {isOwnComment && (
+                                <TouchableOpacity
+                                    onPress={(event) => {
+                                        const { pageX, pageY } = event.nativeEvent;
 
-                    <View className='flex-row items-baseline mt-2 pb-3 gap-3'>
-                        <Pressable onPress={handleLikeComment} className="flex-row items-center gap-2">
-                            <Heart
-                                size={18}
-                                color={isLiked ? '#F43F5E' : '#6B7280'}
-                                fill={isLiked ? '#F43F5E' : 'none'}
-                            />
-                            {likesCount > 0 && (
-                                <Text className={`text-sm font-medium ${isLiked ? 'text-red-500' : 'text-gray-500'}`}>{likesCount}</Text>
+                                        setMenuPosition({
+                                            x: pageX,
+                                            y: pageY,
+                                        });
+
+                                        setMenuVisible(true);
+                                    }}
+                                    style={{ position: 'absolute', right: 0, top: -6 }}
+                                    className="p-2 rounded-full active:bg-gray-100"
+                                >
+                                    <MoreHorizontal size={20} color="#374151" />
+                                </TouchableOpacity>
                             )}
-                        </Pressable>
-
-                        <Pressable onPress={() => {
-                            setActiveReplyCommentId(
-                                isReplying ? null : comment._id
-                            );
-                        }}
-                            className="flex-row items-center gap-2 ml-5"
-                        >
-                            <MessagesSquare
-                                size={17}
-                                color={'#6B7280'}
-                                fill='none'
-                            />
-                        </Pressable>
-                    </View>
-
-                    {/* Reply Input */}
-                    {isReplying && (
-                        <View className="mt-2 mb-3 flex-row items-end">
-                            <TextInput
-                                className="flex-1 rounded-3xl px-5 py-4 text-base text-gray-900 border border-gray-200"
-                                style={{ textAlignVertical: 'center' }}
-                                placeholder="Write a reply..."
-                                placeholderTextColor="#9CA3AF"
-                                value={replyContent}
-                                onChangeText={setReplyContent}
-                                multiline
-                                maxLength={200}
-                                autoFocus={true}
-                            />
-                            <TouchableOpacity
-                                className={`ml-2 mb-0.5 rounded-full items-center justify-center h-10 w-10 ${(!replyContent.trim() || isReplying) ? 'bg-gray-200' : 'bg-[#7B4A2E]'}`}
-                                onPress={handleReplySubmit}
-                                disabled={!replyContent.trim() || isSubmitting}
-                            >
-                                {isSubmitting ? (
-                                    <ActivityIndicator size="small" color="#FFF" />
-                                ) : (
-                                    <Text className={`font-semibold text-sm ${(!replyContent.trim() || isReplying) ? 'text-gray-400' : 'text-white'}`}>Post</Text>
-                                )}
-                            </TouchableOpacity>
                         </View>
-                    )}
+
+                        <Text className='text-base text-dark-100 mt-1'>
+                            {comment.content}
+                        </Text>
+
+                        <View className='flex-row items-baseline mt-2 pb-3 gap-3'>
+                            <Pressable onPress={handleLikeComment} className="flex-row items-center gap-2">
+                                <Heart
+                                    size={18}
+                                    color={isLiked ? '#F43F5E' : '#6B7280'}
+                                    fill={isLiked ? '#F43F5E' : 'none'}
+                                />
+                                {likesCount > 0 && (
+                                    <Text className={`text-sm font-medium ${isLiked ? 'text-red-500' : 'text-gray-500'}`}>{likesCount}</Text>
+                                )}
+                            </Pressable>
+
+                            <Pressable onPress={() => {
+                                setActiveReplyCommentId(
+                                    isReplying ? null : comment._id
+                                );
+                            }}
+                                className="flex-row items-center gap-2 ml-5"
+                            >
+                                <MessagesSquare
+                                    size={17}
+                                    color={'#6B7280'}
+                                    fill='none'
+                                />
+                            </Pressable>
+                        </View>
+
+                        {/* Reply Input */}
+                        {isReplying && (
+                            <View className="mt-2 mb-3 flex-row items-end">
+                                <TextInput
+                                    className="flex-1 rounded-3xl px-5 py-4 text-base text-gray-900 border border-gray-200"
+                                    style={{ textAlignVertical: 'center' }}
+                                    placeholder="Write a reply..."
+                                    placeholderTextColor="#9CA3AF"
+                                    value={replyContent}
+                                    onChangeText={setReplyContent}
+                                    multiline
+                                    maxLength={200}
+                                    autoFocus={true}
+                                />
+                                <TouchableOpacity
+                                    className={`ml-2 mb-0.5 rounded-full items-center justify-center h-10 w-10 ${(!replyContent.trim() || isReplying) ? 'bg-gray-200' : 'bg-[#7B4A2E]'}`}
+                                    onPress={handleReplySubmit}
+                                    disabled={!replyContent.trim() || isSubmitting}
+                                >
+                                    {isSubmitting ? (
+                                        <ActivityIndicator size="small" color="#FFF" />
+                                    ) : (
+                                        <Text className={`font-semibold text-sm ${(!replyContent.trim() || isReplying) ? 'text-gray-400' : 'text-white'}`}>Post</Text>
+                                    )}
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </View>
                 </View>
+
+                {/* ===== REPLIES ===== */}
+                {replies.length > 0 && (
+                    <View className="ml-6 mt-3 pl-5 relative">
+                        <View
+                            style={{
+                                position: 'absolute',
+                                left: 1,
+                                top: 0,
+                                bottom: 0,
+                                width: 1.5,
+                                backgroundColor: '#E5E7EB',
+                            }}
+                        />
+                        {replies.map((reply: any, index: number) => (
+                            <ReplyItem key={index} reply={reply} commentId={comment._id} onRefresh={onRefresh} />
+                        ))}
+                    </View>
+                )}
             </View>
 
-            {/* ===== REPLIES ===== */}
-            {replies.length > 0 && (
-                <View className="ml-6 mt-3 pl-5 relative">
+            {/* Options modal */}
+            <Modal
+                transparent
+                visible={menuVisible}
+                animationType="fade"
+                onRequestClose={() => setMenuVisible(false)}
+            >
+                <Pressable
+                    className="flex-1 bg-gray/30"
+                    onPress={() => setMenuVisible(false)}
+                >
                     <View
                         style={{
                             position: 'absolute',
-                            left: 1,
-                            top: 0,
-                            bottom: 0,
-                            width: 1.5,
-                            backgroundColor: '#E5E7EB',
+                            top: menuPosition.y + 20,
+                            right: 30,
                         }}
-                    />
-                    {replies.map((reply: any, index: number) => (
-                        <ReplyItem key={index} reply={reply} commentId={comment._id} onRefresh={onRefresh} />
-                    ))}
-                </View>
-            )}
-        </View>
+                        className="bg-white rounded-xl shadow-md w-40"
+                    >
+                        <TouchableOpacity
+                            onPress={() => {
+                                setMenuVisible(false);
+                                setModalVisible(true);
+                            }}
+                            className="px-4 py-3"
+                        >
+                            <Text className="text-red-500 font-medium">Delete</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Pressable>
+            </Modal>
 
+            {/* Confirm delete modal */}
+            <Modal
+                animationType="fade"
+                transparent
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View className="flex-1 justify-center items-center bg-black/40 px-6">
+                    <View className="bg-white w-full rounded-2xl p-6">
+                        <Text className="text-lg font-bold text-gray-900 mb-2">
+                            Delete Comment
+                        </Text>
+
+                        <Text className="text-gray-500 mb-6">
+                            Are you sure you want to delete this comment?
+                        </Text>
+
+                        <View className="flex-row justify-end space-x-3 gap-2">
+                            {/* Cancel */}
+                            <TouchableOpacity
+                                onPress={() => setModalVisible(false)}
+                                className="px-4 py-2 rounded-lg bg-gray-200"
+                            >
+                                <Text className="text-gray-700 font-medium">Cancel</Text>
+                            </TouchableOpacity>
+
+                            {/* Delete */}
+                            <TouchableOpacity
+                                onPress={handleDeleteComment}
+                                disabled={deleting}
+                                className="px-4 py-2 rounded-lg bg-red-500"
+                            >
+                                {deleting ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text className="text-white font-medium">Delete</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </>
     );
 }
