@@ -65,6 +65,34 @@ export default function HomeScreen() {
 
   const navigation = useNavigation();
 
+  const renderEmptyState = () => {
+    if (loadingTab === activeTab) return null;
+
+    return (
+      <View className="flex-1 items-center justify-center pt-20 px-8">
+        {activeTab === 'foryou' ? (
+          <View className="items-center">
+            <Text className="text-gray-500 text-lg font-medium text-center">
+              No posts recently
+            </Text>
+            <Text className="text-gray-400 text-sm text-center mt-2">
+              Check back later for more content!
+            </Text>
+          </View>
+        ) : (
+          <View className="items-center">
+            <Text className="text-gray-500 text-lg font-medium text-center">
+              Your following feed is empty
+            </Text>
+            <Text className="text-gray-400 text-sm text-center mt-2">
+              Start following someone to see their latest posts here.
+            </Text>
+          </View>
+        )}
+      </View>
+    );
+  };
+
   const Header = () => (
     <View className='pt-4 border-b border-gray-100 bg-secondary'>
       <View className='flex-row items-center justify-between px-4 mb-4'>
@@ -131,6 +159,8 @@ export default function HomeScreen() {
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (<PostCard post={item} />)}
         ListHeaderComponent={Header}
+        ListEmptyComponent={renderEmptyState}
+        contentContainerStyle={displayedPosts?.length === 0 ? { flexGrow: 1 } : {}}
         extraData={activeTab}
         ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
         showsVerticalScrollIndicator={false}

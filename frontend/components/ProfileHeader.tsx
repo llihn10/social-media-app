@@ -27,7 +27,7 @@ const ProfileHeader = ({ profile, postNum }: ProfileHeaderProps) => {
     const showBackButton = !isProfileTab
 
     return (
-        <View className='bg-secondary px-4 pt-2 pb-6 border-b border-gray-200'>
+        <View className='bg-secondary px-4 pt-4 pb-8 border-b border-gray-200'>
 
             {/* Top bar */}
             <View className='flex-row justify-between mb-3'>
@@ -39,9 +39,9 @@ const ProfileHeader = ({ profile, postNum }: ProfileHeaderProps) => {
                     <View />
                 )}
 
-                <TouchableOpacity>
+                {/* <TouchableOpacity>
                     <MoreHorizontal color='#333' size={26} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
 
             {/* Avatar + Username */}

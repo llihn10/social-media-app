@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { UserModel } from "../models/User"
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import { isValidUsername } from "../utils/validator"
 
 interface SignupBody {
     email: string,
@@ -15,6 +16,12 @@ export const signup = async (req: Request<{}, {}, SignupBody>, res: Response) =>
         // normalize input
         const normalizedEmail = email.toLowerCase().trim()
         const normalizedUsername = username.toLowerCase().trim()
+
+        if (!isValidUsername(normalizedUsername)) {
+            return res.status(400).json({
+                message: 'Username must be 3-30 characters and only contain letters, numbers, underscores, or dots.'
+            })
+        }
 
         const existedEmail = await UserModel.findOne({ email: normalizedEmail })
         if (existedEmail) {

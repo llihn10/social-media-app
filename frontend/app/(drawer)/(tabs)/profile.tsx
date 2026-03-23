@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { useFocusEffect } from 'expo-router'
 import { ActivityIndicator, Alert, FlatList, Text, View, RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '@/contexts/AuthContext'
@@ -16,7 +17,9 @@ export default function ProfileScreen() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const postNum = posts?.length
+    const postNum = posts?.length;
+
+    const firstLoad = useRef(true);
 
     useEffect(() => {
         if (user) {
@@ -64,7 +67,7 @@ export default function ProfileScreen() {
             console.error(err);
             Alert.alert('Error', 'Failed to load data')
         } finally {
-            if (!isRefresh) setLoading(false);
+            setLoading(false);
         }
     }
 
@@ -74,9 +77,17 @@ export default function ProfileScreen() {
         setRefreshing(false);
     }
 
-    useEffect(() => {
-        loadData()
-    }, [token])
+    useFocusEffect(
+        useCallback(() => {
+            if (!token) return;
+            if (firstLoad.current) {
+                firstLoad.current = false;
+                loadData(false);
+            } else {
+                loadData(true);
+            }
+        }, [token])
+    );
 
     if (!user) {
         return (
@@ -100,10 +111,28 @@ export default function ProfileScreen() {
                 data={posts}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (<PostCard post={item} profileId={profile?._id} />)}
+
+                contentContainerStyle={{
+                    paddingBottom: 40,
+                    flexGrow: 1
+                }}
+
                 ListHeaderComponent={<ProfileHeader profile={profile} postNum={postNum} />}
                 ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
+
+                ListEmptyComponent={
+                    <View className="flex-1 items-center justify-center px-8">
+                        <Text className="text-gray-500 text-lg font-medium text-center">
+                            No posts yet.
+                        </Text>
+                        <Text className="text-gray-400 text-sm text-center mt-2">
+                            Create posts to show them here.
+                        </Text>
+                    </View>
+                }
+
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 40 }}
+
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#7B4A2E" colors={["#7B4A2E"]} />
                 }

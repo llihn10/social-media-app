@@ -5,6 +5,7 @@ import { FollowModel } from "../models/Follow"
 import mongoose from "mongoose"
 import { cloudinary } from "../configs/cloudinary"
 import * as streamifier from 'streamifier'
+import { isValidUsername } from "../utils/validator"
 
 export const getMyProfile = async (req: AuthRequest, res: Response) => {
     try {
@@ -100,6 +101,34 @@ export const updateProfile = async (req: any, res: Response) => {
         await user.save()
 
         res.status(200).json({ data: user })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Server error' })
+    }
+}
+
+export const checkUsernameExist = async (req: any, res: Response) => {
+    try {
+        const userId = req.user!.id
+        const { username } = req.query
+        const normalizedUsername = username.toLowerCase().trim()
+
+        if (!isValidUsername(normalizedUsername)) {
+            return res.status(400).json({
+                message: 'Username must be 3-30 characters and only contain letters, numbers, underscores, or dots.'
+            })
+        }
+
+        const user = await UserModel.findOne({
+            username: normalizedUsername,
+            _id: { $ne: userId }
+        })
+
+        if (user) {
+            return res.status(400).json({ message: 'Username already exists' })
+        }
+
+        res.status(200).json({ message: 'Username is available' })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Server error' })

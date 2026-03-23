@@ -1,5 +1,5 @@
 import { RequestHandler, Router } from 'express'
-import { getMyProfile, getUserProfile, updateProfile } from '../controllers/user.controller'
+import { checkUsernameExist, getMyProfile, getUserProfile, updateProfile } from '../controllers/user.controller'
 import { auth } from '../middlewares/auth.middleware'
 import { validationResult, param } from 'express-validator'
 import { upload } from '../middlewares/upload.middleware'
@@ -27,6 +27,7 @@ const router = Router()
 
 router.get('/profile', auth, getMyProfile)
 router.patch('/profile', auth, upload.single('profile_picture'), updateProfile)
+router.get('/check-username', auth, checkUsernameExist)
 router.get('/user/:id', auth, getUserProfileValidation, validate, getUserProfile)
 
 export default router
