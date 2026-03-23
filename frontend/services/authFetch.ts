@@ -1,5 +1,6 @@
 import { router } from 'expo-router'
 import { useAuth } from '@/contexts/AuthContext'
+import { Alert } from 'react-native'
 
 export const authFetch = async (
     url: string,
@@ -9,20 +10,35 @@ export const authFetch = async (
 ) => {
     const isFormData = options.body instanceof FormData
 
-    const res = await fetch(url, {
-        ...options,
-        headers: {
-            ...(options.headers || {}),
-            Authorization: token ? `Bearer ${token}` : '',
-            ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-        },
-    })
+    try {
+        const res = await fetch(url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                Authorization: token ? `Bearer ${token}` : '',
+                ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+            },
+        })
 
-    if (res.status === 401) {
-        logout()
-        router.replace('/(auth)/login')
-        throw new Error('Token expired')
+        if (res.status === 401) {
+            Alert.alert(
+                "Session expired",
+                "Please login again to continue.",
+                [
+                    {
+                        text: "OK",
+                        onPress: () => {
+                            logout();
+                            router.replace('/(auth)/login');
+                        }
+                    }
+                ],
+                { cancelable: false }
+            )
+            return null
+        }
+        return res
+    } catch (error) {
+        throw new Error('TOKEN_EXPIRED')
     }
-
-    return res
 }

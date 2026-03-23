@@ -29,6 +29,9 @@ export default function HomeScreen() {
         : `${API_URL}/posts/following`
 
       const res = await authFetch(endpoint, {}, token, logout);
+
+      if (!res) return;
+
       const json = await res.json();
 
       if (tab === 'foryou') setPostsForYou(json.data)

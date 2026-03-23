@@ -1,4 +1,4 @@
-import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { icons } from '@/constants/icons'
@@ -36,9 +36,11 @@ const SignupScreen = () => {
             })
             const data = await response.json()
 
+            if (!response) return;
+
             if (response.ok) {
                 console.log('Signup successfully: ', data)
-                router.replace('/(tabs)')
+                router.replace('/(auth)/login')
             } else {
                 Alert.alert('Signup failed', data.message || 'Invalid credentials')
             }
@@ -52,71 +54,80 @@ const SignupScreen = () => {
 
     return (
         <SafeAreaView className='flex-1 bg-secondary'>
-            <View className='flex-1 items-center justify-center'>
-
-                {/* Logo */}
-                <Image
-                    source={icons.hut_512}
-                    className='w-44 h-44'
-                    resizeMode='contain'
-                />
-                <Text className='text-6xl font-semibold text-primary mt-8 mb-9'>The Hut</Text>
-
-                {/* Input fields */}
-                <View className='w-10/12 gap-3'>
-
-                    <View className='gap-3'>
-                        <Text className='text-[#555] text-lg font-medium'>Email</Text>
-                        <AuthInput
-                            placeholder='Enter your email address'
-                            value={form.email}
-                            onChangeText={(text: string) => setForm({ ...form, email: text })}
-                        />
-                    </View>
-
-                    <View className='gap-3'>
-                        <Text className='text-[#555] text-lg font-medium'>Username</Text>
-                        <AuthInput
-                            placeholder='Enter your username'
-                            value={form.username}
-                            onChangeText={(text: string) => setForm({ ...form, username: text })}
-                        />
-                    </View>
-
-                    <View className='gap-3'>
-                        <Text className='text-[#555] text-lg font-medium'>Password</Text>
-                        <AuthInput
-                            secureTextEntry
-                            placeholder='Enter your password'
-                            value={form.password}
-                            onChangeText={(text: string) => setForm({ ...form, password: text })}
-                        />
-                    </View>
-                </View>
-
-                {/* Login Button */}
-                <TouchableOpacity
-                    className="bg-primary w-10/12 h-14 rounded-xl items-center justify-center mt-8 shadow-sm"
-                    activeOpacity={0.8}
-                    onPress={handleSignup}
-                    disabled={loading}
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                className='flex-1'
+            >
+                <ScrollView
+                    contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 20 }}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
                 >
-                    {loading ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text className="text-white text-lg font-semibold">Sign up</Text>
-                    )}
-                </TouchableOpacity>
 
-                {/* Login Navigation */}
-                <View className='flex-row mt-8 gap-1'>
-                    <Text className='text-dark-200'>Have an account?</Text>
-                    <TouchableOpacity onPress={() => router.push('/login')}>
-                        <Text className='font-semibold text-success'>Log in</Text>
+                    {/* Logo */}
+                    <Image
+                        source={icons.hut_512}
+                        className='w-44 h-44'
+                        resizeMode='contain'
+                    />
+                    <Text className='text-6xl font-semibold text-primary mt-8 mb-9'>The Hut</Text>
+
+                    {/* Input fields */}
+                    <View className='w-10/12 gap-5'>
+
+                        <View className='gap-3'>
+                            <Text className='text-[#555] text-lg font-medium'>Email</Text>
+                            <AuthInput
+                                placeholder='Enter your email address'
+                                value={form.email}
+                                onChangeText={(text: string) => setForm({ ...form, email: text })}
+                            />
+                        </View>
+
+                        <View className='gap-3'>
+                            <Text className='text-[#555] text-lg font-medium'>Username</Text>
+                            <AuthInput
+                                placeholder='Enter your username'
+                                value={form.username}
+                                onChangeText={(text: string) => setForm({ ...form, username: text })}
+                            />
+                        </View>
+
+                        <View className='gap-3'>
+                            <Text className='text-[#555] text-lg font-medium'>Password</Text>
+                            <AuthInput
+                                secureTextEntry
+                                placeholder='Enter your password'
+                                value={form.password}
+                                onChangeText={(text: string) => setForm({ ...form, password: text })}
+                            />
+                        </View>
+                    </View>
+
+                    {/* Login Button */}
+                    <TouchableOpacity
+                        className="bg-primary w-10/12 h-14 rounded-xl items-center justify-center mt-8 shadow-sm"
+                        activeOpacity={0.8}
+                        onPress={handleSignup}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text className="text-white text-lg font-semibold">Sign up</Text>
+                        )}
                     </TouchableOpacity>
-                </View>
 
-            </View>
+                    {/* Login Navigation */}
+                    <View className='flex-row mt-8 gap-1'>
+                        <Text className='text-dark-200'>Have an account?</Text>
+                        <TouchableOpacity onPress={() => router.push('/login')}>
+                            <Text className='font-semibold text-success'>Log in</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     )
 }
