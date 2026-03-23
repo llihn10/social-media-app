@@ -27,6 +27,7 @@ export default function PostDetail() {
                 token,
                 logout
             );
+            if (!res) return
             const json = await res.json();
             setPost(json);
         } catch (err) {
@@ -55,7 +56,7 @@ export default function PostDetail() {
                 method: 'POST',
                 body: JSON.stringify({ content: comment.trim() })
             }, token, logout);
-
+            if (!res) return
             if (res.ok) {
                 setComment('');
                 fetchPost();

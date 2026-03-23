@@ -33,6 +33,8 @@ export default function UserProfile() {
                         logout
                     )
                 ])
+                if (!profileRes || !postsRes) return;
+
                 if (!profileRes.ok || !postsRes.ok) {
                     throw new Error('Fetch failed');
                 }

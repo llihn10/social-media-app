@@ -38,7 +38,7 @@ const UserItem: React.FC<UserItemProps> = ({ item }) => {
                 token,
                 logout
             )
-
+            if (!res) return
             if (!res.ok) throw new Error('Follow failed')
 
             setIsFollowing(!isFollowing)

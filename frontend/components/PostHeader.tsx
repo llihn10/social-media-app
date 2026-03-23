@@ -91,6 +91,7 @@ export default function PostHeader({ post }: PostItemProps) {
                 token,
                 logout
             )
+            if (!res) return
             const data = await res.json()
             if (!res.ok) {
                 throw new Error(data.message || 'Like failed')
@@ -113,6 +114,7 @@ export default function PostHeader({ post }: PostItemProps) {
                 token,
                 logout
             )
+            if (!res) return
             if (!res.ok) throw new Error('Follow failed')
             setIsFollowed(!isFollowed)
         } catch (err) {
@@ -162,7 +164,7 @@ export default function PostHeader({ post }: PostItemProps) {
                 token,
                 logout
             );
-
+            if (!res) return
             if (res.ok) {
                 setModalVisible(false);
                 router.back();

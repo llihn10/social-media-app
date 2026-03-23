@@ -60,6 +60,7 @@ export default function EditProfileScreen() {
                     method: 'GET',
                 }, token, logout);
 
+                if (!res) return
                 if (!res.ok) {
                     const json = await res.json();
                     setUsernameError(json.message || 'Username already exists');
@@ -110,7 +111,7 @@ export default function EditProfileScreen() {
                 method: 'PATCH',
                 body: formData,
             }, token, logout);
-
+            if (!res) return
             const jsonResponse = await res.json();
 
             if (!res.ok) {

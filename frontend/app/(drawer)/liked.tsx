@@ -17,6 +17,7 @@ export default function LikedPostsScreen() {
         try {
             if (!isRefresh) setLoading(true);
             const res = await authFetch(`${API_URL}/posts/liked`, {}, token, logout);
+            if (!res) return
             if (!res.ok) throw new Error('Failed to fetch liked posts');
             const json = await res.json();
             setPosts(json.data || []);

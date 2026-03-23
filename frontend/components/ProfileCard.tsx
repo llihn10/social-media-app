@@ -27,6 +27,7 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
         try {
             const method = isFollowed ? 'DELETE' : 'POST';
             const res = await authFetch(`${API_URL}/users/follow/${user._id}`, { method }, token, logout);
+            if (!res) return
             if (!res.ok) throw new Error('Follow failed');
             setIsFollowed(!isFollowed);
         } catch (err) {

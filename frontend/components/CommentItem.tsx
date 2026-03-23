@@ -78,6 +78,8 @@ function ReplyItem({ reply, commentId, onRefresh }: any) {
                 method: 'POST'
             }, token, logout);
 
+            if (!res) return
+
             if (!res.ok) {
                 // revert
                 setIsLiked(previousIsLiked);
@@ -98,7 +100,7 @@ function ReplyItem({ reply, commentId, onRefresh }: any) {
                 token,
                 logout
             );
-
+            if (!res) return
             if (res.ok) {
                 setModalVisible(false);
                 onRefresh?.();
@@ -280,7 +282,7 @@ export default function CommentItem({ comment, onRefresh, activeReplyCommentId, 
             const res = await authFetch(`${API_URL}/comment/${comment._id}/like`, {
                 method: 'POST'
             }, token, logout);
-
+            if (!res) return
             if (!res.ok) {
                 setIsLiked(prevLiked);
                 setLikesCount(prevCount);
@@ -303,7 +305,7 @@ export default function CommentItem({ comment, onRefresh, activeReplyCommentId, 
                 },
                 body: JSON.stringify({ content: replyContent.trim() })
             }, token, logout);
-
+            if (!res) return
             if (res.ok) {
                 setReplyContent('');
                 setActiveReplyCommentId(null);
@@ -326,7 +328,7 @@ export default function CommentItem({ comment, onRefresh, activeReplyCommentId, 
                 token,
                 logout
             );
-
+            if (!res) return
             if (res.ok) {
                 setModalVisible(false);
                 onRefresh?.();

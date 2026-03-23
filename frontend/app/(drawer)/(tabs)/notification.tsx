@@ -28,8 +28,10 @@ export default function NotificationScreen() {
                 token,
                 logout
             )
+            if (!res) return;
+
             const data = await res.json();
-            // console.log(data);
+
             setNotifications(data);
         } catch (error) {
             console.error(error);

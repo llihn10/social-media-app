@@ -44,6 +44,7 @@ export default function FollowScreen() {
                     logout
                 );
 
+                if (!res) return
                 const result = await res.json();
                 if (res.ok) {
                     setData(result.data);

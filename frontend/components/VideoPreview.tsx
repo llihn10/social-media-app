@@ -8,7 +8,8 @@ export function VideoPreview({ uri }: { uri: string }) {
     return (
         <VideoView
             player={player}
-            className="w-64 h-64 rounded-lg"
+            style={{ width: 250, height: 250, borderRadius: 12 }}
+            contentFit="cover"
             nativeControls
         />
     )

@@ -91,7 +91,7 @@ const PostCard = memo(({ post, profileId }: PostItemProps) => {
                 token,
                 logout
             )
-
+            if (!res) return
             const data = await res.json()
 
             if (!res.ok) {

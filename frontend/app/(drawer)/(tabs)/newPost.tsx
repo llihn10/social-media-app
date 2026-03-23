@@ -57,6 +57,8 @@ export default function NewPostScreen() {
                 logout
             )
 
+            if (!res) return;
+
             const data = await res.json()
 
             if (!res.ok) {

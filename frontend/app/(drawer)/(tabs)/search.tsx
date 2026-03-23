@@ -36,6 +36,7 @@ export default function SearchScreen() {
             if (!isRefreshing) setLoading(true);
 
             const res = await authFetch(`${API_URL}/search?searchQuery=${encodeURIComponent(trimmedQuery)}`, {}, token, logout);
+            if (!res) return
             const json = await res.json();
 
             setUsers(json.data.users || [])
