@@ -1,20 +1,22 @@
 import PostCard from '@/components/PostCard';
 import ProfileCard from '@/components/ProfileCard';
-import SearchBar from '@/components/SearchBar'
-import { ChevronDown } from 'lucide-react-native';
+import SearchBar from '@/components/SearchBar';
+import { useAuth } from '@/contexts/AuthContext';
+import { authFetch } from '@/services/authFetch';
+import { Frown, Search } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, FlatList, Text, TouchableOpacity, View, RefreshControl } from 'react-native'
+import { ActivityIndicator, FlatList, Text, View, RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function SearchScreen() {
+    const { token, logout } = useAuth();
     const [searchQuery, setSearchQuery] = useState("");
     const [posts, setPosts] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [sortOption, setSortOption] = useState('Top posts');
     const [refreshing, setRefreshing] = useState(false);
 
     const handleSearch = (text: string) => {
@@ -33,7 +35,7 @@ export default function SearchScreen() {
         try {
             if (!isRefreshing) setLoading(true);
 
-            const res = await fetch(`${API_URL}/search?searchQuery=${encodeURIComponent(trimmedQuery)}`);
+            const res = await authFetch(`${API_URL}/search?searchQuery=${encodeURIComponent(trimmedQuery)}`, {}, token, logout);
             const json = await res.json();
 
             setUsers(json.data.users || [])
@@ -53,6 +55,13 @@ export default function SearchScreen() {
     }, [searchQuery]);
 
     useEffect(() => {
+        if (!searchQuery.trim()) {
+            setLoading(false);
+            setUsers([]);
+            setPosts([]);
+            return;
+        }
+
         const timeout = setTimeout(() => {
             fetchResult();
         }, 400);
@@ -73,8 +82,10 @@ export default function SearchScreen() {
                 data={posts}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (<PostCard post={item} />)}
+
                 ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={posts.length === 0 ? { flexGrow: 1 } : {}}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#D88A3D"]} tintColor="#D88A3D" />
                 }
@@ -82,12 +93,38 @@ export default function SearchScreen() {
                 ListEmptyComponent={() => {
                     const hasQuery = searchQuery.trim().length > 0;
 
-                    if (!loading && users.length === 0 && hasQuery) {
+                    if (loading) return null;
+
+                    if (!hasQuery) {
                         return (
-                            <View className="flex-1 items-center justify-center pt-20">
-                                <Text className="text-gray-500 text-lg">No results found for "{searchQuery}"</Text>
+                            <View className="flex-1 items-center justify-center px-10">
+                                <View className="bg-orange-100 p-6 rounded-full mb-4">
+                                    <Search size={40} color="#D88A3D" strokeWidth={1.5} />
+                                </View>
+                                <Text className="text-dark-100 text-xl font-bold text-center">
+                                    Discover something new
+                                </Text>
+                                <Text className="text-gray-500 text-center mt-2 leading-5">
+                                    Search for your favorite topics or trends.
+                                </Text>
                             </View>
-                        )
+                        );
+                    }
+
+                    if (users.length === 0 && posts.length === 0) {
+                        return (
+                            <View className="flex-1 items-center justify-center px-10">
+                                <View className="bg-gray-100 p-6 rounded-full mb-4">
+                                    <Frown size={40} color="#9CA3AF" strokeWidth={1.5} />
+                                </View>
+                                <Text className="text-dark-100 text-xl font-bold text-center">
+                                    No results found
+                                </Text>
+                                <Text className="text-gray-500 text-center mt-2 leading-5">
+                                    We couldn't find anything for "<Text className="font-semibold text-dark-100">{searchQuery}</Text>". Try a different keyword.
+                                </Text>
+                            </View>
+                        );
                     }
                     return null;
                 }}
@@ -111,20 +148,6 @@ export default function SearchScreen() {
                             </View>
                         )}
 
-                        {/* Sort options */}
-                        {/* {!loading && searchQuery.trim().length > 0 && (
-                            <View>
-                                {posts && posts.length > 0 && (
-                                    <TouchableOpacity
-                                        className='flex-row items-center'
-                                    >
-                                        <Text className='text-lg font-bold text-dark-100 mr-1'>Top post</Text>
-                                        <ChevronDown size={20} color='#1c1c1c' strokeWidth={2.5} />
-                                    </TouchableOpacity>
-                                )}
-                            </View>
-                        )} */}
-
                         {/* Loading indicator */}
                         {loading && searchQuery.trim() !== '' && (
                             <ActivityIndicator
@@ -133,27 +156,6 @@ export default function SearchScreen() {
                                 className="my-3"
                             />
                         )}
-                        {/* <View className='px-4'>
-                            {searchQuery && loading && (
-                                <ActivityIndicator
-                                    size="large"
-                                    color="#D88A3D"
-                                    className="my-3"
-                                />
-                            )}
-                            {error && (
-                            <Text className="text-red-500 px-5 my-3">
-                                Error: { }
-                            </Text>
-                        )}
-
-                        {!loading && !error && searchQuery.trim() && posts?.length! > 0 && (
-                            <Text className="text-xl text-white font-bold">
-                                Search Results for{" "}
-                                <Text className="text-accent">{searchQuery}</Text>
-                            </Text>
-                        )}
-                        </View> */}
                     </View>
                 }
             />

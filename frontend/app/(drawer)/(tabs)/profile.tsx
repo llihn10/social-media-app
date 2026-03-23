@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { useFocusEffect } from 'expo-router'
-import { ActivityIndicator, Alert, FlatList, Text, View, RefreshControl } from 'react-native'
+import { router, useFocusEffect } from 'expo-router'
+import { ActivityIndicator, Alert, FlatList, Text, View, RefreshControl, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '@/contexts/AuthContext'
 import PostCard from '@/components/PostCard'
 import { authFetch } from '@/services/authFetch'
 import ProfileHeader from '@/components/ProfileHeader'
+import { ImagePlus, Plus } from 'lucide-react-native'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -121,13 +122,27 @@ export default function ProfileScreen() {
                 ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
 
                 ListEmptyComponent={
-                    <View className="flex-1 items-center justify-center px-8">
-                        <Text className="text-gray-500 text-lg font-medium text-center">
-                            No posts yet.
+                    <View className="flex-1 items-center justify-center px-10 py-12">
+                        <View className="bg-gray-100 p-8 rounded-full mb-6">
+                            <ImagePlus size={48} color="#9CA3AF" strokeWidth={1.5} />
+                        </View>
+
+                        <Text className="text-dark-100 text-xl font-bold text-center">
+                            Share your first story
                         </Text>
-                        <Text className="text-gray-400 text-sm text-center mt-2">
-                            Create posts to show them here.
+
+                        <Text className="text-gray-500 text-center mt-3 leading-5 text-base">
+                            Your profile looks a bit quiet. Start capturing and sharing your moments with others!
                         </Text>
+
+                        <TouchableOpacity
+                            onPress={() => router.push('/(drawer)/(tabs)/newPost')}
+                            activeOpacity={0.7}
+                            className="mt-8 flex-row items-center px-8 py-4 bg-[#7B4A2E] rounded-full shadow-md"
+                        >
+                            <Plus size={20} color="white" strokeWidth={3} className="mr-3" />
+                            <Text className="text-white font-semibold text-lg ml-2">Create Post</Text>
+                        </TouchableOpacity>
                     </View>
                 }
 

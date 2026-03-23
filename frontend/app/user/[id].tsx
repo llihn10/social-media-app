@@ -3,6 +3,7 @@ import ProfileHeader from "@/components/ProfileHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { authFetch } from "@/services/authFetch";
 import { useLocalSearchParams } from "expo-router";
+import { Layers } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -84,10 +85,31 @@ export default function UserProfile() {
                 data={posts}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (<PostCard post={item} />)}
+
+                contentContainerStyle={{
+                    paddingBottom: 40,
+                    flexGrow: 1
+                }}
+
                 ListHeaderComponent={<ProfileHeader profile={profile} postNum={postNum} />}
                 ItemSeparatorComponent={() => (<View className="border-t border-gray-200" />)}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 40 }}
+
+                ListEmptyComponent={
+                    <View className="flex-1 items-center justify-center px-10 py-20">
+                        <View className="bg-gray-100/50 p-6 rounded-full mb-4 border border-gray-100">
+                            <Layers size={42} color="#9CA3AF" strokeWidth={1.2} />
+                        </View>
+
+                        <Text className="text-dark-100 text-lg font-semibold text-center">
+                            No posts yet
+                        </Text>
+
+                        <Text className="text-gray-400 text-center mt-2 leading-5 text-sm">
+                            When <Text className="font-medium text-gray-500">@{profile?.username}</Text> shares posts, they will appear here.
+                        </Text>
+                    </View>
+                }
             />
         </SafeAreaView>
     )

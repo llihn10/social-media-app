@@ -1,18 +1,54 @@
-import { Image, Pressable, Text, View } from 'react-native'
-import React from 'react'
-import defaultAvatar from '@/assets/images/profile.png'
+import { Image, Pressable, Text, View, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import defaultAvatar from '@/assets/images/profile.png';
+import { router } from 'expo-router';
+import { useAuth } from '@/contexts/AuthContext';
+import { authFetch } from '@/services/authFetch';
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 interface ProfileCardProps {
     user: {
         _id: string,
         username: string;
         profile_picture?: string;
+        is_followed?: boolean;
     }
 }
 
 const ProfileCard = ({ user }: ProfileCardProps) => {
+    const { token, logout, user: currentUser } = useAuth();
+    const [isFollowed, setIsFollowed] = useState(user.is_followed || false);
+    const [loading, setLoading] = useState(false);
+
+    const handleFollow = async () => {
+        if (!token) return;
+        setLoading(true);
+        try {
+            const method = isFollowed ? 'DELETE' : 'POST';
+            const res = await authFetch(`${API_URL}/users/follow/${user._id}`, { method }, token, logout);
+            if (!res.ok) throw new Error('Follow failed');
+            setIsFollowed(!isFollowed);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const navigateToUser = () => {
+        if (currentUser?._id === user._id) {
+            router.push('/(drawer)/(tabs)/profile');
+        } else {
+            router.push({
+                pathname: '/user/[id]',
+                params: { id: user._id },
+            });
+        }
+    };
+
     return (
-        <View className='w-44 bg-light-50 rounded-xl py-4'>
+        <Pressable onPress={navigateToUser} className='w-44 bg-light-50 rounded-xl py-4 active:opacity-80'>
             {/* Avatar */}
             <View className='items-center mt-2'>
                 <Image
@@ -31,10 +67,22 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
             </Text>
 
             {/* Follow button */}
-            <Pressable className='bg-primary rounded-lg py-3 mx-5 mt-2 mb-1'>
-                <Text className='text-white text-center font-semibold'>Follow</Text>
-            </Pressable>
-        </View>
+            {currentUser?._id !== user._id && (
+                <Pressable
+                    onPress={handleFollow}
+                    disabled={loading}
+                    className={`rounded-lg py-3 mx-5 mt-2 mb-1 ${isFollowed ? 'bg-gray-200' : 'bg-[#7B4A2E]'}`}
+                >
+                    {loading ? (
+                        <ActivityIndicator size="small" color={isFollowed ? '#374151' : '#fff'} />
+                    ) : (
+                        <Text className={`text-center font-semibold ${isFollowed ? 'text-gray-700' : 'text-white'}`}>
+                            {isFollowed ? 'Following' : 'Follow'}
+                        </Text>
+                    )}
+                </Pressable>
+            )}
+        </Pressable>
     )
 }
 
