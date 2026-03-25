@@ -74,8 +74,10 @@ export const deleteComment = async (req: any, res: Response) => {
             return res.status(403).json({ message: "Unauthorized" })
         }
 
+        const amountToDecrement = 1 + (comment.replies ? comment.replies.length : 0)
+
         await CommentModel.findByIdAndDelete(commentId)
-        await PostModel.findByIdAndUpdate(comment.post_id, { $inc: { comments_count: -1 } })
+        await PostModel.findByIdAndUpdate(comment.post_id, { $inc: { comments_count: -amountToDecrement } })
 
         res.status(200).json({ message: "Comment deleted successfully" })
     } catch (error) {
@@ -170,6 +172,8 @@ export const replyComment = async (req: any, res: Response) => {
 
         await comment.save();
 
+        await PostModel.findByIdAndUpdate(comment.post_id, { $inc: { comments_count: 1 } })
+
         if (comment.user_id.toString() !== userId) {
             const newNotif = await NotificationModel.create({
                 receiver: comment.user_id,
@@ -233,12 +237,7 @@ export const deleteReply = async (req: any, res: Response) => {
         (reply as any).deleteOne();
         await comment.save();
 
-        // Giảm comments_count của Post (vì Reply cũng tính là 1 comment trong tổng số)
-        // if (comment.post_id) {
-        //     await PostModel.findByIdAndUpdate(comment.post_id, { 
-        //         $inc: { comments_count: -1 } 
-        //     });
-        // }
+        await PostModel.findByIdAndUpdate(comment.post_id, { $inc: { comments_count: -1 } })
 
         return res.json({
             message: 'Reply deleted successfully'

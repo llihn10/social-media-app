@@ -27,6 +27,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
                 token,
                 logout
             );
+            if (!res) return;
             const data = await res.json();
             setUnreadCount(data.unreadCount);
         } catch (error) {
