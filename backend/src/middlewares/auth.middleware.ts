@@ -45,21 +45,29 @@ export const auth = (
 
         next()
 
-        // jwt.verify(token, JWT_SECRET, (err, decoded) => {
-        //     if (err || !decoded) {
-        //         return res.status(400).json({ message: 'Invalid token' })
-        //     }
-
-        //     const payload = decoded as JwtPayload
-
-        //     req.userId = payload.id || payload._id || payload.userId
-
-        //     console.log('Auth middleware set userId: ', req.userId)
-
-        //     next()
-        // })
     } catch (error) {
         console.error('Auth middleware error: ', error)
+        return res.status(401).json({ message: 'Authorization failed' })
+    }
+}
+
+export const isAdmin = (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ message: 'Authorization failed' })
+        }
+
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Forbidden: Admin access required' })
+        }
+
+        next()
+    } catch (error) {
+        console.error('Admin middleware error: ', error)
         return res.status(401).json({ message: 'Authorization failed' })
     }
 }

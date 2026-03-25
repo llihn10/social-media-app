@@ -10,7 +10,7 @@ import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/config/toastConfig';
 
 function RootLayoutNav() {
-  const { token, isLoading } = useAuth()
+  const { user, token, isLoading } = useAuth()
   const segments = useSegments()
   const router = useRouter()
 
@@ -20,14 +20,24 @@ function RootLayoutNav() {
     if (isLoading || !navigationState?.key) return;
 
     const inAuthGroup = segments[0] === '(auth)'
+    const inAdminGroup = segments[0] === '(admin)'
+    const isAdmin = user?.role === 'admin'
 
     if (!token && !inAuthGroup) {
       router.replace('/(auth)/login')
-    } else if (token && inAuthGroup) {
-      router.replace('/(drawer)/(tabs)')
+    } else if (token) {
+      if (isAdmin) {
+        if (!inAdminGroup) {
+          router.replace('/(admin)/dashboard')
+        }
+      } else {
+        if (inAuthGroup || inAdminGroup) {
+          router.replace('/(drawer)/(tabs)')
+        }
+      }
     }
 
-  }, [token, segments, isLoading, navigationState?.key])
+  }, [token, user?.role, segments, isLoading, navigationState?.key])
 
   if (isLoading || !navigationState?.key) {
     return (

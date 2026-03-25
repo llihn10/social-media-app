@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { icons } from '@/constants/icons'
 import AuthInput from '@/components/AuthInput'
 import { router } from 'expo-router'
+import { API_URL } from '@/config/api'
 
 const SignupScreen = () => {
 
@@ -23,7 +24,7 @@ const SignupScreen = () => {
         try {
             setLoading(true)
 
-            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/signup`, {
+            const response = await fetch(`${API_URL}/auth/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

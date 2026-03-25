@@ -5,6 +5,7 @@ import { icons } from '@/constants/icons'
 import AuthInput from '@/components/AuthInput'
 import { router } from 'expo-router'
 import { useAuth } from '@/contexts/AuthContext'
+import { API_URL } from '@/config/api'
 
 const LoginScreen = () => {
 
@@ -24,7 +25,7 @@ const LoginScreen = () => {
         try {
             setLoading(true)
 
-            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/login`, {
+            const response = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -7,8 +7,7 @@ import { Frown, Search } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Text, View, RefreshControl } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { API_URL } from '@/config/api'
 
 export default function SearchScreen() {
     const { token, logout } = useAuth();

@@ -8,8 +8,7 @@ import defaultAvatar from '@/assets/images/profile.png'
 import { authFetch } from '@/services/authFetch';
 import { PostVideo } from "./PostVideo";
 import { VideoViewer } from "./VideoViewer";
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL
+import { API_URL } from '@/config/api'
 
 interface PostItemProps {
     post: {

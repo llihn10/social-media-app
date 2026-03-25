@@ -7,8 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Menu } from 'lucide-react-native';
 import { DrawerActions } from '@react-navigation/native';
 import { useNavigation, useFocusEffect } from 'expo-router';
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { API_URL } from '@/config/api'
 
 export default function HomeScreen() {
 

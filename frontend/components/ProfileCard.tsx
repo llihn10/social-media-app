@@ -4,8 +4,7 @@ import defaultAvatar from '@/assets/images/profile.png';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { API_URL } from '@/config/api'
 
 interface ProfileCardProps {
     user: {

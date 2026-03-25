@@ -8,8 +8,7 @@ import { authFetch } from "@/services/authFetch";
 import { router, usePathname, useLocalSearchParams } from "expo-router";
 import { PostVideo } from "./PostVideo";
 import { VideoViewer } from "./VideoViewer";
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL
+import { API_URL } from "@/config/api";
 
 const timeAgo = (createdAt: string) => {
     const now = new Date();

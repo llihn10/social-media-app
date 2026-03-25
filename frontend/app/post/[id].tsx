@@ -7,8 +7,7 @@ import { AlertCircle, ArrowLeft, Send } from 'lucide-react-native';
 import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, Text, View, FlatList, Alert, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { API_URL } from '@/config/api'
 
 export default function PostDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();

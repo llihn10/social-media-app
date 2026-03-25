@@ -7,8 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { authFetch } from '@/services/authFetch';
 import { BellOff } from 'lucide-react-native';
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { API_URL } from '@/config/api'
 
 export default function NotificationScreen() {
     const { user, token, logout } = useAuth()

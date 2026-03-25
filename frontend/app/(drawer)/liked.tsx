@@ -3,8 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, RefreshControl } from 'react-n
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
 import PostCard from '@/components/PostCard';
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { API_URL } from '@/config/api'
 
 export default function LikedPostsScreen() {
     const { token, logout } = useAuth();

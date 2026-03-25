@@ -7,8 +7,7 @@ import PostCard from '@/components/PostCard'
 import { authFetch } from '@/services/authFetch'
 import ProfileHeader from '@/components/ProfileHeader'
 import { ImagePlus, Plus } from 'lucide-react-native'
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL
+import { API_URL } from '@/config/api'
 
 export default function ProfileScreen() {
     const { user, token, logout } = useAuth()
@@ -17,7 +16,6 @@ export default function ProfileScreen() {
     const [posts, setPosts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const postNum = posts?.length;
 
     const firstLoad = useRef(true);

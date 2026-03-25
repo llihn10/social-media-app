@@ -5,8 +5,7 @@ import { router } from 'expo-router';
 import { FollowUser } from '@/app/follow';
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL
+import { API_URL } from '@/config/api'
 
 interface UserItemProps {
     item: FollowUser,

@@ -1,13 +1,11 @@
-import { ActivityIndicator, Alert, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, Pressable, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { Stack, useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams } from 'expo-router'
 import { useAuth } from '@/contexts/AuthContext'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { authFetch } from '@/services/authFetch'
-import defaultAvatar from '@/assets/images/profile.png'
 import UserItem from '@/components/UserItem'
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { API_URL } from '@/config/api'
 
 export interface FollowUser {
     _id: string,

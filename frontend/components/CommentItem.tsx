@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { authFetch } from "@/services/authFetch";
 import defaultAvatar from '@/assets/images/profile.png'
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { API_URL } from "@/config/api";
 
 const timeAgo = (createdAt: string) => {
     if (!createdAt) return "";

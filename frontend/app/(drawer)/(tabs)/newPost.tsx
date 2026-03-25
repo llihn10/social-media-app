@@ -8,8 +8,7 @@ import { authFetch } from '@/services/authFetch'
 import defaultAvatar from '@/assets/images/profile.png'
 import * as ImagePicker from 'expo-image-picker'
 import { VideoPreview } from '@/components/VideoPreview'
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL
+import { API_URL } from '@/config/api'
 
 export default function NewPostScreen() {
     const { user, token, logout } = useAuth()
