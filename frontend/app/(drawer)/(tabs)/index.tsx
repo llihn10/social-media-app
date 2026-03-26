@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Menu, Search } from 'lucide-react-native';
 import { DrawerActions } from '@react-navigation/native';
 import { useNavigation, useFocusEffect } from 'expo-router';
+import { useSearch } from '@/contexts/SearchContext';
 import { API_URL } from '@/config/api'
 
 export default function HomeScreen() {
@@ -66,13 +67,7 @@ export default function HomeScreen() {
   );
 
   const navigation = useNavigation();
-
-  const openSearch = () => {
-    const rightDrawer = navigation.getParent('RightDrawer');
-    if (rightDrawer) {
-      rightDrawer.dispatch(DrawerActions.openDrawer());
-    }
-  };
+  const { openSearch } = useSearch();
 
   const renderEmptyState = () => {
     if (loadingTab === activeTab) return null;
@@ -105,7 +100,7 @@ export default function HomeScreen() {
   const Header = () => (
     <View className='pt-4 border-b border-gray-100 bg-secondary'>
       <View className='flex-row items-center justify-between px-4 mb-4'>
-        <TouchableOpacity onPress={() => navigation.getParent('RightDrawer')?.getParent()?.dispatch(DrawerActions.openDrawer())} className="p-1">
+        <TouchableOpacity onPress={() => navigation.getParent()?.dispatch(DrawerActions.openDrawer())} className="p-1">
           <Menu size={26} color="#4B5563" />
         </TouchableOpacity>
 

@@ -8,7 +8,7 @@ export const getInbox = async (req: any, res: Response) => {
     try {
         const userId = req.user!.id
 
-        const conversation = await ConversationModel.find({ participants: userId })
+        const conversations = await ConversationModel.find({ participants: userId })
             .populate('participants', 'username profile_picture')
             .populate({
                 path: 'lastMessage',
@@ -16,7 +16,20 @@ export const getInbox = async (req: any, res: Response) => {
             })
             .sort({ updatedAt: -1 });
 
-        res.status(200).json(conversation)
+        // check mutual follow status for each conversation
+        const conversationsWithMutual = await Promise.all(
+            conversations.map(async (conv) => {
+                const otherUser = conv.participants.find(
+                    (p: any) => p._id.toString() !== userId
+                );
+                const mutual = otherUser
+                    ? await isMutualFollow(userId, otherUser._id.toString())
+                    : false;
+                return { ...conv.toObject(), isMutual: mutual };
+            })
+        );
+
+        res.status(200).json(conversationsWithMutual)
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Server error' })

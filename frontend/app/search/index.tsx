@@ -8,9 +8,8 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Text, View, RefreshControl, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { API_URL } from '@/config/api'
-import { useNavigation } from '@react-navigation/native';
 
-export default function SearchScreen({ navigation: drawerNav }: { navigation?: any }) {
+export default function SearchScreen({ onClose }: { onClose?: () => void }) {
     const { token, logout } = useAuth();
     const [searchQuery, setSearchQuery] = useState("");
     const [posts, setPosts] = useState<any[]>([]);
@@ -18,20 +17,14 @@ export default function SearchScreen({ navigation: drawerNav }: { navigation?: a
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
-    const localNavigation = useNavigation();
 
     const closeSearch = () => {
         setSearchQuery("");
         setPosts([]);
         setUsers([]);
 
-        if (drawerNav) {
-            drawerNav.closeDrawer();
-        } else {
-            const rightDrawer = localNavigation.getParent('RightDrawer');
-            if (rightDrawer) {
-                (rightDrawer as any).closeDrawer();
-            }
+        if (onClose) {
+            onClose();
         }
     };
 

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, SectionList, TouchableOpacity, ActivityIndicator, Image, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
 import { API_URL } from '@/config/api';
-import { MessageCircle, MessageSquarePlus } from 'lucide-react-native';
+import { MessageCircle, MessageSquarePlus, UserX } from 'lucide-react-native';
 import { formatDistanceToNow } from 'date-fns';
 import { useFocusEffect, router, useLocalSearchParams } from 'expo-router';
 import defaultAvatar from '@/assets/images/profile.png';
@@ -16,10 +16,11 @@ export default function ChatInboxScreen() {
     const [sections, setSections] = useState<any[]>([]);
     const [loadingInbox, setLoadingInbox] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const hasLoadedOnce = useRef(false);
 
-    const fetchData = async () => {
+    const fetchData = async (isRefreshing = false) => {
         try {
-            setLoadingInbox(true);
+            if (!isRefreshing) setLoadingInbox(true);
             const [inboxRes, mutualRes] = await Promise.all([
                 authFetch(`${API_URL}/messages/inbox`, {}, token, logout),
                 authFetch(`${API_URL}/users/mutual`, {}, token, logout)
@@ -70,15 +71,16 @@ export default function ChatInboxScreen() {
         }
     };
 
-    const handleRefresh = async () => {
+    const handleRefresh = () => {
         setRefreshing(true);
-        await fetchData();
-        setRefreshing(false);
+        fetchData(true);
     };
 
     useFocusEffect(
         useCallback(() => {
-            fetchData();
+            const isFirstLoad = !hasLoadedOnce.current;
+            hasLoadedOnce.current = true;
+            fetchData(!isFirstLoad); // silent refresh on return, full loader only first time
         }, [])
     );
 
@@ -140,11 +142,13 @@ export default function ChatInboxScreen() {
 
         const otherUser = item.participants.find((p: any) => p._id !== user?._id) || item.participants[0];
         const lastMessage = item.lastMessage;
+        const mutual = item.isMutual !== false;
 
         return (
             <TouchableOpacity
                 className="flex-row items-center px-4 py-3"
                 activeOpacity={0.6}
+                style={!mutual ? { opacity: 0.5 } : undefined}
                 onPress={() => router.push({
                     pathname: "/chat/[id]",
                     params: { id: item._id },
@@ -164,10 +168,17 @@ export default function ChatInboxScreen() {
                         <Text className="text-base text-gray-400 mt-0.5 italic">No messages yet</Text>
                     )}
                 </View>
-                {lastMessage?.createdAt && !isNaN(new Date(lastMessage.createdAt).getTime()) && (
-                    <Text className="text-sm text-gray-400">
-                        {formatDistanceToNow(new Date(lastMessage.createdAt), { addSuffix: true })}
-                    </Text>
+                {!mutual ? (
+                    <View className="flex-row items-center">
+                        <UserX size={14} color="#EF4444" />
+                        <Text className="text-xs text-red-400 ml-1">Can't chat</Text>
+                    </View>
+                ) : (
+                    lastMessage?.createdAt && !isNaN(new Date(lastMessage.createdAt).getTime()) && (
+                        <Text className="text-sm text-gray-400">
+                            {formatDistanceToNow(new Date(lastMessage.createdAt), { addSuffix: true })}
+                        </Text>
+                    )
                 )}
             </TouchableOpacity>
         );
