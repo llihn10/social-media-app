@@ -1,10 +1,13 @@
 import { Tabs } from "expo-router";
 import React from 'react';
-import { Home, Search, PlusCircle, Bell, User2 } from 'lucide-react-native';
+import { Home, Search, PlusCircle, Bell, User2, MessageCircle } from 'lucide-react-native';
+import { View } from 'react-native';
 import { useNotifications } from '@/contexts/NotificationContext';
+import SearchScreen from "@/app/search";
+import { createDrawerNavigator } from '@react-navigation/drawer';
 
-const _Layout = () => {
-    const { unreadCount } = useNotifications();
+const TabLayout = () => {
+    const { unreadCount } = useNotifications()
 
     return (
         // Navigation Tab
@@ -41,13 +44,27 @@ const _Layout = () => {
             />
 
             {/* Search */}
-            <Tabs.Screen
+            {/* <Tabs.Screen
                 name="search"
                 options={{
                     title: 'Search',
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
                         <Search
+                            size={25}
+                            color={focused ? '#7B4A2E' : '#C7C7C7'}
+                            strokeWidth={focused ? 3 : 2.5}
+                        />
+                    )
+                }}
+            /> */}
+            <Tabs.Screen
+                name="chat"
+                options={{
+                    title: 'Chat',
+                    headerShown: false,
+                    tabBarIcon: ({ focused }) => (
+                        <MessageCircle
                             size={25}
                             color={focused ? '#7B4A2E' : '#C7C7C7'}
                             strokeWidth={focused ? 3 : 2.5}
@@ -110,6 +127,36 @@ const _Layout = () => {
                 }}
             />
         </Tabs>
+    );
+}
+
+const RightDrawer = createDrawerNavigator();
+
+const RightDrawerContent = (props: any) => (
+    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+        {/* Truyền navigation xuống cho SearchScreen */}
+        <SearchScreen navigation={props.navigation} />
+    </View>
+);
+
+const _Layout = () => {
+
+    return (
+        <RightDrawer.Navigator
+            id="RightDrawer"
+            drawerContent={(props) => <RightDrawerContent {...props} />}
+            screenOptions={{
+                drawerPosition: 'right',
+                headerShown: false,
+                drawerStyle: { width: '100%' },
+                swipeEnabled: false, // Tắt vuốt nếu bạn chỉ muốn mở bằng icon
+            }}
+        >
+            {/* Ở đây RightDrawer.Screen của thư viện gốc cho phép dùng children thoải mái */}
+            <RightDrawer.Screen name="MainTabs">
+                {() => <TabLayout />}
+            </RightDrawer.Screen>
+        </RightDrawer.Navigator>
     );
 }
 export default _Layout

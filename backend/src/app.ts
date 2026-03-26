@@ -9,6 +9,7 @@ import commentRoutes from './routes/comment.route'
 import searchRoutes from './routes/search.route'
 import notificationRoutes from './routes/notification.route'
 import adminRoutes from './routes/admin.route'
+import messageRoutes from './routes/message.route'
 
 const app = express()
 
@@ -32,5 +33,7 @@ app.use('/comment', commentRoutes)
 app.use('/notifications', notificationRoutes)
 
 app.use('/admin', adminRoutes)
+
+app.use('/messages', messageRoutes)
 
 export default app

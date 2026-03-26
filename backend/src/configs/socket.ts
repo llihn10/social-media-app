@@ -55,3 +55,21 @@ export const sendNotificationToUser = (targetUserId: string | undefined, notific
         io.to(socketId).emit("newNotification", notificationData);
     }
 };
+
+export const sendChatMessageToUser = (receiverId: string, messageData: any): void => {
+    if (!receiverId) return;
+
+    const socketId = onlineUsers.get(String(receiverId));
+
+    if (socketId && io) {
+        io.to(socketId).emit("receive_message", messageData);
+        console.log(`Sent message to user: ${receiverId}`);
+    }
+};
+
+export const getIO = () => {
+    if (!io) {
+        throw new Error("Socket.io not initialized!");
+    }
+    return io;
+};

@@ -1,5 +1,5 @@
 import { Router, RequestHandler } from 'express'
-import { toggleFollow, getMyFollowers, getMyFollowings, getUserFollowers, getUserFollowings } from '../controllers/follow.controller'
+import { toggleFollow, getMyFollowers, getMyFollowings, getUserFollowers, getUserFollowings, getMutualFollowers } from '../controllers/follow.controller'
 import { auth } from '../middlewares/auth.middleware'
 import { param, validationResult } from 'express-validator'
 
@@ -41,6 +41,7 @@ const router = Router()
 
 router.get('/followers/me', auth, getMyFollowers)
 router.get('/following/me', auth, getMyFollowings)
+router.get('/mutual', auth, getMutualFollowers)
 router.get('/followers/:id', auth, getUserFollowersValidation, validate, getUserFollowers)
 router.get('/following/:id', auth, getUserFollowingsValidation, validate, getUserFollowings)
 router.post('/follow/:id', auth, followValidation, validate, toggleFollow)

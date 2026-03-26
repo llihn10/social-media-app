@@ -176,3 +176,28 @@ export const getUserFollowings = async (req: any, res: Response) => {
         res.status(500).json({ message: 'Server error' })
     }
 }
+
+export const getMutualFollowers = async (req: any, res: Response) => {
+    try {
+        const userId = req.user!.id
+
+        const following = await FollowModel.find({ follower: userId }).select('following')
+        const followingIds = following.map(f => f.following)
+
+        const mutualFollows = await FollowModel.find({
+            follower: { $in: followingIds },
+            following: userId
+        }).select('follower')
+
+        const mutualFollowerIds = mutualFollows.map(f => f.follower)
+
+        const usersToChat = await UserModel.find({
+            _id: { $in: mutualFollowerIds }
+        }).select('username profile_picture')
+
+        return res.status(200).json(usersToChat)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Server error' })
+    }
+};

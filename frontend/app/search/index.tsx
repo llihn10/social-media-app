@@ -5,11 +5,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
 import { Frown, Search } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, FlatList, Text, View, RefreshControl } from 'react-native'
+import { ActivityIndicator, FlatList, Text, View, RefreshControl, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { API_URL } from '@/config/api'
+import { useNavigation } from '@react-navigation/native';
 
-export default function SearchScreen() {
+export default function SearchScreen({ navigation: drawerNav }: { navigation?: any }) {
     const { token, logout } = useAuth();
     const [searchQuery, setSearchQuery] = useState("");
     const [posts, setPosts] = useState<any[]>([]);
@@ -17,6 +18,22 @@ export default function SearchScreen() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
+    const localNavigation = useNavigation();
+
+    const closeSearch = () => {
+        setSearchQuery("");
+        setPosts([]);
+        setUsers([]);
+
+        if (drawerNav) {
+            drawerNav.closeDrawer();
+        } else {
+            const rightDrawer = localNavigation.getParent('RightDrawer');
+            if (rightDrawer) {
+                (rightDrawer as any).closeDrawer();
+            }
+        }
+    };
 
     const handleSearch = (text: string) => {
         setSearchQuery(text);
@@ -71,11 +88,18 @@ export default function SearchScreen() {
 
     return (
         <SafeAreaView className='flex-1 bg-secondary' edges={['top']}>
-            <SearchBar
-                placeholder='Search'
-                value={searchQuery}
-                onChangeText={handleSearch}
-            />
+            <View className="flex-row items-center border-b border-gray-100 pb-2 pt-2 z-10 bg-secondary">
+                <View className="flex-1">
+                    <SearchBar
+                        placeholder='Search'
+                        value={searchQuery}
+                        onChangeText={handleSearch}
+                    />
+                </View>
+                <TouchableOpacity onPress={closeSearch} className="mr-4 pb-2 justify-center">
+                    <Text className="text-[#D88A3D] font-semibold text-lg">Cancel</Text>
+                </TouchableOpacity>
+            </View>
 
             {/* Result: Posts */}
             <FlatList
