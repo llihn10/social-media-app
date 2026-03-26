@@ -82,12 +82,10 @@ export default function NotificationScreen() {
                 }
                 ListEmptyComponent={
                     <View className="flex-1 items-center justify-center px-10">
-                        {/* Icon container với màu nền nhẹ nhàng */}
                         <View className="bg-gray-100 p-6 rounded-full mb-6">
                             <BellOff size={48} color="#9CA3AF" strokeWidth={1.5} />
                         </View>
 
-                        {/* Văn bản thông báo */}
                         <Text className="text-gray-900 text-xl font-bold text-center">
                             No notifications yet
                         </Text>
@@ -96,7 +94,6 @@ export default function NotificationScreen() {
                             When you get likes, comments or new followers, they'll show up right here.
                         </Text>
 
-                        {/* Nút giả định nếu muốn khuyến khích người dùng tương tác (Tùy chọn) */}
                         <TouchableOpacity
                             onPress={() => router.push('/(drawer)/(tabs)')}
                             className="mt-8 px-8 py-3 bg-[#7B4A2E] rounded-full"

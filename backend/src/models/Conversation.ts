@@ -9,7 +9,7 @@ const ConversationSchema = new Schema<IConversation>(
             required: true
         },
         lastMessage: {
-            type: [Schema.Types.ObjectId],
+            type: Schema.Types.ObjectId,
             ref: 'Message',
         },
         updatedAt: { type: Date, default: Date.now }

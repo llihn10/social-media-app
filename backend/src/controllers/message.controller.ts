@@ -10,7 +10,10 @@ export const getInbox = async (req: any, res: Response) => {
 
         const conversation = await ConversationModel.find({ participants: userId })
             .populate('participants', 'username profile_picture')
-            .populate('lastMessage')
+            .populate({
+                path: 'lastMessage',
+                select: 'content sender createdAt',
+            })
             .sort({ updatedAt: -1 });
 
         res.status(200).json(conversation)

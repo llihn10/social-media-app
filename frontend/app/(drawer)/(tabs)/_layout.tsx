@@ -1,10 +1,11 @@
-import { Tabs } from "expo-router";
-import React from 'react';
-import { Home, Search, PlusCircle, Bell, User2, MessageCircle } from 'lucide-react-native';
+import { Tabs, usePathname } from "expo-router";
+import React, { useEffect } from 'react';
+import { Home, PlusCircle, Bell, User2, MessageCircle } from 'lucide-react-native';
 import { View } from 'react-native';
 import { useNotifications } from '@/contexts/NotificationContext';
 import SearchScreen from "@/app/search";
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 
 const TabLayout = () => {
     const { unreadCount } = useNotifications()
@@ -43,21 +44,7 @@ const TabLayout = () => {
                 }}
             />
 
-            {/* Search */}
-            {/* <Tabs.Screen
-                name="search"
-                options={{
-                    title: 'Search',
-                    headerShown: false,
-                    tabBarIcon: ({ focused }) => (
-                        <Search
-                            size={25}
-                            color={focused ? '#7B4A2E' : '#C7C7C7'}
-                            strokeWidth={focused ? 3 : 2.5}
-                        />
-                    )
-                }}
-            /> */}
+            {/* Chat */}
             <Tabs.Screen
                 name="chat"
                 options={{
@@ -132,30 +119,45 @@ const TabLayout = () => {
 
 const RightDrawer = createDrawerNavigator();
 
-const RightDrawerContent = (props: any) => (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
-        {/* Truyền navigation xuống cho SearchScreen */}
-        <SearchScreen navigation={props.navigation} />
-    </View>
-);
+// const RightDrawerContent = (props: any) => (
+//     <View style={{ flex: 1, backgroundColor: '#fff' }}>
+//         <SearchScreen navigation={props.navigation} />
+//     </View>
+// );
 
 const _Layout = () => {
+
+    const pathname = usePathname();
+    const navigation = useNavigation();
+
+    useEffect(() => {
+        const rightDrawer = navigation.getParent('RightDrawer');
+
+        if (rightDrawer) {
+            rightDrawer.dispatch(DrawerActions.closeDrawer());
+        }
+    }, [pathname]);
 
     return (
         <RightDrawer.Navigator
             id="RightDrawer"
-            drawerContent={(props) => <RightDrawerContent {...props} />}
+            drawerContent={(props) => (
+                <View style={{ flex: 1, backgroundColor: '#fff' }}>
+                    <SearchScreen navigation={props.navigation} />
+                </View>
+            )}
             screenOptions={{
                 drawerPosition: 'right',
                 headerShown: false,
                 drawerStyle: { width: '100%' },
-                swipeEnabled: false, // Tắt vuốt nếu bạn chỉ muốn mở bằng icon
+                swipeEnabled: false,
             }}
         >
-            {/* Ở đây RightDrawer.Screen của thư viện gốc cho phép dùng children thoải mái */}
-            <RightDrawer.Screen name="MainTabs">
-                {() => <TabLayout />}
-            </RightDrawer.Screen>
+
+            <RightDrawer.Screen
+                name="MainTabs"
+                component={TabLayout}
+            />
         </RightDrawer.Navigator>
     );
 }
