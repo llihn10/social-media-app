@@ -1,4 +1,4 @@
-import { router } from 'expo-router'
+import { useNavigation } from '@react-navigation/native'
 import { Camera, ImageIcon } from 'lucide-react-native'
 import React, { useState } from 'react'
 import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
@@ -9,6 +9,7 @@ import defaultAvatar from '@/assets/images/profile.png'
 import * as ImagePicker from 'expo-image-picker'
 import { VideoPreview } from '@/components/VideoPreview'
 import { API_URL } from '@/config/api'
+import { X } from 'lucide-react-native'
 
 export default function NewPostScreen() {
     const { user, token, logout } = useAuth()
@@ -16,6 +17,7 @@ export default function NewPostScreen() {
     const [images, setImages] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
     const [contentError, setContentError] = useState<string | null>(null)
+    const navigation = useNavigation()
 
     const avatarUri =
         user?.profile_picture && user.profile_picture.trim() !== ''
@@ -83,12 +85,17 @@ export default function NewPostScreen() {
             const result = await uploadPost()
 
             if (result) {
-                Alert.alert('Success', 'Post created successfully!')
-
                 setContent('')
                 setImages([])
 
-                router.replace('/(drawer)/(tabs)')
+                Alert.alert('Success', 'Post created successfully!', [
+                    {
+                        text: 'OK',
+                        onPress: () => {
+                            navigation.navigate('index' as never)
+                        }
+                    }
+                ])
             }
         } catch (error: any) {
             Alert.alert('Error', error.message)
@@ -119,9 +126,9 @@ export default function NewPostScreen() {
             const validAssets = result.assets.filter(asset => {
                 if (!asset.uri) return false
 
-                // limit video duration
-                if (asset.type === "video" && asset.duration && asset.duration > 30000) {
-                    Alert.alert("Video too long", "Video must be under 30 seconds")
+                // limit video duration to 15s
+                if (asset.type === "video" && asset.duration && asset.duration > 15000) {
+                    Alert.alert("Video too long", "Video must be under 15 seconds")
                     return false
                 }
 
@@ -135,8 +142,17 @@ export default function NewPostScreen() {
             })
 
             setImages(prev => {
-                const newImages = [...prev, ...validAssets]
-                return newImages.slice(0, 5)
+                const currentVideos = prev.filter(i => i.type === 'video').length
+                const newVideos = validAssets.filter(a => a.type === 'video')
+                const newImages = validAssets.filter(a => a.type !== 'video')
+
+                const allowedVideoCount = Math.max(0, 3 - currentVideos)
+                if (newVideos.length > allowedVideoCount) {
+                    Alert.alert('Video limit', `You can only add ${3 - currentVideos} more video(s). Maximum 3 videos per post.`)
+                }
+
+                const accepted = [...newImages, ...newVideos.slice(0, allowedVideoCount)]
+                return [...prev, ...accepted].slice(0, 5)
             })
         }
     }
@@ -160,8 +176,9 @@ export default function NewPostScreen() {
             const validAssets = result.assets.filter(asset => {
                 if (!asset.uri) return false
 
-                if (asset.type === "video" && asset.duration && asset.duration > 30000) {
-                    Alert.alert("Video too long", "Video must be under 30 seconds")
+                // limit video duration to 15s
+                if (asset.type === "video" && asset.duration && asset.duration > 15000) {
+                    Alert.alert("Video too long", "Video must be under 15 seconds")
                     return false
                 }
 
@@ -174,8 +191,17 @@ export default function NewPostScreen() {
             })
 
             setImages(prev => {
-                const newImages = [...prev, ...validAssets]
-                return newImages.slice(0, 5)
+                const currentVideos = prev.filter(i => i.type === 'video').length
+                const newVideos = validAssets.filter(a => a.type === 'video')
+                const newImages = validAssets.filter(a => a.type !== 'video')
+
+                const allowedVideoCount = Math.max(0, 3 - currentVideos)
+                if (newVideos.length > allowedVideoCount) {
+                    Alert.alert('Video limit', `You can only add ${3 - currentVideos} more video(s). Maximum 3 videos per post.`)
+                }
+
+                const accepted = [...newImages, ...newVideos.slice(0, allowedVideoCount)]
+                return [...prev, ...accepted].slice(0, 5)
             })
         }
     }
@@ -247,26 +273,42 @@ export default function NewPostScreen() {
                     {images.length > 0 && (
                         <ScrollView
                             horizontal
-                            className="max-h-64 mb-2"
                             showsHorizontalScrollIndicator={false}
                             nestedScrollEnabled={true}
                             decelerationRate="fast"
                             snapToAlignment="start"
                             scrollEventThrottle={16}
-                            contentContainerStyle={{ paddingLeft: 48, paddingRight: 12, gap: 4 }}
+                            contentContainerStyle={{ paddingLeft: 48, paddingRight: 12, gap: 8 }}
+                            style={{ marginBottom: 8, maxHeight: 270 }}
                         >
                             {images
                                 .filter(img => img?.uri)
                                 .map((img, index) => (
-                                    img.type === "video" ? (
-                                        <VideoPreview key={index} uri={img.uri} />
-                                    ) : (
-                                        <Image
-                                            key={img.uri}
-                                            source={{ uri: img.uri }}
-                                            className="w-64 h-64 rounded-lg"
-                                        />
-                                    )
+                                    <View key={img.uri || index} style={{ position: 'relative' }}>
+                                        {img.type === "video" ? (
+                                            <View style={{ width: 200, height: 250, borderRadius: 12, overflow: 'hidden' }}>
+                                                <VideoPreview uri={img.uri} />
+                                            </View>
+                                        ) : (
+                                            <Image
+                                                source={{ uri: img.uri }}
+                                                style={{ width: 200, height: 250, borderRadius: 12 }}
+                                            />
+                                        )}
+
+                                        {/* Remove button */}
+                                        <TouchableOpacity
+                                            onPress={() => setImages(prev => prev.filter((_, i) => i !== index))}
+                                            style={{
+                                                position: 'absolute', top: 6, right: 6,
+                                                backgroundColor: 'rgba(0,0,0,0.55)',
+                                                borderRadius: 12, width: 24, height: 24,
+                                                alignItems: 'center', justifyContent: 'center'
+                                            }}
+                                        >
+                                            <X size={14} color="#fff" />
+                                        </TouchableOpacity>
+                                    </View>
                                 ))}
                         </ScrollView>
                     )}

@@ -187,8 +187,13 @@ export const createNewPost = async (req: any, res: Response) => {
 
         let mediaUrls: string[] = []
 
-        // uploaded files
+        // Validate: max 3 videos per post
         if (files && files.length > 0) {
+            const videoFiles = files.filter(f => f.mimetype.startsWith('video/'))
+            if (videoFiles.length > 3) {
+                return res.status(400).json({ message: 'Maximum 3 videos per post allowed' })
+            }
+
             for (const file of files) {
                 const uploadResult = await new Promise<any>((resolve, reject) => {
                     const stream = cloudinary.uploader.upload_stream(
