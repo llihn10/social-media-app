@@ -1,7 +1,7 @@
-import { View, Text, Image, TouchableOpacity, Pressable, Alert, ActivityIndicator, Modal } from "react-native";
+import { View, Text, Image, TouchableOpacity, Pressable, Alert, ActivityIndicator, Modal, TextInput } from "react-native";
 import { Heart, MessageCircle, MoreHorizontal } from 'lucide-react-native';
 import ImageViewing from "react-native-image-viewing";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext'
 import defaultAvatar from '@/assets/images/profile.png'
 import { authFetch } from "@/services/authFetch";
@@ -52,11 +52,13 @@ interface PostItemProps {
         comments?: [],
         createdAt: string,
         is_liked?: boolean,
-        is_followed: boolean
-    },
+        is_followed: boolean,
+        isEdited?: boolean;
+    };
+    onUpdatePost?: (postId: string, newContent: string) => void;
 }
 
-export default function PostHeader({ post }: PostItemProps) {
+export default function PostHeader({ post, onUpdatePost }: PostItemProps) {
 
     const { user, token, logout } = useAuth()
     const pathname = usePathname()
@@ -64,18 +66,27 @@ export default function PostHeader({ post }: PostItemProps) {
     const [visible, setVisible] = useState(false)
     const [index, setIndex] = useState(0)
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
     const [liked, setLiked] = useState<boolean>(!!post.is_liked)
     const [likesCount, setLikesCount] = useState<number>(post.likes_count)
     const [isFollowed, setIsFollowed] = useState(post?.is_followed ?? false)
     const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
     const [videoViewerVisible, setVideoViewerVisible] = useState(false)
+
     const postId = post._id
     const isOwnPost = user?._id === post.author?._id
+
     const [modalVisible, setModalVisible] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [menuVisible, setMenuVisible] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [editing, setEditing] = useState(false);
+    const [editContent, setEditContent] = useState(post.content);
+    const [editError, setEditError] = useState<string | null>(null);
+    const [canEdit, setCanEdit] = useState(false);
+    const [displayContent, setDisplayContent] = useState(post.content);
+    const [isEdited, setIsEdited] = useState(post.isEdited ?? false);
 
     // like/unlike post
     const handleToggleLike = async () => {
@@ -179,6 +190,87 @@ export default function PostHeader({ post }: PostItemProps) {
         }
     };
 
+    useEffect(() => {
+        if (!isOwnPost) return;
+
+        const checkEditability = () => {
+            const postTime = new Date(post.createdAt).getTime();
+            const now = new Date().getTime();
+            const diffInMinutes = (now - postTime) / (1000 * 60);
+
+            if (diffInMinutes < 5) {
+                setCanEdit(true);
+
+                const timeRemaining = (5 * 60 * 1000) - (now - postTime);
+                const timer = setTimeout(() => {
+                    setCanEdit(false);
+                    setMenuVisible(false);
+                }, timeRemaining);
+                return () => clearTimeout(timer);
+            } else {
+                setCanEdit(false);
+            }
+        };
+
+        const cleanup = checkEditability();
+        return cleanup;
+    }, [post.createdAt, isOwnPost])
+
+    const handleEditContentChange = (text: string) => {
+        setEditContent(text);
+        if (text.length > 300) {
+            setEditError(`Content exceeds limit (-${text.length - 300})`);
+        } else {
+            setEditError(null);
+        }
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editContent.trim()) {
+            Alert.alert('Error', 'Content is required');
+            return;
+        }
+        if (editContent.length > 300) {
+            Alert.alert('Error', 'Content must be at most 300 characters');
+            return;
+        }
+        if (editContent === displayContent) {
+            setEditModalVisible(false);
+            return;
+        }
+
+        setEditing(true);
+        try {
+            const res = await authFetch(
+                `${API_URL}/posts/update/${post._id}`,
+                {
+                    method: 'PUT',
+                    body: JSON.stringify({ content: editContent })
+                },
+                token,
+                logout
+            );
+
+            if (!res) return;
+
+            if (res.ok) {
+                setDisplayContent(editContent);
+                setIsEdited(true);
+                setEditModalVisible(false);
+                if (onUpdatePost) {
+                    onUpdatePost(post._id, editContent);
+                }
+            } else {
+                const data = await res.json();
+                Alert.alert('Error', data.message || 'Could not update post.');
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Please check your network connection.');
+        } finally {
+            setEditing(false);
+        }
+    }
+
     return (
         <>
             <View className="px-4 pt-4 bg-white">
@@ -242,8 +334,11 @@ export default function PostHeader({ post }: PostItemProps) {
 
                 {/* Content */}
                 <Text className="text-base text-gray-800 my-3 leading-6">
-                    {post.content}
+                    {displayContent}
                 </Text>
+                {isEdited && (
+                    <Text className="text-xs text-gray-400 mb-2 italic">Edited</Text>
+                )}
 
                 {/* Media */}
                 {post?.media && post.media.length > 0 && (
@@ -336,6 +431,19 @@ export default function PostHeader({ post }: PostItemProps) {
                         }}
                         className="bg-white rounded-xl shadow-md w-40"
                     >
+                        {canEdit && (
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setMenuVisible(false);
+                                    setEditContent(displayContent);
+                                    setEditError(null);
+                                    setEditModalVisible(true);
+                                }}
+                                className="px-4 py-3 border-b border-gray-100"
+                            >
+                                <Text className="text-[#7B4A2E] font-medium">Edit</Text>
+                            </TouchableOpacity>
+                        )}
                         <TouchableOpacity
                             onPress={() => {
                                 setMenuVisible(false);
@@ -385,6 +493,61 @@ export default function PostHeader({ post }: PostItemProps) {
                                     <ActivityIndicator color="#fff" />
                                 ) : (
                                     <Text className="text-white font-medium">Delete</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Edit post modal */}
+            <Modal
+                animationType="fade"
+                transparent
+                visible={editModalVisible}
+                onRequestClose={() => setEditModalVisible(false)}
+            >
+                <View className="flex-1 justify-center items-center bg-black/40 px-6">
+                    <View className="bg-white w-full rounded-2xl p-6">
+                        <Text className="text-lg font-bold text-gray-900 mb-4">
+                            Edit Post
+                        </Text>
+
+                        <TextInput
+                            value={editContent}
+                            onChangeText={handleEditContentChange}
+                            multiline
+                            placeholder="Edit your post..."
+                            placeholderTextColor="#A0A0A0"
+                            className="text-base text-gray-800 border border-gray-200 rounded-xl p-3 min-h-[100px]"
+                            textAlignVertical="top"
+                        />
+
+                        <View className="flex-row justify-between items-center mt-2">
+                            {editError ? (
+                                <Text className="text-red-500 text-sm">{editError}</Text>
+                            ) : (
+                                <Text className="text-gray-400 text-sm">{editContent.length}/300</Text>
+                            )}
+                        </View>
+
+                        <View className="flex-row justify-end space-x-3 gap-2 mt-4">
+                            <TouchableOpacity
+                                onPress={() => setEditModalVisible(false)}
+                                className="px-4 py-2 rounded-lg bg-gray-200"
+                            >
+                                <Text className="text-gray-700 font-medium">Cancel</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                onPress={handleSaveEdit}
+                                disabled={editing || !!editError || !editContent.trim()}
+                                className={`px-4 py-2 rounded-lg ${editing || !!editError || !editContent.trim() ? 'bg-gray-300' : 'bg-[#7B4A2E]'}`}
+                            >
+                                {editing ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text className="text-white font-medium">Save</Text>
                                 )}
                             </TouchableOpacity>
                         </View>

@@ -69,7 +69,18 @@ export default function PostDetail() {
         } finally {
             setSubmitting(false);
         }
-    };
+    }
+
+    const handleUpdatePost = useCallback((postId: string, newContent: string) => {
+        setPost((prevPost: any) => {
+            if (!prevPost) return null;
+            return {
+                ...prevPost,
+                content: newContent,
+                isEdited: true
+            };
+        });
+    }, []);
 
     if (loading) {
         return (
@@ -129,7 +140,10 @@ export default function PostDetail() {
                         }
                         ListHeaderComponent={
                             <View className="bg-white mb-2 pb-2 border-b border-gray-100">
-                                <PostHeader post={post} />
+                                <PostHeader
+                                    post={post}
+                                    onUpdatePost={handleUpdatePost}
+                                />
                             </View>
                         }
                         renderItem={({ item }) => (

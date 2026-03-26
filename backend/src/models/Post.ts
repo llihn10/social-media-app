@@ -29,6 +29,10 @@ const PostSchema = new Schema<IPost>(
             default: 0,
             min: 0
         },
+        isEdited: {
+            type: Boolean,
+            default: false
+        }
     },
     {
         timestamps: true,

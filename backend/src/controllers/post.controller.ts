@@ -228,46 +228,6 @@ export const createNewPost = async (req: any, res: Response) => {
     }
 }
 
-// atlas
-// export const deletePost = async (req: any, res: Response) => {
-//     const session = await mongoose.startSession();
-
-//     try {
-//         session.startTransaction();
-
-//         const userId = req.user!.id
-//         const { postId } = req.params
-
-//         const post = await PostModel.findById(postId).session(session)
-
-//         if (!post) {
-//             await session.abortTransaction()
-//             return res.status(404).json({ message: 'Post not found' });
-//         }
-
-//         if (post.author.toString() !== userId) {
-//             await session.abortTransaction()
-//             return res.status(403).json({ message: 'Not authorized' });
-//         }
-
-//         await CommentModel.deleteMany({ post_id: postId }).session(session)
-//         await LikeModel.deleteMany({ post_id: postId }).session(session)
-//         await PostModel.findByIdAndDelete(postId).session(session)
-
-//         await session.commitTransaction()
-
-//         res.status(200).json({
-//             message: 'Delete post successfully'
-//         })
-//     } catch (error) {
-//         await session.abortTransaction()
-//         console.error(error)
-//         res.status(500).json({ message: 'Server error' })
-//     } finally {
-//         session.endSession()
-//     }
-// }
-
 export const deletePost = async (req: any, res: Response) => {
     try {
 
@@ -296,6 +256,48 @@ export const deletePost = async (req: any, res: Response) => {
         res.status(500).json({ message: 'Server error' })
     }
 }
+
+export const updatePost = async (req: any, res: Response) => {
+    try {
+        const { postId } = req.params
+        const { content } = req.body
+        const userId = req.user!.id
+
+        const post = await PostModel.findById(postId)
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' })
+        }
+
+        if (post.author.toString() !== userId) {
+            return res.status(403).json({ message: 'You can only edit your own posts' })
+        }
+
+        // check time limit - 5 minutes
+        const currentTime = new Date().getTime()
+
+        if (!post.createdAt) {
+            return res.status(400).json({ message: 'Post has no created time' })
+        }
+
+        const postTime = new Date(post.createdAt).getTime()
+        const diffInMinutes = (currentTime - postTime) / (1000 * 60)
+
+        if (diffInMinutes > 5) {
+            return res.status(400).json({
+                message: 'Editing time limit exceeded. You can only edit a post within 5 minutes of creation'
+            })
+        }
+
+        post.content = content
+        post.isEdited = true
+        await post.save()
+
+        res.json({ success: true, data: post })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Server error' })
+    }
+};
 
 export const getFollowingPosts = async (req: any, res: Response) => {
     try {
