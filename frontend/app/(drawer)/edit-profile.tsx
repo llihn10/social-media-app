@@ -65,7 +65,8 @@ export default function EditProfileScreen() {
                     setUsernameError(json.message || 'Username already exists');
                 }
             } catch (error) {
-                console.error('Check username error:', error);
+                // console.error('Check username error:', error);
+                Alert.alert('Error', 'Failed to check username');
             } finally {
                 setIsCheckingUsername(false);
             }
@@ -124,7 +125,7 @@ export default function EditProfileScreen() {
 
             Alert.alert('Success', 'Profile updated successfully!');
         } catch (error: any) {
-            console.error(error);
+            // console.error(error);
             Alert.alert('Error', error.message || 'Failed to update profile');
         } finally {
             setLoading(false);

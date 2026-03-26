@@ -109,7 +109,7 @@ export default function PostHeader({ post, onUpdatePost }: PostItemProps) {
         } catch (error) {
             setLiked(liked)
             setLikesCount(prev => prev + (liked ? 1 : -1))
-            console.error(error)
+            // console.error(error)
             Alert.alert('Error', 'Failed to like post')
         }
     }
@@ -128,7 +128,7 @@ export default function PostHeader({ post, onUpdatePost }: PostItemProps) {
             if (!res.ok) throw new Error('Follow failed')
             setIsFollowed(!isFollowed)
         } catch (err) {
-            console.error(err);
+            // console.error(err);
             Alert.alert('Error', 'Follow failed')
         } finally {
             setLoading(false)
@@ -183,7 +183,7 @@ export default function PostHeader({ post, onUpdatePost }: PostItemProps) {
                 Alert.alert('Error', data.message || 'Delete failed');
             }
         } catch (err) {
-            console.error(err);
+            // console.error(err);
             Alert.alert('Error', 'Something went wrong');
         } finally {
             setDeleting(false);

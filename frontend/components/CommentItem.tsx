@@ -108,7 +108,7 @@ function ReplyItem({ reply, commentId, onRefresh }: any) {
                 Alert.alert('Error', data.message || 'Delete failed');
             }
         } catch (err) {
-            console.error(err);
+            // console.error(err);
             Alert.alert('Error', 'Something went wrong');
         } finally {
             setDeleting(false);
@@ -311,7 +311,8 @@ export default function CommentItem({ comment, onRefresh, activeReplyCommentId, 
                 onRefresh?.();
             }
         } catch (e) {
-            console.error(e);
+            // console.error(e);
+            Alert.alert('Error', 'Failed to add comment');
         } finally {
             setIsSubmitting(false);
         }
@@ -336,7 +337,7 @@ export default function CommentItem({ comment, onRefresh, activeReplyCommentId, 
                 Alert.alert('Error', data.message || 'Delete failed');
             }
         } catch (err) {
-            console.error(err);
+            // console.error(err);
             Alert.alert('Error', 'Something went wrong');
         } finally {
             setDeleting(false);

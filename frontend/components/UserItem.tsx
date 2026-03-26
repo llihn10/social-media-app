@@ -42,7 +42,7 @@ const UserItem: React.FC<UserItemProps> = ({ item }) => {
 
             setIsFollowing(!isFollowing)
         } catch (err) {
-            console.error(err);
+            // console.error(err);
             Alert.alert('Error', 'Follow failed')
         } finally {
             setLoading(false)

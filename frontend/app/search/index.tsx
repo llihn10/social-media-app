@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
 import { Frown, Search } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, FlatList, Text, View, RefreshControl, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, FlatList, Text, View, RefreshControl, TouchableOpacity, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { API_URL } from '@/config/api'
 
@@ -51,8 +51,8 @@ export default function SearchScreen({ onClose }: { onClose?: () => void }) {
             setUsers(json.data.users || [])
             setPosts(json.data.posts || []);
         } catch (err) {
-            console.error(err);
-            setError('Failed to load result')
+            // console.error(err);
+            Alert.alert('Error', 'Failed to load result');
         } finally {
             if (!isRefreshing) setLoading(false);
         }

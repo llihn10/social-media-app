@@ -40,13 +40,13 @@ const SignupScreen = () => {
             if (!response) return;
 
             if (response.ok) {
-                console.log('Signup successfully: ', data)
+                // console.log('Signup successfully: ', data)
                 router.replace('/(auth)/login')
             } else {
                 Alert.alert('Signup failed', data.message || 'Invalid credentials')
             }
         } catch (error) {
-            console.error(error)
+            // console.error(error)
             Alert.alert('Error', 'Something went wrong. Please try again later.')
         } finally {
             setLoading(false)

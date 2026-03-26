@@ -100,7 +100,7 @@ const PostCard = memo(({ post, profileId }: PostItemProps) => {
         } catch (error) {
             setLiked(liked)
             setLikesCount(prev => prev + (liked ? 1 : -1))
-            console.error(error)
+            // console.error(error)
             Alert.alert('Error', 'Failed to like post')
         }
     }

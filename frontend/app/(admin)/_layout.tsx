@@ -29,13 +29,6 @@ export default function AdminLayout() {
                         drawerIcon: ({ color }) => <LayoutDashboard size={22} color={color} />,
                     }}
                 />
-                {/* <Drawer.Screen
-                    name="users"
-                    options={{
-                        drawerLabel: 'Manage Users',
-                        title: 'Users',
-                    }}
-                /> */}
             </Drawer>
         </GestureHandlerRootView>
     );

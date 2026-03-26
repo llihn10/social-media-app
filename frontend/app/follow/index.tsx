@@ -48,7 +48,7 @@ export default function FollowScreen() {
                     setData(result.data);
                 }
             } catch (err) {
-                console.error(err);
+                // console.error(err);
                 Alert.alert('Error', 'Failed to load data')
             } finally {
                 setLoading(false);
@@ -100,4 +100,3 @@ export default function FollowScreen() {
         </SafeAreaView>
     )
 }
-

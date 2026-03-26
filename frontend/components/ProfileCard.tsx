@@ -1,4 +1,4 @@
-import { Image, Pressable, Text, View, ActivityIndicator } from 'react-native';
+import { Image, Pressable, Text, View, ActivityIndicator, Alert } from 'react-native';
 import React, { useState } from 'react';
 import defaultAvatar from '@/assets/images/profile.png';
 import { router } from 'expo-router';
@@ -30,7 +30,8 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
             if (!res.ok) throw new Error('Follow failed');
             setIsFollowed(!isFollowed);
         } catch (err) {
-            console.error(err);
+            // console.error(err);
+            Alert.alert('Error', 'Failed to follow user');
         } finally {
             setLoading(false);
         }

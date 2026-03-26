@@ -63,7 +63,7 @@ export default function ChatInboxScreen() {
                 setSections(newSections);
             }
         } catch (error) {
-            console.error("Failed to fetch data:", error);
+            // console.error("Failed to fetch data:", error);
             Alert.alert("Error", "Failed to fetch data");
         } finally {
             setLoadingInbox(false);
@@ -104,7 +104,8 @@ export default function ChatInboxScreen() {
                 Alert.alert("Permission Denied", errorData.message || "You cannot chat with this user.");
             }
         } catch (error) {
-            console.error("Failed to start conversation:", error);
+            // console.error("Failed to start conversation:", error);
+            Alert.alert("Error", "Failed to start conversation");
         } finally {
             setLoadingInbox(false);
         }

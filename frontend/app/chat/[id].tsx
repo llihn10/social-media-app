@@ -45,13 +45,14 @@ export default function ActiveChatScreen() {
                 setMessages(msgData);
             }
         } catch (error) {
-            console.error("Failed to fetch chat data:", error);
+            // console.error("Failed to fetch chat data:", error);
+            Alert.alert('Error', 'Failed to fetch chat data');
         } finally {
             setLoadingMessages(false);
         }
     }, [conversationId, user]);
 
-    // Re-fetch on every focus (e.g. after visiting user profile and unfollowing)
+    // re-fetch on every focus (after visiting user profile and unfollowing)
     useFocusEffect(
         useCallback(() => {
             const isInitial = !hasLoadedOnce.current;
@@ -101,7 +102,7 @@ export default function ActiveChatScreen() {
                 Alert.alert("Cannot send message", "You can only chat with mutual followers.");
             }
         } catch (error) {
-            console.error("Failed to send message:", error);
+            // console.error("Failed to send message:", error);
             Alert.alert("Error", "Could not send message.");
         }
     };

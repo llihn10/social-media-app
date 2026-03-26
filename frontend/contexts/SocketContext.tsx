@@ -28,13 +28,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         const newSocket = io(API_URL);
 
         newSocket.on('connect', () => {
-            console.log('Socket connected:', newSocket.id);
+            // console.log('Socket connected:', newSocket.id);
             newSocket.emit('register', user._id);
         });
 
         // listen notification from backend
         newSocket.on('newNotification', (data) => {
-            console.log('Receive new notification:', data);
+            // console.log('Receive new notification:', data);
 
             Toast.show({
                 type: 'interaction',

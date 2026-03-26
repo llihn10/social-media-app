@@ -48,7 +48,7 @@ const ProfileHeader = ({ profile, postNum }: ProfileHeaderProps) => {
             setIsFollowed(!isFollowed)
             setFollowersCount(prev => prev + (isFollowed ? -1 : 1))
         } catch (err) {
-            console.error(err)
+            // console.error(err)
             Alert.alert('Error', 'Follow action failed')
         } finally {
             setFollowLoading(false)

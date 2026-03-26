@@ -1,5 +1,4 @@
 import { router } from 'expo-router'
-import { useAuth } from '@/contexts/AuthContext'
 import { Alert } from 'react-native'
 
 export const authFetch = async (

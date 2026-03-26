@@ -4,7 +4,6 @@ import React from 'react';
 const _Layout = () => {
 
     return (
-
         <Stack screenOptions={{ headerShown: false }} />
     );
 }

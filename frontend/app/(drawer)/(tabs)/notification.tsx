@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Text, View, FlatList, RefreshControl, TouchableOpacity } from 'react-native'
+import { Text, View, FlatList, RefreshControl, TouchableOpacity, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import NotificationItem from '@/components/NotificationItem';
@@ -33,7 +33,8 @@ export default function NotificationScreen() {
 
             setNotifications(data);
         } catch (error) {
-            console.error(error);
+            // console.error(error);
+            Alert.alert('Error', 'Failed to load notifications');
         } finally {
             setLoading(false);
             setRefreshing(false);

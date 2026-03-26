@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react"
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Alert } from "react-native"
 
 export interface User {
     _id: string,
@@ -39,7 +40,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setUser(JSON.parse(storedUser))
                 }
             } catch (error) {
-                console.error('Failed to recover session: ', error)
+                // console.error('Failed to recover session: ', error)
+                Alert.alert('Error', 'Failed to recover session')
             } finally {
                 setIsLoading(false)
             }

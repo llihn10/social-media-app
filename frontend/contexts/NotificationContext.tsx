@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { useSocket } from './SocketContext';
 import { authFetch } from '@/services/authFetch';
+import { Alert } from 'react-native';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -31,7 +32,8 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
             const data = await res.json();
             setUnreadCount(data.unreadCount);
         } catch (error) {
-            console.error(error);
+            // console.error(error);
+            Alert.alert('Error', 'Failed to fetch notifications');
         }
     };
 

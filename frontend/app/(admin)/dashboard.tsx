@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, ScrollView, SafeAreaView, RefreshControl, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, SafeAreaView, RefreshControl, TouchableOpacity, Alert } from 'react-native'
 import { useAuth } from '@/contexts/AuthContext'
 import { API_URL } from '@/config/api'
 import { authFetch } from '@/services/authFetch';
@@ -38,7 +38,8 @@ export default function AdminDashboard() {
 
             setStats(data);
         } catch (error) {
-            console.error(error);
+            // console.error(error);
+            Alert.alert('Error', 'Failed to fetch stats');
         } finally {
             setLoading(false);
             setRefreshing(false);

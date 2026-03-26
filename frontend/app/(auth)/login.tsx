@@ -40,14 +40,14 @@ const LoginScreen = () => {
             if (!response) return;
 
             if (response.ok) {
-                console.log('Login successfully: ', data)
+                // console.log('Login successfully: ', data)
                 login(data.token, data.user)
                 router.replace('/(drawer)/(tabs)')
             } else {
                 Alert.alert('Login failed', data.message || 'Invalid credentials')
             }
         } catch (error) {
-            console.error(error)
+            // console.error(error)
             Alert.alert('Error', 'Something went wrong. Please try again later.')
         } finally {
             setLoading(false)

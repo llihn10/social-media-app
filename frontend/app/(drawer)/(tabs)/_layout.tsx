@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import React from 'react';
 import { Home, PlusCircle, Bell, User2, MessageCircle } from 'lucide-react-native';
-import { Modal, View } from 'react-native';
+import { Modal } from 'react-native';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { SearchProvider, useSearch } from '@/contexts/SearchContext';
 import SearchScreen from "@/app/search";

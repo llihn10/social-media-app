@@ -93,7 +93,7 @@ export default function DrawerLayout() {
         options={{
           drawerLabel: 'Home',
           title: 'Home',
-          headerShown: false, // Hide header for tabs because tabs have their own header
+          headerShown: false,
           drawerIcon: ({ color }) => <Home size={22} color={color} />,
         }}
       />

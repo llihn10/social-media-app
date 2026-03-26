@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
 import PostCard from '@/components/PostCard';
@@ -21,8 +21,8 @@ export default function LikedPostsScreen() {
             const json = await res.json();
             setPosts(json.data || []);
         } catch (err) {
-            console.error(err);
-            setError('Could not load liked posts');
+            // console.error(err);
+            Alert.alert('Error', 'Failed to load liked posts');
         } finally {
             if (!isRefresh) setLoading(false);
         }

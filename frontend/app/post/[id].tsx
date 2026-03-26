@@ -30,7 +30,7 @@ export default function PostDetail() {
             const json = await res.json();
             setPost(json);
         } catch (err) {
-            console.error(err);
+            // console.error(err);
             Alert.alert('Error', 'Failed to load posts');
         } finally {
             setLoading(false);
@@ -64,7 +64,7 @@ export default function PostDetail() {
                 Alert.alert('Error', data.message || 'Failed to post comment');
             }
         } catch (err) {
-            console.error(err);
+            // console.error(err);
             Alert.alert('Error', 'Failed to add comment');
         } finally {
             setSubmitting(false);

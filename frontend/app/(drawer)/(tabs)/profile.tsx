@@ -45,17 +45,20 @@ export default function ProfileScreen() {
             if (!profileRes || !postsRes) return;
 
             if (!profileRes.ok || !postsRes.ok) {
-                throw new Error('Fetch failed');
+                // throw new Error('Fetch failed');
+                Alert.alert('Error', 'Failed to load data');
             }
 
             if (!profileRes.ok) {
-                console.log('Profile error:', profileRes.status);
-                throw new Error('Profile fetch failed');
+                // console.log('Profile error:', profileRes.status);
+                // throw new Error('Profile fetch failed');
+                Alert.alert('Error', 'Failed to load profile');
             }
 
             if (!postsRes.ok) {
-                console.log('Posts error:', postsRes.status);
-                throw new Error('Posts fetch failed');
+                // console.log('Posts error:', postsRes.status);
+                // throw new Error('Posts fetch failed');
+                Alert.alert('Error', 'Failed to load posts');
             }
 
             const profileJson = await profileRes.json()
@@ -64,7 +67,7 @@ export default function ProfileScreen() {
             setProfile(profileJson.data)
             setPosts(postsJson.data || [])
         } catch (err) {
-            console.error(err);
+            // console.error(err);
             Alert.alert('Error', 'Failed to load data')
         } finally {
             setLoading(false);

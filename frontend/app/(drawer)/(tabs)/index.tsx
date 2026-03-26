@@ -2,7 +2,7 @@ import PostCard from '@/components/PostCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/services/authFetch';
 import { useCallback, useEffect, useState } from 'react';
-import { Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Menu, Search } from 'lucide-react-native';
 import { DrawerActions } from '@react-navigation/native';
@@ -37,8 +37,9 @@ export default function HomeScreen() {
       if (tab === 'foryou') setPostsForYou(json.data)
       else setPostsFollowing(json.data)
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       setError('Failed to load posts')
+      Alert.alert('Error', 'Failed to load posts')
     } finally {
       if (!isRefresh) setLoadingTab(null);
     }
@@ -189,4 +190,3 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
-
